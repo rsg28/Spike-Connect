@@ -1,20 +1,86 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import LoginScreen from './screens/LoginScreen';
+import HomeScreen from './screens/HomeScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import SearchScreen from './screens/SearchScreen';
 
-export default function App() {
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Theme colors
+const THEME = {
+  PRIMARY: 'rgb(168, 38, 29)',
+  SECONDARY: '#ffffff',
+  BACKGROUND: '#f8f8f8',
+  TEXT: '#333333',
+};
+
+function MainTabNavigator() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Search') {
+            iconName = focused ? 'search' : 'search-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: THEME.PRIMARY,
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: THEME.SECONDARY,
+          borderTopColor: '#e0e0e0',
+        },
+        headerStyle: {
+          backgroundColor: THEME.PRIMARY,
+        },
+        headerTintColor: THEME.SECONDARY,
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+    </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        {!isLoggedIn ? (
+          <Stack.Screen 
+            name="Login" 
+            options={{
+              headerShown: false
+            }}
+          >
+            {props => <LoginScreen {...props} onLogin={() => setIsLoggedIn(true)} />}
+          </Stack.Screen>
+        ) : (
+          <Stack.Screen 
+            name="Main" 
+            component={MainTabNavigator} 
+            options={{ 
+              headerShown: false 
+            }} 
+          />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
