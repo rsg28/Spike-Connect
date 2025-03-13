@@ -26,7 +26,7 @@ const recentItems = [
   { id: '4', title: 'Recent Item 4', date: '1 week ago' },
 ];
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -83,9 +83,13 @@ const HomeScreen = () => {
 
         {/* Quick Actions Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>
+          Actions</Text>
           <View style={styles.quickActions}>
-            <TouchableOpacity style={styles.quickActionButton}>
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={() => navigation.navigate('CreateItem')}
+            >
               <View style={styles.quickActionIcon}>
                 <Ionicons name="add-circle" size={24} color="rgb(168, 38, 29)" />
               </View>

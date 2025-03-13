@@ -1,24 +1,35 @@
 // App.js
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import LoginScreen from './screens/LoginScreen';
-import HomeScreen from './screens/HomeScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import SearchScreen from './screens/SearchScreen';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+import LoginScreen from "./screens/LoginScreen";
+import HomeScreen from "./screens/HomeScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import SearchScreen from "./screens/SearchScreen";
+import CreateItemScreen from "./screens/CreateItemScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Theme colors
 const THEME = {
-  PRIMARY: 'rgb(168, 38, 29)',
-  SECONDARY: '#ffffff',
-  BACKGROUND: '#f8f8f8',
-  TEXT: '#333333',
+  PRIMARY: "rgb(168, 38, 29)",
+  SECONDARY: "#ffffff",
+  BACKGROUND: "#f8f8f8",
+  TEXT: "#333333",
 };
+
+function HomeStack() {
+  const HomeStack = createStackNavigator();
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
+      <HomeStack.Screen name="CreateItem" component={CreateItemScreen} />
+    </HomeStack.Navigator>
+  );
+}
 
 function MainTabNavigator() {
   return (
@@ -27,21 +38,21 @@ function MainTabNavigator() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Search') {
-            iconName = focused ? 'search' : 'search-outline';
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Profile") {
+            iconName = focused ? "person" : "person-outline";
+          } else if (route.name === "Search") {
+            iconName = focused ? "search" : "search-outline";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: THEME.PRIMARY,
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: "gray",
         tabBarStyle: {
           backgroundColor: THEME.SECONDARY,
-          borderTopColor: '#e0e0e0',
+          borderTopColor: "#e0e0e0",
         },
         headerStyle: {
           backgroundColor: THEME.PRIMARY,
@@ -49,7 +60,7 @@ function MainTabNavigator() {
         headerTintColor: THEME.SECONDARY,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Search" component={SearchScreen} />
     </Tab.Navigator>
@@ -63,21 +74,23 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {!isLoggedIn ? (
-          <Stack.Screen 
-            name="Login" 
+          <Stack.Screen
+            name="Login"
             options={{
-              headerShown: false
+              headerShown: false,
             }}
           >
-            {props => <LoginScreen {...props} onLogin={() => setIsLoggedIn(true)} />}
+            {(props) => (
+              <LoginScreen {...props} onLogin={() => setIsLoggedIn(true)} />
+            )}
           </Stack.Screen>
         ) : (
-          <Stack.Screen 
-            name="Main" 
-            component={MainTabNavigator} 
-            options={{ 
-              headerShown: false 
-            }} 
+          <Stack.Screen
+            name="Main"
+            component={MainTabNavigator}
+            options={{
+              headerShown: false,
+            }}
           />
         )}
       </Stack.Navigator>
