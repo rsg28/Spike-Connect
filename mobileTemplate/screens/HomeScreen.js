@@ -47,7 +47,10 @@ const HomeScreen = ({ navigation }) => {
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.featuredCard}>
+              <TouchableOpacity 
+                style={styles.featuredCard}
+                onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+              >
                 <View style={styles.featuredImageContainer}>
                   <View style={[styles.featuredImage, { backgroundColor: 'rgba(168, 38, 29, 0.2)' }]}>
                     <Ionicons name="star" size={30} color="rgb(168, 38, 29)" />
@@ -55,7 +58,10 @@ const HomeScreen = ({ navigation }) => {
                 </View>
                 <Text style={styles.featuredTitle}>{item.title}</Text>
                 <Text style={styles.featuredDescription}>{item.description}</Text>
-                <TouchableOpacity style={styles.featuredButton}>
+                <TouchableOpacity 
+                  style={styles.featuredButton}
+                  onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+                >
                   <Text style={styles.featuredButtonText}>View Details</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
@@ -68,7 +74,11 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           {recentItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.recentItem}>
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.recentItem}
+              onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+            >
               <View style={styles.recentItemIcon}>
                 <Ionicons name="time-outline" size={24} color="rgb(168, 38, 29)" />
               </View>
@@ -83,8 +93,7 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Quick Actions Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>
-          Actions</Text>
+          <Text style={styles.sectionTitle}>Actions</Text>
           <View style={styles.quickActions}>
             <TouchableOpacity 
               style={styles.quickActionButton}
@@ -95,7 +104,10 @@ const HomeScreen = ({ navigation }) => {
               </View>
               <Text style={styles.quickActionText}>Add New</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionButton}>
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={() => navigation.navigate('Search')}
+            >
               <View style={styles.quickActionIcon}>
                 <Ionicons name="search" size={24} color="rgb(168, 38, 29)" />
               </View>

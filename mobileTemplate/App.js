@@ -9,6 +9,7 @@ import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import SearchScreen from "./screens/SearchScreen";
 import CreateItemScreen from "./screens/CreateItemScreen";
+import ItemDetailScreen from "./screens/ItemDetailScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,12 +22,14 @@ const THEME = {
   TEXT: "#333333",
 };
 
+// Then update your HomeStack function to include the ItemDetailScreen
 function HomeStack() {
   const HomeStack = createStackNavigator();
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
       <HomeStack.Screen name="CreateItem" component={CreateItemScreen} />
+      <HomeStack.Screen name="ItemDetail" component={ItemDetailScreen} />
     </HomeStack.Navigator>
   );
 }
