@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -95,13 +95,19 @@ const ProfileScreen = () => {
         {/* Profile Options */}
         <View style={styles.optionsContainer}>
           <Text style={styles.sectionTitle}>Account</Text>
-          <TouchableOpacity style={styles.optionItem}>
+          <TouchableOpacity 
+            style={styles.optionItem}
+            onPress={() => navigation.navigate('MyEvents')} // Add navigation
+          >
             <Ionicons name="calendar-outline" size={22} color="rgb(168, 38, 29)" />
             <Text style={styles.optionText}>My Events</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.optionItem}>
+          <TouchableOpacity 
+            style={styles.optionItem}
+            onPress={() => navigation.navigate('MyTeams')} // Add navigation
+          >
             <Ionicons name="people-outline" size={22} color="rgb(168, 38, 29)" />
             <Text style={styles.optionText}>My Teams</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
