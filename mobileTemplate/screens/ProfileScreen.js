@@ -24,20 +24,27 @@ const ProfileScreen = () => {
           <Text style={styles.userName}>John Doe</Text>
           <Text style={styles.userEmail}>john.doe@example.com</Text>
           
+          <View style={styles.playerInfo}>
+            <View style={styles.playerBadge}>
+              <Ionicons name="shield-checkmark-outline" size={14} color="rgb(168, 38, 29)" />
+              <Text style={styles.playerBadgeText}>Advanced Player</Text>
+            </View>
+          </View>
+          
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>152</Text>
-              <Text style={styles.statLabel}>Items</Text>
+              <Text style={styles.statValue}>28</Text>
+              <Text style={styles.statLabel}>Events</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>86</Text>
-              <Text style={styles.statLabel}>Completed</Text>
+              <Text style={styles.statValue}>4</Text>
+              <Text style={styles.statLabel}>Teams</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>27</Text>
-              <Text style={styles.statLabel}>Pending</Text>
+              <Text style={styles.statValue}>12</Text>
+              <Text style={styles.statLabel}>Connections</Text>
             </View>
           </View>
           
@@ -46,23 +53,69 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
         
+        {/* Player Stats */}
+        <View style={styles.playerStatsContainer}>
+          <Text style={styles.sectionTitle}>Volleyball Stats</Text>
+          
+          <View style={styles.statsRow}>
+            <View style={styles.statBox}>
+              <Text style={styles.statBoxValue}>176</Text>
+              <Text style={styles.statBoxLabel}>Matches</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statBoxValue}>72%</Text>
+              <Text style={styles.statBoxLabel}>Win Rate</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statBoxValue}>8.5</Text>
+              <Text style={styles.statBoxLabel}>Rating</Text>
+            </View>
+          </View>
+          
+          <View style={styles.playerInfoBox}>
+            <View style={styles.playerInfoRow}>
+              <Text style={styles.playerInfoLabel}>Main Position</Text>
+              <Text style={styles.playerInfoValue}>Outside Hitter</Text>
+            </View>
+            <View style={styles.playerInfoRow}>
+              <Text style={styles.playerInfoLabel}>Height</Text>
+              <Text style={styles.playerInfoValue}>6'2" (188 cm)</Text>
+            </View>
+            <View style={styles.playerInfoRow}>
+              <Text style={styles.playerInfoLabel}>Playing Since</Text>
+              <Text style={styles.playerInfoValue}>2015</Text>
+            </View>
+            <View style={styles.playerInfoRow}>
+              <Text style={styles.playerInfoLabel}>Preferred Location</Text>
+              <Text style={styles.playerInfoValue}>Indoor</Text>
+            </View>
+          </View>
+        </View>
+        
         {/* Profile Options */}
         <View style={styles.optionsContainer}>
+          <Text style={styles.sectionTitle}>Account</Text>
           <TouchableOpacity style={styles.optionItem}>
-            <Ionicons name="person-outline" size={22} color="rgb(168, 38, 29)" />
-            <Text style={styles.optionText}>Personal Information</Text>
+            <Ionicons name="calendar-outline" size={22} color="rgb(168, 38, 29)" />
+            <Text style={styles.optionText}>My Events</Text>
+            <Ionicons name="chevron-forward" size={18} color="#999" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.optionItem}>
+            <Ionicons name="people-outline" size={22} color="rgb(168, 38, 29)" />
+            <Text style={styles.optionText}>My Teams</Text>
+            <Ionicons name="chevron-forward" size={18} color="#999" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.optionItem}>
+            <Ionicons name="ribbon-outline" size={22} color="rgb(168, 38, 29)" />
+            <Text style={styles.optionText}>Achievements</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.optionItem}>
             <Ionicons name="settings-outline" size={22} color="rgb(168, 38, 29)" />
             <Text style={styles.optionText}>Settings</Text>
-            <Ionicons name="chevron-forward" size={18} color="#999" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.optionItem}>
-            <Ionicons name="notifications-outline" size={22} color="rgb(168, 38, 29)" />
-            <Text style={styles.optionText}>Notifications</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
           
@@ -136,7 +189,24 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 20,
+    marginBottom: 12,
+  },
+  playerInfo: {
+    marginBottom: 16,
+  },
+  playerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(168, 38, 29, 0.1)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  playerBadgeText: {
+    fontSize: 12,
+    color: 'rgb(168, 38, 29)',
+    fontWeight: '500',
+    marginLeft: 4,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -171,6 +241,70 @@ const styles = StyleSheet.create({
   editProfileText: {
     color: 'rgb(168, 38, 29)',
     fontWeight: '500',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16,
+  },
+  playerStatsContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  statBox: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: 'rgba(168, 38, 29, 0.05)',
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  statBoxValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'rgb(168, 38, 29)',
+    marginBottom: 4,
+  },
+  statBoxLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  playerInfoBox: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    padding: 12,
+  },
+  playerInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  playerInfoLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  playerInfoValue: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
   },
   optionsContainer: {
     backgroundColor: '#fff',
