@@ -10,8 +10,9 @@ import ProfileScreen from "./screens/ProfileScreen";
 import SearchScreen from "./screens/SearchScreen";
 import CreateItemScreen from "./screens/CreateItemScreen";
 import ItemDetailScreen from "./screens/ItemDetailScreen";
-import MyEventsScreen from "./screens/MyEventsScreen"; // Add the new screens
-import MyTeamsScreen from "./screens/MyTeamsScreen"; // Add the new screens
+import MyEventsScreen from "./screens/MyEventsScreen";
+import MyTeamsScreen from "./screens/MyTeamsScreen";
+import AchievementsScreen from "./screens/AchievementsScreen"; // Add the new Achievements screen
 
 // Import community-related screens
 import CommunityFeedScreen from "./screens/CommunityFeedScreen";
@@ -48,7 +49,7 @@ function HomeStack() {
   );
 }
 
-// Create a ProfileStack to include the new screens
+// Updated ProfileStack to include the Achievements screen
 function ProfileStack() {
   const ProfileStack = createStackNavigator();
   return (
@@ -56,6 +57,7 @@ function ProfileStack() {
       <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
       <ProfileStack.Screen name="MyEvents" component={MyEventsScreen} />
       <ProfileStack.Screen name="MyTeams" component={MyTeamsScreen} />
+      <ProfileStack.Screen name="Achievements" component={AchievementsScreen} />
     </ProfileStack.Navigator>
   );
 }

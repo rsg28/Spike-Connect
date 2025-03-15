@@ -1,4 +1,3 @@
-// screens/ProfileScreen.js
 import React from 'react';
 import {
   StyleSheet,
@@ -97,7 +96,7 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Account</Text>
           <TouchableOpacity 
             style={styles.optionItem}
-            onPress={() => navigation.navigate('MyEvents')} // Add navigation
+            onPress={() => navigation.navigate('MyEvents')}
           >
             <Ionicons name="calendar-outline" size={22} color="rgb(168, 38, 29)" />
             <Text style={styles.optionText}>My Events</Text>
@@ -106,14 +105,17 @@ const ProfileScreen = ({ navigation }) => {
           
           <TouchableOpacity 
             style={styles.optionItem}
-            onPress={() => navigation.navigate('MyTeams')} // Add navigation
+            onPress={() => navigation.navigate('MyTeams')}
           >
             <Ionicons name="people-outline" size={22} color="rgb(168, 38, 29)" />
             <Text style={styles.optionText}>My Teams</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.optionItem}>
+          <TouchableOpacity 
+            style={styles.optionItem}
+            onPress={() => navigation.navigate('Achievements')}
+          >
             <Ionicons name="ribbon-outline" size={22} color="rgb(168, 38, 29)" />
             <Text style={styles.optionText}>Achievements</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
