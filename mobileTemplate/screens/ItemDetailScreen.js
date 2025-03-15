@@ -1,5 +1,5 @@
-// screens/ItemDetailScreen.js
-import React, { useState } from 'react';
+// screens/ItemDetailScreen.js (Event Detail Screen)
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,36 +9,111 @@ import {
   SafeAreaView,
   Image,
   Share,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BackendService from '../services/BackendService';
 
 const ItemDetailScreen = ({ route, navigation }) => {
-  // You would normally get the item from route.params
-  // const { itemId } = route.params;
-  
-  // For demonstration, we'll use a sample item
-  const [item, setItem] = useState({
-    id: '1',
-    title: 'Featured Item 1',
-    description: 'This is a detailed description of the featured item. It provides comprehensive information about the product, its features, benefits, and any other relevant details that might be useful for the user.',
-    category: 'Category A',
-    date: '2 days ago',
-    priority: 'High',
-    dueDate: 'Mar 20, 2025',
-    attachments: 2,
-    status: 'In Progress'
-  });
+  const { itemId } = route.params;
+  const [event, setEvent] = useState(null);
+  const [relatedEvents, setRelatedEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isJoined, setIsJoined] = useState(false);
+
+  // Fetch event details when component mounts
+  useEffect(() => {
+    const loadEventDetails = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedEvent = await BackendService.getItem(itemId);
+        
+        if (fetchedEvent) {
+          setEvent(fetchedEvent);
+          
+          // Also fetch related events
+          const related = await BackendService.getRelatedItems(fetchedEvent.category, fetchedEvent.level, itemId);
+          setRelatedEvents(related);
+        } else {
+          // Handle event not found
+          Alert.alert('Error', 'Event not found');
+          navigation.goBack();
+        }
+      } catch (error) {
+        console.error('Error loading event details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadEventDetails();
+  }, [itemId, navigation]);
+
+  // Format date for display
+  const formatEventDate = (dateString) => {
+    return dateString;
+  };
 
   const handleShare = async () => {
+    if (!event) return;
+    
     try {
       await Share.share({
-        message: `Check out this item: ${item.title}`,
-        title: item.title,
+        message: `Check out this volleyball event: ${event.title} - ${event.location} (${event.level} level) on ${event.eventDate}`,
+        title: event.title,
       });
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleJoinEvent = async () => {
+    if (!event) return;
+    
+    try {
+      if (isJoined) {
+        // Leave event
+        await BackendService.leaveEvent(event.id);
+        setIsJoined(false);
+        setEvent({
+          ...event,
+          currentParticipants: event.currentParticipants - 1
+        });
+        Alert.alert('Success', 'You have left this event');
+      } else {
+        // Check if event is full
+        if (event.currentParticipants >= event.maxParticipants) {
+          Alert.alert('Error', 'This event is already full');
+          return;
+        }
+        
+        // Join event
+        await BackendService.joinEvent(event.id);
+        setIsJoined(true);
+        setEvent({
+          ...event, 
+          currentParticipants: event.currentParticipants + 1
+        });
+        Alert.alert('Success', 'You have joined this event');
+      }
+    } catch (error) {
+      console.error('Error updating event participation:', error);
+      Alert.alert('Error', 'Failed to update participation');
+    }
+  };
+
+  // Display loading indicator while fetching data
+  if (isLoading || !event) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="rgb(168, 38, 29)" />
+          <Text style={styles.loadingText}>Loading event details...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -51,7 +126,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
           >
             <Ionicons name="arrow-back" size={24} color="rgb(168, 38, 29)" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Item Details</Text>
+          <Text style={styles.headerTitle}>Event Details</Text>
           <TouchableOpacity 
             style={styles.shareButton}
             onPress={handleShare}
@@ -63,101 +138,213 @@ const ItemDetailScreen = ({ route, navigation }) => {
         {/* Image placeholder */}
         <View style={styles.imageContainer}>
           <View style={styles.imagePlaceholder}>
-            <Ionicons name="image-outline" size={60} color="#999" />
-            <Text style={styles.placeholderText}>Image will be added later</Text>
+            <Ionicons name="volleyball-outline" size={60} color="#999" />
+            <Text style={styles.placeholderText}>Event image will be added later</Text>
           </View>
         </View>
 
-        {/* Item details card */}
+        {/* Event details card */}
         <View style={styles.detailsCard}>
-          <Text style={styles.itemTitle}>{item.title}</Text>
+          <Text style={styles.itemTitle}>{event.title}</Text>
           
           <View style={styles.categoryContainer}>
             <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{item.category}</Text>
+              <Text style={styles.categoryText}>{event.category}</Text>
             </View>
-            <Text style={styles.dateText}>{item.date}</Text>
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelText}>{event.level}</Text>
+            </View>
           </View>
           
           <View style={styles.statusContainer}>
-            <View style={[styles.statusBadge, { backgroundColor: 'rgba(255, 179, 0, 0.1)' }]}>
-              <View style={[styles.statusDot, { backgroundColor: '#FFB300' }]} />
-              <Text style={[styles.statusText, { color: '#FFB300' }]}>{item.status}</Text>
+            <View style={[
+              styles.statusBadge, 
+              { 
+                backgroundColor: event.status === 'Full' 
+                  ? 'rgba(244, 67, 54, 0.1)' 
+                  : event.status === 'In Progress' 
+                    ? 'rgba(255, 179, 0, 0.1)'
+                    : 'rgba(76, 175, 80, 0.1)'
+              }
+            ]}>
+              <View style={[
+                styles.statusDot, 
+                { 
+                  backgroundColor: event.status === 'Full' 
+                    ? '#F44336' 
+                    : event.status === 'In Progress' 
+                      ? '#FFB300'
+                      : '#4CAF50'
+                }
+              ]} />
+              <Text style={[
+                styles.statusText, 
+                { 
+                  color: event.status === 'Full' 
+                    ? '#F44336' 
+                    : event.status === 'In Progress' 
+                      ? '#FFB300'
+                      : '#4CAF50'
+                }
+              ]}>{event.status}</Text>
+            </View>
+            
+            <View style={styles.participantsContainer}>
+              <Ionicons name="people-outline" size={16} color="#666" />
+              <Text style={styles.participantsText}>
+                {event.currentParticipants} / {event.maxParticipants} participants
+              </Text>
             </View>
           </View>
           
           <View style={styles.divider} />
           
-          <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.descriptionText}>{item.description}</Text>
+          <Text style={styles.sectionTitle}>About This Event</Text>
+          <Text style={styles.descriptionText}>{event.description}</Text>
           
           <View style={styles.divider} />
           
-          <Text style={styles.sectionTitle}>Details</Text>
+          <Text style={styles.sectionTitle}>Event Details</Text>
           
           <View style={styles.detailRow}>
             <View style={styles.detailIconContainer}>
               <Ionicons name="calendar-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
-            <Text style={styles.detailLabel}>Due Date:</Text>
-            <Text style={styles.detailValue}>{item.dueDate}</Text>
+            <Text style={styles.detailLabel}>Date & Time:</Text>
+            <Text style={styles.detailValue}>{formatEventDate(event.eventDate)}</Text>
           </View>
           
           <View style={styles.detailRow}>
             <View style={styles.detailIconContainer}>
-              <Ionicons name="flag-outline" size={20} color="rgb(168, 38, 29)" />
+              <Ionicons name="location-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
-            <Text style={styles.detailLabel}>Priority:</Text>
-            <Text style={styles.detailValue}>{item.priority}</Text>
+            <Text style={styles.detailLabel}>Location:</Text>
+            <Text style={styles.detailValue}>{event.location}</Text>
           </View>
           
           <View style={styles.detailRow}>
             <View style={styles.detailIconContainer}>
-              <Ionicons name="attach-outline" size={20} color="rgb(168, 38, 29)" />
+              <Ionicons name="trophy-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
-            <Text style={styles.detailLabel}>Attachments:</Text>
-            <Text style={styles.detailValue}>{item.attachments}</Text>
+            <Text style={styles.detailLabel}>Level:</Text>
+            <Text style={styles.detailValue}>{event.level}</Text>
           </View>
+          
+          <View style={styles.detailRow}>
+            <View style={styles.detailIconContainer}>
+              <Ionicons name="cash-outline" size={20} color="rgb(168, 38, 29)" />
+            </View>
+            <Text style={styles.detailLabel}>Fee:</Text>
+            <Text style={styles.detailValue}>{event.fee}</Text>
+          </View>
+        </View>
+        
+        {/* Event Creator Section - NEW */}
+        <View style={styles.creatorCard}>
+          <Text style={styles.sectionTitle}>Event Creator</Text>
+          
+          <TouchableOpacity 
+            style={styles.creatorProfile}
+            onPress={() => {
+              // Navigate to creator's profile (this would be implemented in a full app)
+              Alert.alert("View Profile", `View ${event.hostName}'s full profile`);
+            }}
+          >
+            <View style={styles.creatorAvatar}>
+              <Text style={styles.creatorAvatarText}>
+                {event.hostName.split(' ').map(n => n[0]).join('')}
+              </Text>
+            </View>
+            
+            <View style={styles.creatorInfo}>
+              <Text style={styles.creatorName}>{event.hostName}</Text>
+              <Text style={styles.creatorBio}>Event Organizer</Text>
+              
+              <View style={styles.creatorStats}>
+                <View style={styles.creatorStat}>
+                  <Text style={styles.creatorStatValue}>12</Text>
+                  <Text style={styles.creatorStatLabel}>Events</Text>
+                </View>
+                <View style={styles.creatorStat}>
+                  <Text style={styles.creatorStatValue}>4.8</Text>
+                  <Text style={styles.creatorStatLabel}>Rating</Text>
+                </View>
+              </View>
+            </View>
+            
+            <Ionicons name="chevron-forward" size={20} color="#999" />
+          </TouchableOpacity>
         </View>
         
         {/* Actions section */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="create-outline" size={20} color="#fff" />
-            <Text style={styles.actionButtonText}>Edit</Text>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => {
+              /* Navigate to contact host/organizer */
+              Alert.alert("Contact Host", `Would you like to contact ${event.hostName}?`);
+            }}
+          >
+            <Ionicons name="mail-outline" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Contact Host</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={[styles.actionButton, styles.secondaryButton]}>
-            <Ionicons name="checkmark-circle-outline" size={20} color="rgb(168, 38, 29)" />
-            <Text style={styles.secondaryButtonText}>Mark Complete</Text>
+          <TouchableOpacity 
+            style={[
+              styles.actionButton, 
+              isJoined ? styles.leaveButton : 
+                (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
+                styles.disabledButton : styles.joinButton
+            ]}
+            onPress={handleJoinEvent}
+            disabled={event.currentParticipants >= event.maxParticipants && !isJoined}
+          >
+            <Ionicons 
+              name={isJoined ? "close-circle-outline" : "checkmark-circle-outline"} 
+              size={20} 
+              color={isJoined ? "#fff" : 
+                (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
+                "#999" : "#fff"} 
+            />
+            <Text style={[
+              styles.actionButtonText,
+              (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
+              styles.disabledButtonText : {}
+            ]}>
+              {isJoined ? "Leave Event" : 
+                (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
+                "Event Full" : "Join Event"}
+            </Text>
           </TouchableOpacity>
         </View>
         
-        {/* Related items section */}
+        {/* Related events section */}
         <View style={styles.relatedSection}>
-          <Text style={styles.relatedTitle}>Related Items</Text>
+          <Text style={styles.relatedTitle}>Related Events</Text>
           
-          <TouchableOpacity style={styles.relatedItem}>
-            <View style={styles.relatedItemIcon}>
-              <Ionicons name="document-text-outline" size={24} color="rgb(168, 38, 29)" />
-            </View>
-            <View style={styles.relatedItemContent}>
-              <Text style={styles.relatedItemTitle}>Related Item 1</Text>
-              <Text style={styles.relatedItemCategory}>Category A</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.relatedItem}>
-            <View style={styles.relatedItemIcon}>
-              <Ionicons name="document-text-outline" size={24} color="rgb(168, 38, 29)" />
-            </View>
-            <View style={styles.relatedItemContent}>
-              <Text style={styles.relatedItemTitle}>Related Item 2</Text>
-              <Text style={styles.relatedItemCategory}>Category B</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
-          </TouchableOpacity>
+          {relatedEvents.length > 0 ? (
+            relatedEvents.map((relatedItem) => (
+              <TouchableOpacity 
+                key={relatedItem.id} 
+                style={styles.relatedItem}
+                onPress={() => navigation.navigate('ItemDetail', { itemId: relatedItem.id })}
+              >
+                <View style={styles.relatedItemIcon}>
+                  <Ionicons name="volleyball-outline" size={24} color="rgb(168, 38, 29)" />
+                </View>
+                <View style={styles.relatedItemContent}>
+                  <Text style={styles.relatedItemTitle}>{relatedItem.title}</Text>
+                  <View style={styles.relatedItemDetails}>
+                    <Text style={styles.relatedItemLevel}>{relatedItem.level}</Text>
+                    <Text style={styles.relatedItemLocation}>{relatedItem.location}</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noRelatedText}>No related events found</Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -168,6 +355,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
   },
   scrollContent: {
     padding: 16,
@@ -237,7 +435,6 @@ const styles = StyleSheet.create({
   categoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 12,
   },
   categoryBadge: {
@@ -245,23 +442,33 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 16,
+    marginRight: 8,
   },
   categoryText: {
     fontSize: 12,
     color: 'rgb(168, 38, 29)',
     fontWeight: '500',
   },
-  dateText: {
+  levelBadge: {
+    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 16,
+  },
+  levelText: {
     fontSize: 12,
-    color: '#999',
+    color: '#2196F3',
+    fontWeight: '500',
   },
   statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 16,
@@ -275,6 +482,15 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: '500',
+  },
+  participantsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  participantsText: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 4,
   },
   divider: {
     height: 1,
@@ -312,6 +528,68 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
+  // Creator Card Styles - NEW
+  creatorCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  creatorProfile: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  creatorAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgb(168, 38, 29)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  creatorAvatarText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  creatorInfo: {
+    flex: 1,
+  },
+  creatorName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  creatorBio: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  creatorStats: {
+    flexDirection: 'row',
+  },
+  creatorStat: {
+    marginRight: 16,
+  },
+  creatorStatValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'rgb(168, 38, 29)',
+  },
+  creatorStatLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
   actionsContainer: {
     flexDirection: 'row',
     marginBottom: 16,
@@ -326,20 +604,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  joinButton: {
+    backgroundColor: '#4CAF50',
+  },
+  leaveButton: {
+    backgroundColor: '#F44336',
+  },
+  disabledButton: {
+    backgroundColor: '#e0e0e0',
+  },
   actionButtonText: {
     color: '#fff',
     fontWeight: '600',
     marginLeft: 8,
   },
-  secondaryButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: 'rgb(168, 38, 29)',
-  },
-  secondaryButtonText: {
-    color: 'rgb(168, 38, 29)',
-    fontWeight: '600',
-    marginLeft: 8,
+  disabledButtonText: {
+    color: '#999',
   },
   relatedSection: {
     backgroundColor: '#fff',
@@ -384,12 +664,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#333',
+    marginBottom: 4,
   },
-  relatedItemCategory: {
+  relatedItemDetails: {
+    flexDirection: 'row',
+  },
+  relatedItemLevel: {
     fontSize: 12,
-    color: '#999',
-    marginTop: 2,
+    color: '#2196F3',
+    marginRight: 8,
   },
+  relatedItemLocation: {
+    fontSize: 12,
+    color: '#666',
+  },
+  noRelatedText: {
+    fontSize: 14,
+    color: '#999',
+    padding: 12,
+    textAlign: 'center',
+  }
 });
 
 export default ItemDetailScreen;

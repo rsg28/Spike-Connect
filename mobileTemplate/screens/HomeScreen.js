@@ -15,9 +15,10 @@ import { Ionicons } from "@expo/vector-icons";
 import BackendService from "../services/BackendService";
 
 const HomeScreen = ({ navigation }) => {
-  const [featuredItems, setFeaturedItems] = useState([]);
-  const [recentItems, setRecentItems] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [recentEvents, setRecentEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [communityPosts, setCommunityPosts] = useState([]); // Add state for community posts
 
   useEffect(() => {
     // Initialize backend and load data when component mounts
@@ -28,8 +29,11 @@ const HomeScreen = ({ navigation }) => {
         const featured = await BackendService.getFeaturedItems();
         const recent = await BackendService.getRecentItems();
 
-        setFeaturedItems(featured);
-        setRecentItems(recent);
+        setUpcomingEvents(featured);
+        setRecentEvents(recent);
+        
+        // Initialize community posts with mock data
+        setCommunityPosts(mockPosts);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -47,6 +51,49 @@ const HomeScreen = ({ navigation }) => {
     return unsubscribe;
   }, [navigation]);
 
+  // Mock data for posts until backend is implemented
+  const mockPosts = [
+    {
+      id: "post1",
+      user: {
+        id: "user1",
+        name: "Sarah Johnson",
+        avatar: null,
+      },
+      content: "Looking for 2 more players for our beach volleyball game this Saturday at Sunset Beach. Intermediate level. Comment if interested!",
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      likes: 12,
+      comments: 5,
+      isLiked: false,
+    },
+    {
+      id: "post2",
+      user: {
+        id: "user2",
+        name: "Mike Thompson",
+        avatar: null,
+      },
+      content: "Just finished an amazing tournament at Central Park! Our team made it to the semi-finals. Proud of everyone's hard work and improvement! 🏐 #VolleyballLife",
+      timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(), // 18 hours ago
+      likes: 24,
+      comments: 8,
+      isLiked: true,
+    },
+    {
+      id: "post3",
+      user: {
+        id: "user3",
+        name: "Coach Emily",
+        avatar: null,
+      },
+      content: "New drills for improving your serve accuracy! Check out today's practice video on my profile. Tag someone who needs to see this!",
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      likes: 45,
+      comments: 13,
+      isLiked: false,
+    },
+  ];
+
   // Calculate the relative time for display
   const getRelativeTime = (dateString) => {
     const date = new Date(dateString);
@@ -61,128 +108,267 @@ const HomeScreen = ({ navigation }) => {
     } ago`;
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Section */}
-        <View style={styles.headerSection}>
-          <Text style={styles.welcomeText}>Welcome back!</Text>
-          <TouchableOpacity style={styles.notificationButton}>
-            <Ionicons name="notifications-outline" size={24} color="#333" />
+  // Handle post interactions
+  const handleLikePost = (postId) => {
+    setCommunityPosts(
+      communityPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isLiked: !post.isLiked,
+              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+            }
+          : post
+      )
+    );
+    // In a real app, you would also call the API to update the like status
+  };
+
+  const handleCommentPost = (postId) => {
+    navigation.navigate("PostComments", { postId });
+  };
+
+  const handleSharePost = (postId) => {
+    // Implement share functionality 
+    console.log("Share post", postId);
+  };
+
+  // Render a single post item
+  const renderPostItem = ({ item }) => {
+    return (
+      <View style={styles.postContainer}>
+        <View style={styles.postHeader}>
+          <View style={styles.postUserAvatar}>
+            {item.user.avatar ? (
+              <Image source={{ uri: item.user.avatar }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.defaultAvatar}>
+                <Text style={styles.avatarInitial}>
+                  {item.user.name.charAt(0)}
+                </Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.postUserInfo}>
+            <Text style={styles.postUserName}>{item.user.name}</Text>
+            <Text style={styles.postTimestamp}>{getRelativeTime(item.timestamp)}</Text>
+          </View>
+          <TouchableOpacity style={styles.postOptions}>
+            <Ionicons name="ellipsis-horizontal" size={20} color="#666" />
           </TouchableOpacity>
         </View>
 
-        {/* Featured Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Featured</Text>
-          <FlatList
-            horizontal
-            data={featuredItems}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.featuredCard}
-                onPress={() =>
-                  navigation.navigate("ItemDetail", { itemId: item.id })
-                }
-              >
-                <View style={styles.featuredImageContainer}>
-                  <View
-                    style={[
-                      styles.featuredImage,
-                      { backgroundColor: "rgba(168, 38, 29, 0.2)" },
-                    ]}
-                  >
-                    <Ionicons name="star" size={30} color="rgb(168, 38, 29)" />
-                  </View>
-                </View>
-                <Text style={styles.featuredTitle}>{item.title}</Text>
-                <Text style={styles.featuredDescription}>
-                  {item.description.substring(0, 50)}...
-                </Text>
-                <TouchableOpacity
-                  style={styles.featuredButton}
-                  onPress={() =>
-                    navigation.navigate("ItemDetail", { itemId: item.id })
-                  }
-                >
-                  <Text style={styles.featuredButtonText}>View Details</Text>
-                </TouchableOpacity>
-              </TouchableOpacity>
-            )}
-            contentContainerStyle={styles.featuredList}
-          />
-        </View>
+        <Text style={styles.postContent}>{item.content}</Text>
 
-        {/* Recent Activity Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
-          {recentItems.slice(0, 4).map((item) => (
+        <View style={styles.postActions}>
+          <TouchableOpacity
+            style={styles.postAction}
+            onPress={() => handleLikePost(item.id)}
+          >
+            <Ionicons
+              name={item.isLiked ? "heart" : "heart-outline"}
+              size={22}
+              color={item.isLiked ? "rgb(168, 38, 29)" : "#666"}
+            />
+            <Text style={styles.postActionText}>{item.likes}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.postAction}
+            onPress={() => handleCommentPost(item.id)}
+          >
+            <Ionicons name="chatbubble-outline" size={22} color="#666" />
+            <Text style={styles.postActionText}>{item.comments}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.postAction}
+            onPress={() => handleSharePost(item.id)}
+          >
+            <Ionicons name="share-outline" size={22} color="#666" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+  
+  // Community posts component to be rendered inside the main FlatList
+  const CommunityPostsSection = () => (
+    <View style={styles.sectionContainer}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Community Feed</Text>
+        <TouchableOpacity 
+          style={styles.newPostButton}
+          onPress={() => navigation.navigate("CreatePost")}
+        >
+          <Text style={styles.newPostButtonText}>New Post</Text>
+          <Ionicons name="add-circle-outline" size={18} color="rgb(168, 38, 29)" />
+        </TouchableOpacity>
+      </View>
+      
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={communityPosts}
+        keyExtractor={(item) => item.id}
+        renderItem={renderPostItem}
+        contentContainerStyle={styles.communityPostsList}
+      />
+      
+      <TouchableOpacity 
+        style={styles.viewAllButton}
+        onPress={() => navigation.navigate("CommunityFeed")}
+      >
+        <Text style={styles.viewAllButtonText}>View All Posts</Text>
+        <Ionicons name="chevron-forward" size={16} color="rgb(168, 38, 29)" />
+      </TouchableOpacity>
+    </View>
+  );
+  
+  // Featured section component for the main FlatList
+  const FeaturedSection = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Featured</Text>
+      <FlatList
+        horizontal
+        data={upcomingEvents}
+        keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.featuredCard}
+            onPress={() =>
+              navigation.navigate("ItemDetail", { itemId: item.id })
+            }
+          >
+            <View style={styles.featuredImageContainer}>
+              <View
+                style={[
+                  styles.featuredImage,
+                  { backgroundColor: "rgba(168, 38, 29, 0.2)" },
+                ]}
+              >
+                <Ionicons name="star" size={30} color="rgb(168, 38, 29)" />
+              </View>
+            </View>
+            <Text style={styles.featuredTitle}>{item.title}</Text>
+            <Text style={styles.featuredDescription}>
+              {item.description.substring(0, 50)}...
+            </Text>
             <TouchableOpacity
-              key={item.id}
-              style={styles.recentItem}
+              style={styles.featuredButton}
               onPress={() =>
                 navigation.navigate("ItemDetail", { itemId: item.id })
               }
             >
-              <View style={styles.recentItemIcon}>
-                <Ionicons
-                  name="time-outline"
-                  size={24}
-                  color="rgb(168, 38, 29)"
-                />
-              </View>
-              <View style={styles.recentItemContent}>
-                <Text style={styles.recentItemTitle}>{item.title}</Text>
-                <Text style={styles.recentItemDate}>
-                  {getRelativeTime(item.createdAt)}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
+              <Text style={styles.featuredButtonText}>View Details</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Quick Actions Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Actions</Text>
-          <View style={styles.quickActions}>
-            <TouchableOpacity
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate("CreateItem")}
-            >
-              <View style={styles.quickActionIcon}>
-                <Ionicons
-                  name="add-circle"
-                  size={24}
-                  color="rgb(168, 38, 29)"
-                />
-              </View>
-              <Text style={styles.quickActionText}>Add New</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.quickActionButton}
-              onPress={() => navigation.navigate("Search")}
-            >
-              <View style={styles.quickActionIcon}>
-                <Ionicons name="search" size={24} color="rgb(168, 38, 29)" />
-              </View>
-              <Text style={styles.quickActionText}>Search</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionButton}>
-              <View style={styles.quickActionIcon}>
-                <Ionicons
-                  name="settings-outline"
-                  size={24}
-                  color="rgb(168, 38, 29)"
-                />
-              </View>
-              <Text style={styles.quickActionText}>Settings</Text>
-            </TouchableOpacity>
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={styles.featuredList}
+      />
+    </View>
+  );
+  
+  // Recent activity section for the main FlatList
+  const RecentActivitySection = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Recent Activity</Text>
+      {recentEvents.slice(0, 4).map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.recentItem}
+          onPress={() =>
+            navigation.navigate("ItemDetail", { itemId: item.id })
+          }
+        >
+          <View style={styles.recentItemIcon}>
+            <Ionicons
+              name="time-outline"
+              size={24}
+              color="rgb(168, 38, 29)"
+            />
           </View>
-        </View>
-      </ScrollView>
+          <View style={styles.recentItemContent}>
+            <Text style={styles.recentItemTitle}>{item.title}</Text>
+            <Text style={styles.recentItemDate}>
+              {getRelativeTime(item.createdAt)}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#999" />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+  
+  // Quick actions section for the main FlatList
+  const QuickActionsSection = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Actions</Text>
+      <View style={styles.quickActions}>
+        <TouchableOpacity
+          style={styles.quickActionButton}
+          onPress={() => navigation.navigate("CreateItem")}
+        >
+          <View style={styles.quickActionIcon}>
+            <Ionicons
+              name="add-circle"
+              size={24}
+              color="rgb(168, 38, 29)"
+            />
+          </View>
+          <Text style={styles.quickActionText}>Add New</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickActionButton}
+          onPress={() => navigation.navigate("Search")}
+        >
+          <View style={styles.quickActionIcon}>
+            <Ionicons name="search" size={24} color="rgb(168, 38, 29)" />
+          </View>
+          <Text style={styles.quickActionText}>Search</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionButton}>
+          <View style={styles.quickActionIcon}>
+            <Ionicons
+              name="settings-outline"
+              size={24}
+              color="rgb(168, 38, 29)"
+            />
+          </View>
+          <Text style={styles.quickActionText}>Settings</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+  
+  // Define the sections for our main content
+  const sections = [
+    { id: 'header', component: () => (
+      <View style={styles.headerSection}>
+        <Text style={styles.welcomeText}>Welcome back!</Text>
+        <TouchableOpacity style={styles.notificationButton}>
+          <Ionicons name="notifications-outline" size={24} color="#333" />
+        </TouchableOpacity>
+      </View>
+    )},
+    { id: 'community', component: CommunityPostsSection },
+    { id: 'featured', component: FeaturedSection },
+    { id: 'recent', component: RecentActivitySection },
+    { id: 'actions', component: QuickActionsSection },
+  ];
+  
+  // Render each section
+  const renderSection = ({ item }) => item.component();
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={sections}
+        renderItem={renderSection}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.scrollContent}
+      />
     </SafeAreaView>
   );
 };
@@ -350,6 +536,134 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     fontWeight: "500",
+  },
+
+  // Post styles
+  postContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginRight: 12,
+    width: 300, // Fixed width for horizontal scrolling
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  communityPostsList: {
+    paddingRight: 8,
+  },
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  postUserAvatar: {
+    marginRight: 10,
+  },
+  avatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  defaultAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgb(168, 38, 29)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarInitial: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  postUserInfo: {
+    flex: 1,
+  },
+  postUserName: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#333",
+  },
+  postTimestamp: {
+    fontSize: 12,
+    color: "#999",
+  },
+  postOptions: {
+    padding: 5,
+  },
+  postContent: {
+    fontSize: 15,
+    color: "#333",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  postActions: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    paddingTop: 12,
+  },
+  postAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 24,
+  },
+  postActionText: {
+    marginLeft: 4,
+    fontSize: 14,
+    color: "#666",
+  },
+  viewAllButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    marginTop: 20,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  viewAllButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "rgb(168, 38, 29)",
+    marginRight: 6,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
+    color: "#333",
+  },
+  newPostButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  newPostButtonText: {
+    color: "rgb(168, 38, 29)",
+    fontSize: 14,
+    fontWeight: "500",
+    marginRight: 4,
   },
 });
 

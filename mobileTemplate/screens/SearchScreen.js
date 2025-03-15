@@ -1,5 +1,5 @@
 // screens/SearchScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,107 +8,258 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BackendService from '../services/BackendService';
 
-// Sample search results data
-const sampleItems = [
-  { id: '1', title: 'Item 1', category: 'Category A' },
-  { id: '2', title: 'Item 2', category: 'Category B' },
-  { id: '3', title: 'Different Item', category: 'Category A' },
-  { id: '4', title: 'Another Item', category: 'Category C' },
-  { id: '5', title: 'Special Item', category: 'Category B' },
-  { id: '6', title: 'Last Item', category: 'Category D' },
-];
-
-const SearchScreen = () => {
+const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Recent searches
-  const recentSearches = ['item', 'category a', 'special'];
+  // Popular searches for volleyball events
+  const popularSearches = ['tournament', 'beginner', 'beach', 'indoor', 'advanced'];
+  
+  // Filter categories
+  const categories = ['All', 'Tournament', 'League', 'Training', 'Casual'];
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const handleSearch = (text) => {
+  const handleSearch = async (text) => {
     setSearchQuery(text);
     
     if (text.length > 0) {
       setSearching(true);
-      // Filter items that match the search query
-      const filteredResults = sampleItems.filter(
-        item => 
-          item.title.toLowerCase().includes(text.toLowerCase()) ||
-          item.category.toLowerCase().includes(text.toLowerCase())
-      );
-      setResults(filteredResults);
+      setIsLoading(true);
+      
+      try {
+        // Use the BackendService to search for events
+        const searchResults = await BackendService.searchEvents(text);
+        
+        // Filter by category if not 'All'
+        const filteredResults = selectedCategory === 'All' 
+          ? searchResults 
+          : searchResults.filter(item => item.category === selectedCategory);
+          
+        setResults(filteredResults);
+      } catch (error) {
+        console.error('Error searching:', error);
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       setSearching(false);
       setResults([]);
     }
   };
+  
+  // Handle category selection
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    
+    // If there's an active search, filter by the new category
+    if (searchQuery.length > 0) {
+      handleSearch(searchQuery);
+    }
+  };
+  
+  // Format relative date for display
+  const getRelativeTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'Past event';
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays < 7) return `In ${diffDays} days`;
+    return `In ${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search items or categories..."
-            value={searchQuery}
-            onChangeText={handleSearch}
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="while-editing"
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => handleSearch('')}>
-              <Ionicons name="close-circle" size={20} color="#999" />
-            </TouchableOpacity>
-          )}
+      {/* Fixed Header Section */}
+      <View style={styles.headerSection}>
+        {/* Search Box */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Find volleyball events..."
+              value={searchQuery}
+              onChangeText={handleSearch}
+              autoCapitalize="none"
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => handleSearch('')}>
+                <Ionicons name="close-circle" size={20} color="#999" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+        
+        {/* Category Filter */}
+        <View style={styles.categoryFilterContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category}
+                style={[
+                  styles.categoryChip,
+                  selectedCategory === category && styles.selectedCategoryChip
+                ]}
+                onPress={() => handleCategorySelect(category)}
+              >
+                <Text 
+                  style={[
+                    styles.categoryChipText,
+                    selectedCategory === category && styles.selectedCategoryChipText
+                  ]}
+                >
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       </View>
 
-      {!searching && (
-        <View style={styles.recentSearchesContainer}>
-          <Text style={styles.recentSearchesTitle}>Recent Searches</Text>
-          {recentSearches.map((search, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.recentSearchItem}
-              onPress={() => handleSearch(search)}
-            >
-              <Ionicons name="time-outline" size={20} color="#999" />
-              <Text style={styles.recentSearchText}>{search}</Text>
-              <TouchableOpacity>
-                <Ionicons name="close" size={16} color="#999" />
+      {/* Scrollable Content Section */}
+      {!searching ? (
+        <ScrollView style={styles.contentContainer}>
+          <View style={styles.popularSearchesContainer}>
+            <Text style={styles.sectionTitle}>Popular Searches</Text>
+            {popularSearches.map((search, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.popularSearchItem}
+                onPress={() => handleSearch(search)}
+              >
+                <Ionicons name="trending-up-outline" size={20} color="rgb(168, 38, 29)" />
+                <Text style={styles.popularSearchText}>{search}</Text>
+                <Ionicons name="chevron-forward" size={16} color="#999" />
               </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+            ))}
 
-      {searching && (
-        <FlatList
-          data={results}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.resultItem}>
-              <View style={styles.resultContent}>
-                <Text style={styles.resultTitle}>{item.title}</Text>
-                <Text style={styles.resultCategory}>{item.category}</Text>
+            <View style={styles.quickFiltersSection}>
+              <Text style={styles.sectionTitle}>Quick Filters</Text>
+              <View style={styles.quickFiltersRow}>
+                <TouchableOpacity 
+                  style={styles.quickFilterButton}
+                  onPress={() => handleCategorySelect('Tournament')}
+                >
+                  <View style={styles.quickFilterIcon}>
+                    <Ionicons name="trophy-outline" size={24} color="rgb(168, 38, 29)" />
+                  </View>
+                  <Text style={styles.quickFilterText}>Tournaments</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickFilterButton}
+                  onPress={() => {
+                    setSelectedCategory('All');
+                    handleSearch('beginner');
+                  }}
+                >
+                  <View style={styles.quickFilterIcon}>
+                    <Ionicons name="school-outline" size={24} color="rgb(168, 38, 29)" />
+                  </View>
+                  <Text style={styles.quickFilterText}>For Beginners</Text>
+                </TouchableOpacity>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={
-            <View style={styles.noResultsContainer}>
-              <Ionicons name="search-outline" size={50} color="#ccc" />
-              <Text style={styles.noResultsText}>No results found</Text>
-              <Text style={styles.noResultsSubtext}>Try different keywords</Text>
+              
+              <View style={styles.quickFiltersRow}>
+                <TouchableOpacity 
+                  style={styles.quickFilterButton}
+                  onPress={() => {
+                    setSelectedCategory('All');
+                    handleSearch('today');
+                  }}
+                >
+                  <View style={styles.quickFilterIcon}>
+                    <Ionicons name="today-outline" size={24} color="rgb(168, 38, 29)" />
+                  </View>
+                  <Text style={styles.quickFilterText}>Today</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickFilterButton}
+                  onPress={() => {
+                    setSelectedCategory('All');
+                    handleSearch('beach');
+                  }}
+                >
+                  <View style={styles.quickFilterIcon}>
+                    <Ionicons name="sunny-outline" size={24} color="rgb(168, 38, 29)" />
+                  </View>
+                  <Text style={styles.quickFilterText}>Beach Events</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          }
-        />
+          </View>
+        </ScrollView>
+      ) : (
+        // Results Section
+        <>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="rgb(168, 38, 29)" />
+              <Text style={styles.loadingText}>Searching for events...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={results}
+              keyExtractor={item => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  style={styles.resultItem}
+                  onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+                >
+                  <View style={styles.resultIconContainer}>
+                    <View style={styles.resultIcon}>
+                      <Ionicons name="volleyball-outline" size={24} color="rgb(168, 38, 29)" />
+                    </View>
+                  </View>
+                  <View style={styles.resultContent}>
+                    <Text style={styles.resultTitle}>{item.title}</Text>
+                    <View style={styles.resultDetailRow}>
+                      <View style={styles.categoryBadge}>
+                        <Text style={styles.categoryBadgeText}>{item.category}</Text>
+                      </View>
+                      <View style={styles.levelBadge}>
+                        <Text style={styles.levelBadgeText}>{item.level}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.resultMetaRow}>
+                      <View style={styles.resultMetaItem}>
+                        <Ionicons name="location-outline" size={14} color="#666" />
+                        <Text style={styles.resultMetaText}>{item.location}</Text>
+                      </View>
+                      <View style={styles.resultMetaItem}>
+                        <Ionicons name="calendar-outline" size={14} color="#666" />
+                        <Text style={styles.resultMetaText}>{getRelativeTime(item.dueDate)}</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#999" />
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                <View style={styles.noResultsContainer}>
+                  <Ionicons name="search-outline" size={50} color="#ccc" />
+                  <Text style={styles.noResultsText}>No events found</Text>
+                  <Text style={styles.noResultsSubtext}>Try different keywords or filters</Text>
+                </View>
+              }
+              contentContainerStyle={styles.resultsList}
+            />
+          )}
+        </>
       )}
     </SafeAreaView>
   );
@@ -119,24 +270,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f8f8',
   },
+  headerSection: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
   searchContainer: {
     padding: 16,
   },
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 50,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   searchIcon: {
     marginRight: 8,
@@ -146,49 +296,195 @@ const styles = StyleSheet.create({
     fontSize: 16,
     height: '100%',
   },
-  recentSearchesContainer: {
+  categoryFilterContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  categoryChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  selectedCategoryChip: {
+    backgroundColor: 'rgba(168, 38, 29, 0.1)',
+    borderColor: 'rgb(168, 38, 29)',
+  },
+  categoryChipText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  selectedCategoryChipText: {
+    color: 'rgb(168, 38, 29)',
+    fontWeight: '500',
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  popularSearchesContainer: {
     padding: 16,
   },
-  recentSearchesTitle: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: '600',
     marginBottom: 16,
     color: '#333',
   },
-  recentSearchItem: {
+  popularSearchItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  recentSearchText: {
+  popularSearchText: {
     flex: 1,
     fontSize: 16,
     color: '#333',
     marginLeft: 12,
   },
+  quickFiltersSection: {
+    marginTop: 24,
+  },
+  quickFiltersRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  quickFilterButton: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  quickFilterIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(168, 38, 29, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  quickFilterText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  resultsList: {
+    padding: 16,
+  },
   resultItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  resultIconContainer: {
+    marginRight: 12,
+  },
+  resultIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(168, 38, 29, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   resultContent: {
     flex: 1,
   },
   resultTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  resultCategory: {
-    fontSize: 14,
+  resultDetailRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  categoryBadge: {
+    backgroundColor: 'rgba(168, 38, 29, 0.1)',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  categoryBadgeText: {
+    fontSize: 12,
+    color: 'rgb(168, 38, 29)',
+    fontWeight: '500',
+  },
+  levelBadge: {
+    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+  },
+  levelBadgeText: {
+    fontSize: 12,
+    color: '#2196F3',
+    fontWeight: '500',
+  },
+  resultMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  resultMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  resultMetaText: {
+    fontSize: 12,
     color: '#666',
+    marginLeft: 4,
   },
   noResultsContainer: {
     alignItems: 'center',
