@@ -104,29 +104,7 @@ const SearchScreen = ({ navigation }) => {
         </View>
         
         {/* Category Filter */}
-        <View style={styles.categoryFilterContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {categories.map((category) => (
-              <TouchableOpacity
-                key={category}
-                style={[
-                  styles.categoryChip,
-                  selectedCategory === category && styles.selectedCategoryChip
-                ]}
-                onPress={() => handleCategorySelect(category)}
-              >
-                <Text 
-                  style={[
-                    styles.categoryChipText,
-                    selectedCategory === category && styles.selectedCategoryChipText
-                  ]}
-                >
-                  {category}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        
       </View>
 
       {/* Scrollable Content Section */}
