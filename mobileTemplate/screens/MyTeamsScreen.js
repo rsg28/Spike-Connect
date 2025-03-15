@@ -1,5 +1,5 @@
 // screens/MyTeamsScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,10 +9,12 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
-  Modal,
   TextInput,
   Alert,
+  Dimensions,
+  Keyboard,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -23,6 +25,7 @@ const MyTeamsScreen = ({ navigation }) => {
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamType, setNewTeamType] = useState('Indoor');
   const [newTeamLevel, setNewTeamLevel] = useState('Intermediate');
+  const inputRef = useRef(null);
 
   // Sample teams data
   const sampleTeams = [
@@ -80,12 +83,21 @@ const MyTeamsScreen = ({ navigation }) => {
       }, 1000);
     };
 
-    loadTeams();
+    loadData();
 
     // Refresh when screen comes into focus
-    const unsubscribe = navigation.addListener('focus', loadTeams);
+    const unsubscribe = navigation.addListener('focus', loadData);
     return unsubscribe;
   }, [navigation]);
+
+  const loadData = () => {
+    setIsLoading(true);
+    // In a real app, this would be an API call
+    setTimeout(() => {
+      setTeams(sampleTeams);
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const handleCreateTeam = () => {
     if (!newTeamName.trim()) {
@@ -113,11 +125,28 @@ const MyTeamsScreen = ({ navigation }) => {
     setTeams([newTeam, ...teams]);
     
     // Reset and close modal
-    setNewTeamName('');
-    setShowCreateModal(false);
+    hideCreateModal();
     
     // Show confirmation
     Alert.alert('Success', `Team "${newTeamName}" has been created!`);
+  };
+
+  const showCreateModalHandler = () => {
+    // Reset form
+    setNewTeamName('');
+    setNewTeamType('Indoor');
+    setNewTeamLevel('Intermediate');
+    // Show modal
+    setShowCreateModal(true);
+  };
+
+  const hideCreateModal = () => {
+    // Dismiss keyboard
+    Keyboard.dismiss();
+    // Reset form
+    setNewTeamName('');
+    // Close modal
+    setShowCreateModal(false);
   };
 
   // Generate initials for avatar
@@ -290,165 +319,6 @@ const MyTeamsScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
-  // Create Team Modal
-  const CreateTeamModal = () => (
-    <Modal
-      visible={showCreateModal}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => setShowCreateModal(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Create New Team</Text>
-            <TouchableOpacity 
-              onPress={() => setShowCreateModal(false)}
-              style={styles.closeButton}
-            >
-              <Ionicons name="close" size={24} color="#333" />
-            </TouchableOpacity>
-          </View>
-          
-          <ScrollView>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Team Name</Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Enter team name"
-                value={newTeamName}
-                onChangeText={setNewTeamName}
-              />
-            </View>
-            
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Team Type</Text>
-              <View style={styles.optionButtonsContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    newTeamType === 'Indoor' && styles.selectedOption,
-                  ]}
-                  onPress={() => setNewTeamType('Indoor')}
-                >
-                  <Text 
-                    style={[
-                      styles.optionButtonText,
-                      newTeamType === 'Indoor' && styles.selectedOptionText,
-                    ]}
-                  >
-                    Indoor
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    newTeamType === 'Beach' && styles.selectedOption,
-                  ]}
-                  onPress={() => setNewTeamType('Beach')}
-                >
-                  <Text 
-                    style={[
-                      styles.optionButtonText,
-                      newTeamType === 'Beach' && styles.selectedOptionText,
-                    ]}
-                  >
-                    Beach
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    newTeamType === 'Grass' && styles.selectedOption,
-                  ]}
-                  onPress={() => setNewTeamType('Grass')}
-                >
-                  <Text 
-                    style={[
-                      styles.optionButtonText,
-                      newTeamType === 'Grass' && styles.selectedOptionText,
-                    ]}
-                  >
-                    Grass
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Skill Level</Text>
-              <View style={styles.optionButtonsContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    newTeamLevel === 'Beginner' && styles.selectedOption,
-                  ]}
-                  onPress={() => setNewTeamLevel('Beginner')}
-                >
-                  <Text 
-                    style={[
-                      styles.optionButtonText,
-                      newTeamLevel === 'Beginner' && styles.selectedOptionText,
-                    ]}
-                  >
-                    Beginner
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    newTeamLevel === 'Intermediate' && styles.selectedOption,
-                  ]}
-                  onPress={() => setNewTeamLevel('Intermediate')}
-                >
-                  <Text 
-                    style={[
-                      styles.optionButtonText,
-                      newTeamLevel === 'Intermediate' && styles.selectedOptionText,
-                    ]}
-                  >
-                    Intermediate
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    newTeamLevel === 'Advanced' && styles.selectedOption,
-                  ]}
-                  onPress={() => setNewTeamLevel('Advanced')}
-                >
-                  <Text 
-                    style={[
-                      styles.optionButtonText,
-                      newTeamLevel === 'Advanced' && styles.selectedOptionText,
-                    ]}
-                  >
-                    Advanced
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
-          
-          <View style={styles.modalFooter}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setShowCreateModal(false)}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={handleCreateTeam}
-            >
-              <Text style={styles.createButtonText}>Create Team</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -462,7 +332,7 @@ const MyTeamsScreen = ({ navigation }) => {
         <Text style={styles.headerTitle}>My Teams</Text>
         <TouchableOpacity 
           style={styles.addButton}
-          onPress={() => setShowCreateModal(true)}
+          onPress={showCreateModalHandler}
         >
           <Ionicons name="add" size={24} color="rgb(168, 38, 29)" />
         </TouchableOpacity>
@@ -489,7 +359,7 @@ const MyTeamsScreen = ({ navigation }) => {
               </Text>
               <TouchableOpacity 
                 style={styles.createTeamButton}
-                onPress={() => setShowCreateModal(true)}
+                onPress={showCreateModalHandler}
               >
                 <Text style={styles.createTeamButtonText}>Create Team</Text>
               </TouchableOpacity>
@@ -499,7 +369,164 @@ const MyTeamsScreen = ({ navigation }) => {
       )}
       
       {/* Create Team Modal */}
-      <CreateTeamModal />
+      {showCreateModal && (
+        <View style={styles.modalContainer}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Create New Team</Text>
+                <TouchableOpacity 
+                  onPress={hideCreateModal}
+                  style={styles.closeButton}
+                >
+                  <Ionicons name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+              
+              <ScrollView 
+                style={styles.modalScrollContent}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.modalScrollContainer}
+              >
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Team Name</Text>
+                  <TextInput
+                    ref={inputRef}
+                    style={styles.textInput}
+                    placeholder="Enter team name"
+                    value={newTeamName}
+                    onChangeText={setNewTeamName}
+                    returnKeyType="done"
+                  />
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Team Type</Text>
+                  <View style={styles.optionButtonsContainer}>
+                    <TouchableOpacity
+                      style={[
+                        styles.optionButton,
+                        newTeamType === 'Indoor' && styles.selectedOption,
+                      ]}
+                      onPress={() => setNewTeamType('Indoor')}
+                    >
+                      <Text 
+                        style={[
+                          styles.optionButtonText,
+                          newTeamType === 'Indoor' && styles.selectedOptionText,
+                        ]}
+                      >
+                        Indoor
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.optionButton,
+                        newTeamType === 'Beach' && styles.selectedOption,
+                      ]}
+                      onPress={() => setNewTeamType('Beach')}
+                    >
+                      <Text 
+                        style={[
+                          styles.optionButtonText,
+                          newTeamType === 'Beach' && styles.selectedOptionText,
+                        ]}
+                      >
+                        Beach
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.optionButton,
+                        newTeamType === 'Grass' && styles.selectedOption,
+                      ]}
+                      onPress={() => setNewTeamType('Grass')}
+                    >
+                      <Text 
+                        style={[
+                          styles.optionButtonText,
+                          newTeamType === 'Grass' && styles.selectedOptionText,
+                        ]}
+                      >
+                        Grass
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Skill Level</Text>
+                  <View style={styles.optionButtonsContainer}>
+                    <TouchableOpacity
+                      style={[
+                        styles.optionButton,
+                        newTeamLevel === 'Beginner' && styles.selectedOption,
+                      ]}
+                      onPress={() => setNewTeamLevel('Beginner')}
+                    >
+                      <Text 
+                        style={[
+                          styles.optionButtonText,
+                          newTeamLevel === 'Beginner' && styles.selectedOptionText,
+                        ]}
+                      >
+                        Beginner
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.optionButton,
+                        newTeamLevel === 'Intermediate' && styles.selectedOption,
+                      ]}
+                      onPress={() => setNewTeamLevel('Intermediate')}
+                    >
+                      <Text 
+                        style={[
+                          styles.optionButtonText,
+                          newTeamLevel === 'Intermediate' && styles.selectedOptionText,
+                        ]}
+                      >
+                        Intermediate
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.optionButton,
+                        newTeamLevel === 'Advanced' && styles.selectedOption,
+                      ]}
+                      onPress={() => setNewTeamLevel('Advanced')}
+                    >
+                      <Text 
+                        style={[
+                          styles.optionButtonText,
+                          newTeamLevel === 'Advanced' && styles.selectedOptionText,
+                        ]}
+                      >
+                        Advanced
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </ScrollView>
+              
+              <View style={styles.modalFooter}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={hideCreateModal}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.createButton}
+                  onPress={handleCreateTeam}
+                >
+                  <Text style={styles.createButtonText}>Create Team</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -726,8 +753,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  // Modal Styles
-  modalOverlay: {
+  // Modal Styles - completely redesigned for better stability
+  modalContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+  },
+  modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
@@ -737,9 +772,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     width: '90%',
-    maxWidth: 400,
     maxHeight: '80%',
     padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -755,8 +794,14 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
+  modalScrollContent: {
+    maxHeight: 400,
+  },
+  modalScrollContainer: {
+    paddingBottom: 20,
+  },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   inputLabel: {
     fontSize: 16,

@@ -1,5 +1,5 @@
 // screens/HomeScreen.js
-import {React, useEffect, useState} from "react";
+import {React, useEffect, useState, useRef} from "react";
 import {
   StyleSheet,
   View,
@@ -9,6 +9,8 @@ import {
   FlatList,
   Image,
   SafeAreaView,
+  Animated,
+  Easing,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +21,7 @@ const HomeScreen = ({ navigation }) => {
   const [recentEvents, setRecentEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [communityPosts, setCommunityPosts] = useState([]); // Add state for community posts
+  const likeAnimations = useRef({}).current;
 
   useEffect(() => {
     // Initialize backend and load data when component mounts
@@ -108,8 +111,14 @@ const HomeScreen = ({ navigation }) => {
     } ago`;
   };
 
-  // Handle post interactions
+  // Handle post interactions with enhanced animation
   const handleLikePost = (postId) => {
+    // Create animation value if it doesn't exist for this post
+    if (!likeAnimations[postId]) {
+      likeAnimations[postId] = new Animated.Value(1);
+    }
+    
+    // Update the post state
     setCommunityPosts(
       communityPosts.map((post) =>
         post.id === postId
@@ -121,6 +130,27 @@ const HomeScreen = ({ navigation }) => {
           : post
       )
     );
+
+    // Find the post and check if it's now liked
+    const post = communityPosts.find(p => p.id === postId);
+    const isNowLiked = post ? !post.isLiked : false;
+    
+    // Run heart beat animation
+    Animated.sequence([
+      Animated.timing(likeAnimations[postId], {
+        toValue: 1.5,
+        duration: 150,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(likeAnimations[postId], {
+        toValue: 1,
+        duration: 150,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     // In a real app, you would also call the API to update the like status
   };
 
@@ -133,8 +163,13 @@ const HomeScreen = ({ navigation }) => {
     console.log("Share post", postId);
   };
 
-  // Render a single post item
+  // Render a single post item with animated like button
   const renderPostItem = ({ item }) => {
+    // Initialize animation value for this post if it doesn't exist
+    if (!likeAnimations[item.id]) {
+      likeAnimations[item.id] = new Animated.Value(1);
+    }
+
     return (
       <View style={styles.postContainer}>
         <View style={styles.postHeader}>
@@ -158,19 +193,37 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.postContent}>{item.content}</Text>
+        <TouchableOpacity 
+          activeOpacity={0.8} 
+          onPress={() => navigation.navigate("PostDetail", { post: item })}
+        >
+          <Text style={styles.postContent}>{item.content}</Text>
+        </TouchableOpacity>
 
         <View style={styles.postActions}>
           <TouchableOpacity
             style={styles.postAction}
             onPress={() => handleLikePost(item.id)}
+            activeOpacity={0.7}
           >
-            <Ionicons
-              name={item.isLiked ? "heart" : "heart-outline"}
-              size={22}
-              color={item.isLiked ? "rgb(168, 38, 29)" : "#666"}
-            />
-            <Text style={styles.postActionText}>{item.likes}</Text>
+            <Animated.View style={{ 
+              transform: [{ scale: likeAnimations[item.id] }],
+              // Add extra effects for liked state
+              shadowColor: item.isLiked ? "rgb(168, 38, 29)" : "transparent",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: item.isLiked ? 0.5 : 0,
+              shadowRadius: item.isLiked ? 10 : 0,
+            }}>
+              <Ionicons
+                name={item.isLiked ? "heart" : "heart-outline"}
+                size={22}
+                color={item.isLiked ? "rgb(168, 38, 29)" : "#666"}
+              />
+            </Animated.View>
+            <Text style={[
+              styles.postActionText,
+              item.isLiked && styles.likedText
+            ]}>{item.likes}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -619,6 +672,10 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
     color: "#666",
+  },
+  likedText: {
+    color: "rgb(168, 38, 29)",
+    fontWeight: "500",
   },
   viewAllButton: {
     flexDirection: "row",
