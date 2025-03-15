@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Animated,
   Easing,
+  ActivityIndicator,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -20,10 +21,16 @@ const HomeScreen = ({ navigation }) => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [recentEvents, setRecentEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [communityPosts, setCommunityPosts] = useState([]); // Add state for community posts
   const likeAnimations = useRef({}).current;
 
   useEffect(() => {
+    // Set a timer for the initial loading state
+    const initialLoadingTimer = setTimeout(() => {
+      setInitialLoading(false);
+    }, 1500); // 1.5 seconds loading screen
+    
     // Initialize backend and load data when component mounts
     const loadData = async () => {
       setIsLoading(true);
@@ -50,8 +57,12 @@ const HomeScreen = ({ navigation }) => {
     const unsubscribe = navigation.addListener("focus", () => {
       loadData();
     });
-
-    return unsubscribe;
+    
+    // Clear the timer when component unmounts
+    return () => {
+      clearTimeout(initialLoadingTimer);
+      unsubscribe();
+    };
   }, [navigation]);
 
   // Mock data for posts until backend is implemented
@@ -102,7 +113,7 @@ const HomeScreen = ({ navigation }) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
+    
     if (diffDays < 1) return "Today";
     if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -416,12 +427,19 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={sections}
-        renderItem={renderSection}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.scrollContent}
-      />
+      {initialLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="rgb(168, 38, 29)" />
+          <Text style={styles.loadingText}>Loading your events...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={sections}
+          renderItem={renderSection}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.scrollContent}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -430,6 +448,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f8f8",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f8f8",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "500",
   },
   scrollContent: {
     padding: 16,
