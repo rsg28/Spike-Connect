@@ -1,4 +1,5 @@
-// screens/ItemDetailScreen.js (Event Detail Screen)
+// screens/ItemDetailScreen.js - Updated to show random image
+
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
@@ -21,6 +22,15 @@ const ItemDetailScreen = ({ route, navigation }) => {
   const [relatedEvents, setRelatedEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoined, setIsJoined] = useState(false);
+  const [randomImage, setRandomImage] = useState(null);
+
+  // Mock images for activities - updated to use require()
+  const activityImgs = [
+    require("../assets/edmonds.png"),
+    require("../assets/christine.png"),
+    require("../assets/bonsor.png"),
+    require("../assets/pittmeadows.png")
+  ];
 
   // Fetch event details when component mounts
   useEffect(() => {
@@ -32,9 +42,20 @@ const ItemDetailScreen = ({ route, navigation }) => {
         if (fetchedEvent) {
           setEvent(fetchedEvent);
           
+          // Select a random image from the array
+          const randomIndex = Math.floor(Math.random() * activityImgs.length);
+          setRandomImage(activityImgs[randomIndex]);
+          
           // Also fetch related events
           const related = await BackendService.getRelatedItems(fetchedEvent.category, fetchedEvent.level, itemId);
-          setRelatedEvents(related);
+          
+          // Assign random images to related events too
+          const relatedWithImages = related.map(item => ({
+            ...item,
+            imageUrl: activityImgs[Math.floor(Math.random() * activityImgs.length)]
+          }));
+          
+          setRelatedEvents(relatedWithImages);
         } else {
           // Handle event not found
           Alert.alert('Error', 'Event not found');
@@ -135,12 +156,20 @@ const ItemDetailScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Image placeholder */}
+        {/* Image section - Updated to show random image */}
         <View style={styles.imageContainer}>
-          <View style={styles.imagePlaceholder}>
-            <Ionicons name="volleyball-outline" size={60} color="#999" />
-            <Text style={styles.placeholderText}>Event image will be added later</Text>
-          </View>
+          {randomImage ? (
+            <Image 
+              source={randomImage}
+              style={styles.eventImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.imagePlaceholder}>
+              <Ionicons name="volleyball-outline" size={60} color="#999" />
+              <Text style={styles.placeholderText}>Event image will be added later</Text>
+            </View>
+          )}
         </View>
 
         {/* Event details card */}
@@ -239,7 +268,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
           </View>
         </View>
         
-        {/* Event Creator Section - NEW */}
+        {/* Event Creator Section */}
         <View style={styles.creatorCard}>
           <Text style={styles.sectionTitle}>Event Creator</Text>
           
@@ -318,7 +347,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         
-        {/* Related events section */}
+        {/* Related events section - Updated to show images */}
         <View style={styles.relatedSection}>
           <Text style={styles.relatedTitle}>Related Events</Text>
           
@@ -329,9 +358,16 @@ const ItemDetailScreen = ({ route, navigation }) => {
                 style={styles.relatedItem}
                 onPress={() => navigation.navigate('ItemDetail', { itemId: relatedItem.id })}
               >
-                <View style={styles.relatedItemIcon}>
-                  <Ionicons name="volleyball-outline" size={24} color="rgb(168, 38, 29)" />
-                </View>
+                {relatedItem.imageUrl ? (
+                  <Image 
+                    source={relatedItem.imageUrl} 
+                    style={styles.relatedItemImage} 
+                  />
+                ) : (
+                  <View style={styles.relatedItemIcon}>
+                    <Ionicons name="volleyball-outline" size={24} color="rgb(168, 38, 29)" />
+                  </View>
+                )}
                 <View style={styles.relatedItemContent}>
                   <Text style={styles.relatedItemTitle}>{relatedItem.title}</Text>
                   <View style={styles.relatedItemDetails}>
@@ -400,6 +436,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  eventImage: {
+    width: '100%',
+    height: 200,
   },
   imagePlaceholder: {
     height: 200,
@@ -528,7 +568,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
-  // Creator Card Styles - NEW
+  // Creator Card Styles
   creatorCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -655,6 +695,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(168, 38, 29, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 12,
+  },
+  relatedItemImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     marginRight: 12,
   },
   relatedItemContent: {
