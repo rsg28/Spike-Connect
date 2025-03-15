@@ -1,5 +1,5 @@
 // screens/LoginScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,32 +15,56 @@ import {
 
 import * as Notifications from 'expo-notifications';
 
+// Set up notification handler (add this)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 const LoginScreen = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Request permission on component mount
+  useEffect(() => {
+    (async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Push notifications need appropriate permissions.');
+      }
+    })();
+  }, []);
+
   const handleLogin = async () => {
     setIsLoading(true);
     
-    // Request permissions (typically done at app startup, but including here for completeness)
-    await Notifications.requestPermissionsAsync();
-    
-    // Schedule a local notification
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Welcome back!",
-        body: "We're glad to see you again.",
-      },
-      trigger: null, // Show immediately
-    });
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Show notification with proper configuration
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Welcome Back!",
+          body: "We're glad to see you again.",
+          data: { data: 'goes here' },
+        },
+        trigger: null, // null means show immediately
+      });
+      
+      // Simulate API call
+      setTimeout(() => {
+        setIsLoading(false);
+        onLogin();
+      }, 1500);
+    } catch (error) {
+      console.log('Notification error:', error);
       setIsLoading(false);
-      onLogin();
-    }, 1500);
+      onLogin(); // Still log in even if notification fails
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
