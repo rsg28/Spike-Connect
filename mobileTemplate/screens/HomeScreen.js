@@ -18,6 +18,7 @@ const HomeScreen = ({ navigation }) => {
   const [featuredItems, setFeaturedItems] = useState([]);
   const [recentItems, setRecentItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [communityPosts, setCommunityPosts] = useState([]);
 
   useEffect(() => {
     // Initialize backend and load data when component mounts
@@ -30,6 +31,8 @@ const HomeScreen = ({ navigation }) => {
 
         setFeaturedItems(featured);
         setRecentItems(recent);
+
+        setCommunityPosts(mockPosts);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -47,6 +50,49 @@ const HomeScreen = ({ navigation }) => {
     return unsubscribe;
   }, [navigation]);
 
+  // Mock data for posts until backend is implemented
+  const mockPosts = [
+    {
+      id: "post1",
+      user: {
+        id: "user1",
+        name: "Sarah Johnson",
+        avatar: null,
+      },
+      content: "Looking for 2 more players for our beach volleyball game this Saturday at Sunset Beach. Intermediate level. Comment if interested!",
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      likes: 12,
+      comments: 5,
+      isLiked: false,
+    },
+    {
+      id: "post2",
+      user: {
+        id: "user2",
+        name: "Mike Thompson",
+        avatar: null,
+      },
+      content: "Just finished an amazing tournament at Central Park! Our team made it to the semi-finals. Proud of everyone's hard work and improvement! 🏐 #VolleyballLife",
+      timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(), // 18 hours ago
+      likes: 24,
+      comments: 8,
+      isLiked: true,
+    },
+    {
+      id: "post3",
+      user: {
+        id: "user3",
+        name: "Coach Emily",
+        avatar: null,
+      },
+      content: "New drills for improving your serve accuracy! Check out today's practice video on my profile. Tag someone who needs to see this!",
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      likes: 45,
+      comments: 13,
+      isLiked: false,
+    },
+  ];
+
   // Calculate the relative time for display
   const getRelativeTime = (dateString) => {
     const date = new Date(dateString);
@@ -61,6 +107,116 @@ const HomeScreen = ({ navigation }) => {
     } ago`;
   };
 
+  // Handle post interactions
+  const handleLikePost = (postId) => {
+    setCommunityPosts(
+      communityPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isLiked: !post.isLiked,
+              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+            }
+          : post
+      )
+    );
+    // In a real app, you would also call the API to update the like status
+  };
+
+  const handleCommentPost = (postId) => {
+    navigation.navigate("PostComments", { postId });
+  };
+
+  const handleSharePost = (postId) => {
+    // Implement share functionality 
+    console.log("Share post", postId);
+  };
+
+  // Render a single post item
+  const renderPostItem = ({ item }) => {
+    return (
+      <View style={styles.postContainer}>
+        <View style={styles.postHeader}>
+          <View style={styles.postUserAvatar}>
+            {item.user.avatar ? (
+              <Image source={{ uri: item.user.avatar }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.defaultAvatar}>
+                <Text style={styles.avatarInitial}>
+                  {item.user.name.charAt(0)}
+                </Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.postUserInfo}>
+            <Text style={styles.postUserName}>{item.user.name}</Text>
+            <Text style={styles.postTimestamp}>{getRelativeTime(item.timestamp)}</Text>
+          </View>
+          <TouchableOpacity style={styles.postOptions}>
+            <Ionicons name="ellipsis-horizontal" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.postContent}>{item.content}</Text>
+
+        <View style={styles.postActions}>
+          <TouchableOpacity
+            style={styles.postAction}
+            onPress={() => handleLikePost(item.id)}
+          >
+            <Ionicons
+              name={item.isLiked ? "heart" : "heart-outline"}
+              size={22}
+              color={item.isLiked ? "rgb(168, 38, 29)" : "#666"}
+            />
+            <Text style={styles.postActionText}>{item.likes}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.postAction}
+            onPress={() => handleCommentPost(item.id)}
+          >
+            <Ionicons name="chatbubble-outline" size={22} color="#666" />
+            <Text style={styles.postActionText}>{item.comments}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.postAction}
+            onPress={() => handleSharePost(item.id)}
+          >
+            <Ionicons name="share-outline" size={22} color="#666" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  // Community posts component to be rendered inside the main FlatList
+  const CommunityPostsSection = () => (
+    <View style={styles.sectionContainer}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Community Feed</Text>
+        <TouchableOpacity 
+          style={styles.newPostButton}
+          onPress={() => navigation.navigate("CreatePost")}
+        >
+          <Text style={styles.newPostButtonText}>New Post</Text>
+          <Ionicons name="add-circle-outline" size={18} color="rgb(168, 38, 29)" />
+        </TouchableOpacity>
+      </View>
+      
+      {communityPosts.map((item) => renderPostItem({ item }))}
+      
+      <TouchableOpacity 
+        style={styles.viewAllButton}
+        onPress={() => navigation.navigate("CommunityFeed")}
+      >
+        <Text style={styles.viewAllButtonText}>View All Posts</Text>
+        <Ionicons name="chevron-forward" size={16} color="rgb(168, 38, 29)" />
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -69,6 +225,35 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.welcomeText}>Welcome back!</Text>
           <TouchableOpacity style={styles.notificationButton}>
             <Ionicons name="notifications-outline" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Community Posts Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Community Feed</Text>
+            <TouchableOpacity 
+              style={styles.newPostButton}
+              onPress={() => navigation.navigate("CreatePost")}
+            >
+              <Text style={styles.newPostButtonText}>New Post</Text>
+              <Ionicons name="add-circle-outline" size={18} color="rgb(168, 38, 29)" />
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={communityPosts}
+            keyExtractor={(item) => item.id}
+            renderItem={renderPostItem}
+            scrollEnabled={false}
+          />
+          
+          <TouchableOpacity 
+            style={styles.viewAllButton}
+            onPress={() => navigation.navigate("CommunityFeed")}
+          >
+            <Text style={styles.viewAllButtonText}>View All Posts</Text>
+            <Ionicons name="chevron-forward" size={16} color="rgb(168, 38, 29)" />
           </TouchableOpacity>
         </View>
 
@@ -350,6 +535,129 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     fontWeight: "500",
+  },
+
+  // Post styles
+  postContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  postUserAvatar: {
+    marginRight: 10,
+  },
+  avatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  defaultAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgb(168, 38, 29)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarInitial: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  postUserInfo: {
+    flex: 1,
+  },
+  postUserName: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#333",
+  },
+  postTimestamp: {
+    fontSize: 12,
+    color: "#999",
+  },
+  postOptions: {
+    padding: 5,
+  },
+  postContent: {
+    fontSize: 15,
+    color: "#333",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  postActions: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    paddingTop: 12,
+  },
+  postAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 24,
+  },
+  postActionText: {
+    marginLeft: 4,
+    fontSize: 14,
+    color: "#666",
+  },
+  viewAllButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  viewAllButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "rgb(168, 38, 29)",
+    marginRight: 6,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
+    color: "#333",
+  },
+  newPostButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  newPostButtonText: {
+    color: "rgb(168, 38, 29)",
+    fontSize: 14,
+    fontWeight: "500",
+    marginRight: 4,
   },
 });
 
