@@ -36,4 +36,3 @@ yarn-error.*
 *.tsbuildinfo
 
 # volleyball json files
-volleyball_sessions.json
