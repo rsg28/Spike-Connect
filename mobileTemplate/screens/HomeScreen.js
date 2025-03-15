@@ -292,7 +292,7 @@ const HomeScreen = ({ navigation }) => {
   // Featured section component for the main FlatList
   const FeaturedSection = () => (
     <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Featured</Text>
+      {/* <Text style={styles.sectionTitle}>Featured</Text> */}
       <FlatList
         horizontal
         data={upcomingEvents}
