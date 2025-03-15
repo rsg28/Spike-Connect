@@ -1,5 +1,6 @@
 // screens/CreateItemScreen.js
 import React, { useState } from 'react';
+import BackendService from '../services/BackendService';
 import {
   StyleSheet,
   View,
@@ -24,22 +25,34 @@ const CreateItemScreen = ({ navigation }) => {
   const categories = ['Category A', 'Category B', 'Category C', 'Category D'];
   const [showCategories, setShowCategories] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate inputs
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter a title');
       return;
     }
-
+  
     if (!category) {
       Alert.alert('Error', 'Please select a category');
       return;
     }
-
+  
     setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
+  
+    try {
+      // Create the new item object
+      const newItem = {
+        title,
+        description,
+        category,
+        priority: 'Medium', // Default value
+        dueDate: 'Not set',
+        attachments: 0
+      };
+  
+      // Save to backend
+      await BackendService.addItem(newItem);
+      
       setIsLoading(false);
       Alert.alert(
         'Success',
@@ -54,12 +67,16 @@ const CreateItemScreen = ({ navigation }) => {
               setCategory('');
               
               // Navigate back to Home
-              navigation.navigate('Home');
+              navigation.navigate('HomeScreen');
             }
           }
         ]
       );
-    }, 1000);
+    } catch (error) {
+      setIsLoading(false);
+      Alert.alert('Error', 'Failed to create item. Please try again.');
+      console.error(error);
+    }
   };
 
   const selectCategory = (selectedCategory) => {

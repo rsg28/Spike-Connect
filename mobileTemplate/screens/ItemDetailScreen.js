@@ -1,5 +1,5 @@
 // screens/ItemDetailScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,27 +9,61 @@ import {
   SafeAreaView,
   Image,
   Share,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BackendService from '../services/BackendService';
 
 const ItemDetailScreen = ({ route, navigation }) => {
-  // You would normally get the item from route.params
-  // const { itemId } = route.params;
-  
-  // For demonstration, we'll use a sample item
-  const [item, setItem] = useState({
-    id: '1',
-    title: 'Featured Item 1',
-    description: 'This is a detailed description of the featured item. It provides comprehensive information about the product, its features, benefits, and any other relevant details that might be useful for the user.',
-    category: 'Category A',
-    date: '2 days ago',
-    priority: 'High',
-    dueDate: 'Mar 20, 2025',
-    attachments: 2,
-    status: 'In Progress'
-  });
+  const { itemId } = route.params;
+  const [item, setItem] = useState(null);
+  const [relatedItems, setRelatedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch item details when component mounts
+  useEffect(() => {
+    const loadItemDetails = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedItem = await BackendService.getItem(itemId);
+        
+        if (fetchedItem) {
+          setItem(fetchedItem);
+          
+          // Also fetch related items
+          const related = await BackendService.getRelatedItems(fetchedItem.category, itemId);
+          setRelatedItems(related);
+        } else {
+          // Handle item not found
+          Alert.alert('Error', 'Item not found');
+          navigation.goBack();
+        }
+      } catch (error) {
+        console.error('Error loading item details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadItemDetails();
+  }, [itemId, navigation]);
+
+  // Calculate relative time for display
+  const getRelativeTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 1) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+  };
 
   const handleShare = async () => {
+    if (!item) return;
+    
     try {
       await Share.share({
         message: `Check out this item: ${item.title}`,
@@ -39,6 +73,34 @@ const ItemDetailScreen = ({ route, navigation }) => {
       console.error(error);
     }
   };
+
+  const handleMarkComplete = async () => {
+    if (!item) return;
+    
+    try {
+      const updatedItem = await BackendService.updateItem(item.id, {
+        status: 'Resolved'
+      });
+      
+      setItem(updatedItem);
+      Alert.alert('Success', 'Item marked as complete');
+    } catch (error) {
+      console.error('Error updating item:', error);
+      Alert.alert('Error', 'Failed to update item');
+    }
+  };
+
+  // Display loading indicator while fetching data
+  if (isLoading || !item) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="rgb(168, 38, 29)" />
+          <Text style={styles.loadingText}>Loading item details...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -76,13 +138,40 @@ const ItemDetailScreen = ({ route, navigation }) => {
             <View style={styles.categoryBadge}>
               <Text style={styles.categoryText}>{item.category}</Text>
             </View>
-            <Text style={styles.dateText}>{item.date}</Text>
+            <Text style={styles.dateText}>{getRelativeTime(item.createdAt)}</Text>
           </View>
           
           <View style={styles.statusContainer}>
-            <View style={[styles.statusBadge, { backgroundColor: 'rgba(255, 179, 0, 0.1)' }]}>
-              <View style={[styles.statusDot, { backgroundColor: '#FFB300' }]} />
-              <Text style={[styles.statusText, { color: '#FFB300' }]}>{item.status}</Text>
+            <View style={[
+              styles.statusBadge, 
+              { 
+                backgroundColor: item.status === 'Resolved' 
+                  ? 'rgba(76, 175, 80, 0.1)' 
+                  : item.status === 'In Progress' 
+                    ? 'rgba(255, 179, 0, 0.1)'
+                    : 'rgba(33, 150, 243, 0.1)'
+              }
+            ]}>
+              <View style={[
+                styles.statusDot, 
+                { 
+                  backgroundColor: item.status === 'Resolved' 
+                    ? '#4CAF50' 
+                    : item.status === 'In Progress' 
+                      ? '#FFB300'
+                      : '#2196F3'
+                }
+              ]} />
+              <Text style={[
+                styles.statusText, 
+                { 
+                  color: item.status === 'Resolved' 
+                    ? '#4CAF50' 
+                    : item.status === 'In Progress' 
+                      ? '#FFB300'
+                      : '#2196F3'
+                }
+              ]}>{item.status}</Text>
             </View>
           </View>
           
@@ -127,9 +216,15 @@ const ItemDetailScreen = ({ route, navigation }) => {
             <Text style={styles.actionButtonText}>Edit</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={[styles.actionButton, styles.secondaryButton]}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.secondaryButton]}
+            onPress={handleMarkComplete}
+            disabled={item.status === 'Resolved'}
+          >
             <Ionicons name="checkmark-circle-outline" size={20} color="rgb(168, 38, 29)" />
-            <Text style={styles.secondaryButtonText}>Mark Complete</Text>
+            <Text style={styles.secondaryButtonText}>
+              {item.status === 'Resolved' ? 'Completed' : 'Mark Complete'}
+            </Text>
           </TouchableOpacity>
         </View>
         
@@ -137,27 +232,26 @@ const ItemDetailScreen = ({ route, navigation }) => {
         <View style={styles.relatedSection}>
           <Text style={styles.relatedTitle}>Related Items</Text>
           
-          <TouchableOpacity style={styles.relatedItem}>
-            <View style={styles.relatedItemIcon}>
-              <Ionicons name="document-text-outline" size={24} color="rgb(168, 38, 29)" />
-            </View>
-            <View style={styles.relatedItemContent}>
-              <Text style={styles.relatedItemTitle}>Related Item 1</Text>
-              <Text style={styles.relatedItemCategory}>Category A</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.relatedItem}>
-            <View style={styles.relatedItemIcon}>
-              <Ionicons name="document-text-outline" size={24} color="rgb(168, 38, 29)" />
-            </View>
-            <View style={styles.relatedItemContent}>
-              <Text style={styles.relatedItemTitle}>Related Item 2</Text>
-              <Text style={styles.relatedItemCategory}>Category B</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
-          </TouchableOpacity>
+          {relatedItems.length > 0 ? (
+            relatedItems.map((relatedItem) => (
+              <TouchableOpacity 
+                key={relatedItem.id} 
+                style={styles.relatedItem}
+                onPress={() => navigation.navigate('ItemDetail', { itemId: relatedItem.id })}
+              >
+                <View style={styles.relatedItemIcon}>
+                  <Ionicons name="document-text-outline" size={24} color="rgb(168, 38, 29)" />
+                </View>
+                <View style={styles.relatedItemContent}>
+                  <Text style={styles.relatedItemTitle}>{relatedItem.title}</Text>
+                  <Text style={styles.relatedItemCategory}>{relatedItem.category}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noRelatedText}>No related items found</Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -168,6 +262,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
   },
   scrollContent: {
     padding: 16,
@@ -390,6 +495,12 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 2,
   },
+  noRelatedText: {
+    fontSize: 14,
+    color: '#999',
+    padding: 12,
+    textAlign: 'center',
+  }
 });
 
 export default ItemDetailScreen;
