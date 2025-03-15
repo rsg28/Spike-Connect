@@ -15,8 +15,8 @@ import { Ionicons } from "@expo/vector-icons";
 import BackendService from "../services/BackendService";
 
 const HomeScreen = ({ navigation }) => {
-  const [featuredItems, setFeaturedItems] = useState([]);
-  const [recentItems, setRecentItems] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [recentEvents, setRecentEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [communityPosts, setCommunityPosts] = useState([]);
 
@@ -29,9 +29,8 @@ const HomeScreen = ({ navigation }) => {
         const featured = await BackendService.getFeaturedItems();
         const recent = await BackendService.getRecentItems();
 
-        setFeaturedItems(featured);
-        setRecentItems(recent);
-
+        setUpcomingEvents(featured);
+        setRecentEvents(recent);
         setCommunityPosts(mockPosts);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -99,7 +98,8 @@ const HomeScreen = ({ navigation }) => {
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 1) return "Today";
+    if (diffDays < 0) return `In ${Math.abs(diffDays)} days`;
+    if (diffDays === 0) return "Today";
     if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return `${diffDays} days ago`;
     return `${Math.floor(diffDays / 7)} week${
@@ -222,7 +222,7 @@ const HomeScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header Section */}
         <View style={styles.headerSection}>
-          <Text style={styles.welcomeText}>Welcome back!</Text>
+          <Text style={styles.welcomeText}>Volleyball Community</Text>
           <TouchableOpacity style={styles.notificationButton}>
             <Ionicons name="notifications-outline" size={24} color="#333" />
           </TouchableOpacity>
@@ -257,12 +257,12 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Featured Section */}
+        {/* Upcoming Events Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Featured</Text>
+          <Text style={styles.sectionTitle}>Upcoming Events</Text>
           <FlatList
             horizontal
-            data={featuredItems}
+            data={upcomingEvents}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
@@ -279,12 +279,26 @@ const HomeScreen = ({ navigation }) => {
                       { backgroundColor: "rgba(168, 38, 29, 0.2)" },
                     ]}
                   >
-                    <Ionicons name="star" size={30} color="rgb(168, 38, 29)" />
+                    <Ionicons name="volleyball-outline" size={30} color="rgb(168, 38, 29)" />
                   </View>
                 </View>
                 <Text style={styles.featuredTitle}>{item.title}</Text>
-                <Text style={styles.featuredDescription}>
-                  {item.description.substring(0, 50)}...
+                <View style={styles.eventDetailsContainer}>
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons name="location-outline" size={14} color="#666" />
+                    <Text style={styles.eventDetailText}>{item.location || "TBA"}</Text>
+                  </View>
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons name="trophy-outline" size={14} color="#666" />
+                    <Text style={styles.eventDetailText}>{item.level || "All levels"}</Text>
+                  </View>
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons name="calendar-outline" size={14} color="#666" />
+                    <Text style={styles.eventDetailText}>{item.dueDate}</Text>
+                  </View>
+                </View>
+                <Text numberOfLines={2} style={styles.featuredDescription}>
+                  {item.description}
                 </Text>
                 <TouchableOpacity
                   style={styles.featuredButton}
@@ -292,7 +306,7 @@ const HomeScreen = ({ navigation }) => {
                     navigation.navigate("ItemDetail", { itemId: item.id })
                   }
                 >
-                  <Text style={styles.featuredButtonText}>View Details</Text>
+                  <Text style={styles.featuredButtonText}>View Event</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             )}
@@ -303,7 +317,7 @@ const HomeScreen = ({ navigation }) => {
         {/* Recent Activity Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
-          {recentItems.slice(0, 4).map((item) => (
+          {recentEvents.slice(0, 4).map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.recentItem}
@@ -313,16 +327,19 @@ const HomeScreen = ({ navigation }) => {
             >
               <View style={styles.recentItemIcon}>
                 <Ionicons
-                  name="time-outline"
+                  name="volleyball-outline"
                   size={24}
                   color="rgb(168, 38, 29)"
                 />
               </View>
               <View style={styles.recentItemContent}>
                 <Text style={styles.recentItemTitle}>{item.title}</Text>
-                <Text style={styles.recentItemDate}>
-                  {getRelativeTime(item.createdAt)}
-                </Text>
+                <View style={styles.recentItemDetails}>
+                  <Text style={styles.recentItemLocation}>{item.location}</Text>
+                  <Text style={styles.recentItemDate}>
+                    {getRelativeTime(item.dueDate)}
+                  </Text>
+                </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#999" />
             </TouchableOpacity>
@@ -344,7 +361,7 @@ const HomeScreen = ({ navigation }) => {
                   color="rgb(168, 38, 29)"
                 />
               </View>
-              <Text style={styles.quickActionText}>Add New</Text>
+              <Text style={styles.quickActionText}>Create Event</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.quickActionButton}
@@ -353,17 +370,17 @@ const HomeScreen = ({ navigation }) => {
               <View style={styles.quickActionIcon}>
                 <Ionicons name="search" size={24} color="rgb(168, 38, 29)" />
               </View>
-              <Text style={styles.quickActionText}>Search</Text>
+              <Text style={styles.quickActionText}>Find Events</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.quickActionButton}>
               <View style={styles.quickActionIcon}>
                 <Ionicons
-                  name="settings-outline"
+                  name="people-outline"
                   size={24}
                   color="rgb(168, 38, 29)"
                 />
               </View>
-              <Text style={styles.quickActionText}>Settings</Text>
+              <Text style={styles.quickActionText}>My Teams</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -417,7 +434,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   featuredCard: {
-    width: 200,
+    width: 250,
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
@@ -444,8 +461,21 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 8,
     color: "#333",
+  },
+  eventDetailsContainer: {
+    marginBottom: 8,
+  },
+  eventDetailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  eventDetailText: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 4,
   },
   featuredDescription: {
     fontSize: 14,
@@ -497,6 +527,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#333",
     marginBottom: 4,
+  },
+  recentItemDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  recentItemLocation: {
+    fontSize: 12,
+    color: "#666",
   },
   recentItemDate: {
     fontSize: 12,

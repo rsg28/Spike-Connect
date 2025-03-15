@@ -2,76 +2,120 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 class BackendService {
-  // Initial sample items
+  // Initial sample volleyball events
   static initialItems = [
     {
       id: "1",
-      title: "Featured Item 1",
+      title: "Saturday Beach Volleyball Tournament",
       description:
-        "This is a detailed description of the featured item. It provides comprehensive information about the product, its features, benefits, and any other relevant details that might be useful for the user.",
-      category: "Category A",
+        "Join us for a fun beach volleyball tournament at Sunset Beach. All levels welcome! Teams will be formed on-site. Bring water and sunscreen. Tournament starts at 10 AM and will run until approximately 4 PM.",
+      category: "Tournament",
+      level: "Intermediate",
+      location: "Sunset Beach, Main Court",
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
       priority: "High",
       dueDate: "Mar 20, 2025",
+      eventDate: "Mar 20, 2025, 10:00 AM",
       attachments: 2,
-      status: "In Progress",
+      status: "Open",
+      maxParticipants: 36,
+      currentParticipants: 24,
+      hostName: "Volleyball Club NYC",
+      fee: "$15 per person"
     },
     {
       id: "2",
-      title: "Featured Item 2",
+      title: "Wednesday Night Indoor League",
       description:
-        "Description for item 2. This product has unique qualities and is part of our premium collection.",
-      category: "Category B",
+        "Weekly indoor volleyball league for advanced players. Games run from 7 PM to 10 PM. League runs for 8 weeks with playoffs in the final week. Teams of 6 required, individual registrations also accepted.",
+      category: "League",
+      level: "Advanced",
+      location: "Metro Sports Center, Court 3",
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
       priority: "Medium",
       dueDate: "Mar 25, 2025",
+      eventDate: "Every Wednesday, 7:00 PM",
       attachments: 1,
-      status: "New",
+      status: "Open",
+      maxParticipants: 48,
+      currentParticipants: 36,
+      hostName: "City Volleyball Association",
+      fee: "$120 per team"
     },
     {
       id: "3",
-      title: "Featured Item 3",
+      title: "Beginners Volleyball Clinic",
       description:
-        "Description for item 3. This is our most popular product with a variety of applications.",
-      category: "Category A",
+        "Learn the basics of volleyball in this beginner-friendly clinic. Our experienced coaches will teach proper techniques for serving, passing, setting, and basic game rules. All equipment provided.",
+      category: "Training",
+      level: "Beginner",
+      location: "Community Center Gym",
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
       priority: "Low",
       dueDate: "Apr 5, 2025",
+      eventDate: "Apr 5, 2025, 1:00 PM",
       attachments: 0,
-      status: "Resolved",
+      status: "Open",
+      maxParticipants: 20,
+      currentParticipants: 8,
+      hostName: "Volleyball Fundamentals",
+      fee: "$25 per person"
+    },
+    {
+      id: "4",
+      title: "Co-Ed 4v4 Sand Tournament",
+      description:
+        "Join our monthly co-ed 4v4 sand volleyball tournament. Teams must have at least one player of each gender on the court at all times. Double elimination format with prizes for top teams!",
+      category: "Tournament",
+      level: "All Levels",
+      location: "Sandy Shores Volleyball Complex",
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      priority: "Medium",
+      dueDate: "Mar 30, 2025",
+      eventDate: "Mar 30, 2025, 9:00 AM",
+      attachments: 1,
+      status: "Open",
+      maxParticipants: 64,
+      currentParticipants: 40,
+      hostName: "Sandy Shores VC",
+      fee: "$80 per team"
     },
   ];
 
   // Initialize the storage with sample data if empty
   static async initialize() {
     try {
-      const items = await AsyncStorage.getItem("items");
+      const items = await AsyncStorage.getItem("volleyballEvents");
       if (items === null) {
-        await AsyncStorage.setItem("items", JSON.stringify(this.initialItems));
+        await AsyncStorage.setItem("volleyballEvents", JSON.stringify(this.initialItems));
       }
     } catch (error) {
       console.error("Error initializing backend:", error);
     }
   }
 
-  // Get all items
+  // Get all events
   static async getAllItems() {
     try {
-      const items = await AsyncStorage.getItem("items");
+      const items = await AsyncStorage.getItem("volleyballEvents");
       return items ? JSON.parse(items) : [];
     } catch (error) {
-      console.error("Error getting items:", error);
+      console.error("Error getting events:", error);
       return [];
     }
   }
 
-  // Get featured items
+  // Get featured events (upcoming events)
   static async getFeaturedItems() {
     const allItems = await this.getAllItems();
-    return allItems.slice(0, 3); // Just return the first 3 for featured
+    // Sort by date (closest events first) and return
+    return allItems
+      .filter(item => new Date(item.dueDate) >= new Date()) // Only future events
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+      .slice(0, 5); // Return the 5 closest upcoming events
   }
 
-  // Get recent items
+  // Get recent events
   static async getRecentItems() {
     const allItems = await this.getAllItems();
     return allItems.sort(
@@ -79,18 +123,18 @@ class BackendService {
     );
   }
 
-  // Get a single item by id
+  // Get a single event by id
   static async getItem(id) {
     try {
       const items = await this.getAllItems();
       return items.find((item) => item.id === id) || null;
     } catch (error) {
-      console.error("Error getting item:", error);
+      console.error("Error getting event:", error);
       return null;
     }
   }
 
-  // Add a new item
+  // Add a new event
   static async addItem(item) {
     try {
       const items = await this.getAllItems();
@@ -98,19 +142,20 @@ class BackendService {
         ...item,
         id: Date.now().toString(),
         createdAt: new Date().toISOString(),
-        status: "New",
+        status: "Open",
+        currentParticipants: 0,
       };
 
       const updatedItems = [...items, newItem];
-      await AsyncStorage.setItem("items", JSON.stringify(updatedItems));
+      await AsyncStorage.setItem("volleyballEvents", JSON.stringify(updatedItems));
       return newItem;
     } catch (error) {
-      console.error("Error adding item:", error);
+      console.error("Error adding event:", error);
       throw error;
     }
   }
 
-  // Update an existing item
+  // Update an existing event
   static async updateItem(id, updatedData) {
     try {
       const items = await this.getAllItems();
@@ -118,25 +163,119 @@ class BackendService {
         item.id === id ? { ...item, ...updatedData } : item
       );
 
-      await AsyncStorage.setItem("items", JSON.stringify(updatedItems));
+      await AsyncStorage.setItem("volleyballEvents", JSON.stringify(updatedItems));
       return updatedItems.find((item) => item.id === id);
     } catch (error) {
-      console.error("Error updating item:", error);
+      console.error("Error updating event:", error);
       throw error;
     }
   }
 
-  // Get related items (basic implementation)
-  static async getRelatedItems(categoryName, currentItemId) {
+  // Get related events (same category, level or location)
+  static async getRelatedItems(category, level, currentItemId) {
     try {
       const items = await this.getAllItems();
       return items
         .filter(
-          (item) => item.category === categoryName && item.id !== currentItemId
+          (item) => 
+            (item.category === category || item.level === level) && 
+            item.id !== currentItemId
         )
-        .slice(0, 2); // Return at most 2 related items
+        .slice(0, 3); // Return at most 3 related events
     } catch (error) {
-      console.error("Error getting related items:", error);
+      console.error("Error getting related events:", error);
+      return [];
+    }
+  }
+
+  // Join an event (increment participant count)
+  static async joinEvent(eventId, userData) {
+    try {
+      const event = await this.getItem(eventId);
+      
+      if (!event) {
+        throw new Error("Event not found");
+      }
+      
+      if (event.currentParticipants >= event.maxParticipants) {
+        throw new Error("Event is already full");
+      }
+      
+      const updatedEvent = {
+        ...event,
+        currentParticipants: event.currentParticipants + 1
+      };
+      
+      return await this.updateItem(eventId, updatedEvent);
+    } catch (error) {
+      console.error("Error joining event:", error);
+      throw error;
+    }
+  }
+
+  // Leave an event (decrement participant count)
+  static async leaveEvent(eventId, userId) {
+    try {
+      const event = await this.getItem(eventId);
+      
+      if (!event) {
+        throw new Error("Event not found");
+      }
+      
+      if (event.currentParticipants <= 0) {
+        throw new Error("No participants to remove");
+      }
+      
+      const updatedEvent = {
+        ...event,
+        currentParticipants: event.currentParticipants - 1
+      };
+      
+      return await this.updateItem(eventId, updatedEvent);
+    } catch (error) {
+      console.error("Error leaving event:", error);
+      throw error;
+    }
+  }
+
+  // Search events by title, description, level, or location
+  static async searchEvents(query) {
+    try {
+      const items = await this.getAllItems();
+      const lowercaseQuery = query.toLowerCase();
+      
+      return items.filter(
+        item => 
+          item.title.toLowerCase().includes(lowercaseQuery) ||
+          item.description.toLowerCase().includes(lowercaseQuery) ||
+          item.level.toLowerCase().includes(lowercaseQuery) ||
+          item.location.toLowerCase().includes(lowercaseQuery) ||
+          item.category.toLowerCase().includes(lowercaseQuery)
+      );
+    } catch (error) {
+      console.error("Error searching events:", error);
+      return [];
+    }
+  }
+
+  // Get events by level
+  static async getEventsByLevel(level) {
+    try {
+      const items = await this.getAllItems();
+      return items.filter(item => item.level === level);
+    } catch (error) {
+      console.error("Error getting events by level:", error);
+      return [];
+    }
+  }
+
+  // Get events by category (Tournament, League, Training, etc.)
+  static async getEventsByCategory(category) {
+    try {
+      const items = await this.getAllItems();
+      return items.filter(item => item.category === category);
+    } catch (error) {
+      console.error("Error getting events by category:", error);
       return [];
     }
   }
