@@ -11,6 +11,12 @@ import SearchScreen from "./screens/SearchScreen";
 import CreateItemScreen from "./screens/CreateItemScreen";
 import ItemDetailScreen from "./screens/ItemDetailScreen";
 
+// Import community-related screens
+import CommunityFeedScreen from "./screens/CommunityFeedScreen";
+import PostDetailScreen from "./screens/PostDetailScreen";
+import PostCommentScreen from "./screens/PostCommentScreen";
+import CreatePostScreen from "./screens/CreatePostScreen";
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +28,7 @@ const THEME = {
   TEXT: "#333333",
 };
 
-// Then update your HomeStack function to include the ItemDetailScreen
+// Then update your HomeStack function to include the ItemDetailScreen and community-related screens
 function HomeStack() {
   const HomeStack = createStackNavigator();
   return (
@@ -30,6 +36,12 @@ function HomeStack() {
       <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
       <HomeStack.Screen name="CreateItem" component={CreateItemScreen} />
       <HomeStack.Screen name="ItemDetail" component={ItemDetailScreen} />
+      
+      {/* Add community-related screens */}
+      <HomeStack.Screen name="CommunityFeed" component={CommunityFeedScreen} />
+      <HomeStack.Screen name="PostDetail" component={PostDetailScreen} />
+      <HomeStack.Screen name="PostComments" component={PostCommentScreen} />
+      <HomeStack.Screen name="CreatePost" component={CreatePostScreen} />
     </HomeStack.Navigator>
   );
 }
