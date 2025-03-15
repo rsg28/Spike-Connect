@@ -237,14 +237,43 @@ const ItemDetailScreen = ({ route, navigation }) => {
             <Text style={styles.detailLabel}>Fee:</Text>
             <Text style={styles.detailValue}>{event.fee}</Text>
           </View>
+        </View>
+        
+        {/* Event Creator Section - NEW */}
+        <View style={styles.creatorCard}>
+          <Text style={styles.sectionTitle}>Event Creator</Text>
           
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconContainer}>
-              <Ionicons name="person-outline" size={20} color="rgb(168, 38, 29)" />
+          <TouchableOpacity 
+            style={styles.creatorProfile}
+            onPress={() => {
+              // Navigate to creator's profile (this would be implemented in a full app)
+              Alert.alert("View Profile", `View ${event.hostName}'s full profile`);
+            }}
+          >
+            <View style={styles.creatorAvatar}>
+              <Text style={styles.creatorAvatarText}>
+                {event.hostName.split(' ').map(n => n[0]).join('')}
+              </Text>
             </View>
-            <Text style={styles.detailLabel}>Hosted by:</Text>
-            <Text style={styles.detailValue}>{event.hostName}</Text>
-          </View>
+            
+            <View style={styles.creatorInfo}>
+              <Text style={styles.creatorName}>{event.hostName}</Text>
+              <Text style={styles.creatorBio}>Event Organizer</Text>
+              
+              <View style={styles.creatorStats}>
+                <View style={styles.creatorStat}>
+                  <Text style={styles.creatorStatValue}>12</Text>
+                  <Text style={styles.creatorStatLabel}>Events</Text>
+                </View>
+                <View style={styles.creatorStat}>
+                  <Text style={styles.creatorStatValue}>4.8</Text>
+                  <Text style={styles.creatorStatLabel}>Rating</Text>
+                </View>
+              </View>
+            </View>
+            
+            <Ionicons name="chevron-forward" size={20} color="#999" />
+          </TouchableOpacity>
         </View>
         
         {/* Actions section */}
@@ -498,6 +527,68 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '500',
     flex: 1,
+  },
+  // Creator Card Styles - NEW
+  creatorCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  creatorProfile: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  creatorAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgb(168, 38, 29)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  creatorAvatarText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  creatorInfo: {
+    flex: 1,
+  },
+  creatorName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  creatorBio: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  creatorStats: {
+    flexDirection: 'row',
+  },
+  creatorStat: {
+    marginRight: 16,
+  },
+  creatorStatValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'rgb(168, 38, 29)',
+  },
+  creatorStatLabel: {
+    fontSize: 12,
+    color: '#666',
   },
   actionsContainer: {
     flexDirection: 'row',
