@@ -10,6 +10,8 @@ import ProfileScreen from "./screens/ProfileScreen";
 import SearchScreen from "./screens/SearchScreen";
 import CreateItemScreen from "./screens/CreateItemScreen";
 import ItemDetailScreen from "./screens/ItemDetailScreen";
+import MyEventsScreen from "./screens/MyEventsScreen"; // Add the new screens
+import MyTeamsScreen from "./screens/MyTeamsScreen"; // Add the new screens
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,6 +33,18 @@ function HomeStack() {
       <HomeStack.Screen name="CreateItem" component={CreateItemScreen} />
       <HomeStack.Screen name="ItemDetail" component={ItemDetailScreen} />
     </HomeStack.Navigator>
+  );
+}
+
+// Create a ProfileStack to include the new screens
+function ProfileStack() {
+  const ProfileStack = createStackNavigator();
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <ProfileStack.Screen name="MyEvents" component={MyEventsScreen} />
+      <ProfileStack.Screen name="MyTeams" component={MyTeamsScreen} />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -64,7 +78,7 @@ function MainTabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
       <Tab.Screen name="Search" component={SearchScreen} />
     </Tab.Navigator>
   );
