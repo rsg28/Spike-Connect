@@ -206,7 +206,14 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       
-      {communityPosts.map((item) => renderPostItem({ item }))}
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={communityPosts}
+        keyExtractor={(item) => item.id}
+        renderItem={renderPostItem}
+        contentContainerStyle={styles.communityPostsList}
+      />
       
       <TouchableOpacity 
         style={styles.viewAllButton}
@@ -536,7 +543,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    marginRight: 12,
+    width: 300, // Fixed width for horizontal scrolling
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -545,6 +553,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
+  },
+  communityPostsList: {
+    paddingRight: 8,
   },
   postHeader: {
     flexDirection: "row",
@@ -614,6 +625,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 12,
+    marginTop: 20,
     backgroundColor: "#fff",
     borderRadius: 12,
     shadowColor: "#000",
