@@ -10,15 +10,31 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  Alert,
 } from 'react-native';
+
+import * as Notifications from 'expo-notifications';
 
 const LoginScreen = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setIsLoading(true);
+    
+    // Request permissions (typically done at app startup, but including here for completeness)
+    await Notifications.requestPermissionsAsync();
+    
+    // Schedule a local notification
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Welcome back!",
+        body: "We're glad to see you again.",
+      },
+      trigger: null, // Show immediately
+    });
+    
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
