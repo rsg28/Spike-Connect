@@ -21,7 +21,10 @@ class BackendService {
       maxParticipants: 36,
       currentParticipants: 24,
       hostName: "Volleyball Club NYC",
-      fee: "$15 per person"
+      fee: "$15 per person",
+      link: "https://ca.apm.activecommunities.com/burnaby/Activity_Search/reserve-in-advance-volleyball-all-ages/49665?locale=en-US",
+      ages: "6yrs+",
+      time_range: "Thu 3:45 PM - 5:45 PM"
     },
     {
       id: "2",
@@ -40,7 +43,10 @@ class BackendService {
       maxParticipants: 48,
       currentParticipants: 36,
       hostName: "City Volleyball Association",
-      fee: "$120 per team"
+      fee: "$120 per team",
+      link: "https://ca.apm.activecommunities.com/burnaby/Activity_Search/reserve-in-advance-volleyball-adult-intermediate/62108?locale=en-US",
+      ages: "19yrs+",
+      time_range: "Tue 7:45 PM - 9:45 PM"
     },
     {
       id: "3",
@@ -59,7 +65,10 @@ class BackendService {
       maxParticipants: 20,
       currentParticipants: 8,
       hostName: "Volleyball Fundamentals",
-      fee: "$25 per person"
+      fee: "$25 per person",
+      link: "https://ca.apm.activecommunities.com/burnaby/Activity_Search/reserve-in-advance-volleyball-adult/58679?locale=en-US",
+      ages: "19yrs+",
+      time_range: "Sat 1:30 PM - 3:30 PM"
     },
     {
       id: "4",
@@ -78,13 +87,76 @@ class BackendService {
       maxParticipants: 64,
       currentParticipants: 40,
       hostName: "Sandy Shores VC",
-      fee: "$80 per team"
+      fee: "$80 per team",
+      link: "https://ca.apm.activecommunities.com/burnaby/Activity_Search/reserve-in-advance-volleyball-adult/50974?locale=en-US",
+      ages: "19yrs+",
+      time_range: "Sun 5:30 PM - 7:30 PM"
     },
+    {
+      id: "5",
+      title: "Casual Volleyball at Bonsor Recreation Complex",
+      description: "Join us for a fun, no-pressure volleyball session at Bonsor Recreation Complex. All skill levels welcome! This is a great opportunity to practice your skills, meet new people, and enjoy the game without the pressure of competition.",
+      category: "Casual",
+      level: "All Levels",
+      location: "Bonsor Recreation Complex",
+      createdAt: "2025-03-12T22:55:53.412Z",
+      priority: "Medium",
+      dueDate: "Mar 21, 2025",
+      eventDate: "Mar 21, 2025, 5:20 PM",
+      attachments: 0,
+      status: "Open",
+      maxParticipants: 42,
+      currentParticipants: 15,
+      hostName: "Community Volleyball Club",
+      fee: "Free"
+    },
+    {
+      id: "6",
+      title: "Casual Volleyball at Christine Sinclair Community Centre",
+      description: "Join us for a fun, no-pressure volleyball session at Christine Sinclair Community Centre. All skill levels welcome! This is a great opportunity to practice your skills, meet new people, and enjoy the game without the pressure of competition.",
+      category: "Casual",
+      level: "Beginner",
+      location: "Christine Sinclair Community Centre",
+      createdAt: "2025-03-10T22:55:53.412Z",
+      priority: "Low",
+      dueDate: "Mar 17, 2025",
+      eventDate: "Mar 17, 2025, 1:45 PM",
+      attachments: 1,
+      status: "Open",
+      maxParticipants: 20,
+      currentParticipants: 8,
+      hostName: "Recreational Sports Group",
+      fee: "$5 per person"
+    },
+    {
+      id: "7",
+      title: "Casual Volleyball at Edmonds Community Centre",
+      description: "Join us for a fun, no-pressure volleyball session at Edmonds Community Centre. All skill levels welcome! This is a great opportunity to practice your skills, meet new people, and enjoy the game without the pressure of competition.",
+      category: "Casual",
+      level: "All Levels",
+      location: "Edmonds Community Centre",
+      createdAt: "2025-03-14T22:55:53.412Z",
+      priority: "Medium",
+      dueDate: "Mar 25, 2025",
+      eventDate: "Mar 25, 2025, 7:30 PM",
+      attachments: 0,
+      status: "Open",
+      maxParticipants: 30,
+      currentParticipants: 12,
+      hostName: "Volleyball Enthusiasts",
+      fee: "Free"
+    }
   ];
 
   // Initialize the storage with sample data if empty
-  static async initialize() {
+  static async initialize(forceReset = false) {
     try {
+      // If forceReset is true, reset the data regardless of what's in storage
+      if (forceReset) {
+        await AsyncStorage.setItem("volleyballEvents", JSON.stringify(this.initialItems));
+        return;
+      }
+      
       const items = await AsyncStorage.getItem("volleyballEvents");
       if (items === null) {
         await AsyncStorage.setItem("volleyballEvents", JSON.stringify(this.initialItems));
@@ -238,7 +310,7 @@ class BackendService {
     }
   }
 
-  // Search events by title, description, level, or location
+  // Search events by title, description, level, location, or age range
   static async searchEvents(query) {
     try {
       const items = await this.getAllItems();
@@ -250,7 +322,9 @@ class BackendService {
           item.description.toLowerCase().includes(lowercaseQuery) ||
           item.level.toLowerCase().includes(lowercaseQuery) ||
           item.location.toLowerCase().includes(lowercaseQuery) ||
-          item.category.toLowerCase().includes(lowercaseQuery)
+          item.category.toLowerCase().includes(lowercaseQuery) ||
+          (item.ages && item.ages.toLowerCase().includes(lowercaseQuery)) ||
+          (item.time_range && item.time_range.toLowerCase().includes(lowercaseQuery))
       );
     } catch (error) {
       console.error("Error searching events:", error);
@@ -276,6 +350,42 @@ class BackendService {
       return items.filter(item => item.category === category);
     } catch (error) {
       console.error("Error getting events by category:", error);
+      return [];
+    }
+  }
+  
+  // NEW: Get events by age group
+  static async getEventsByAgeGroup(ageGroup) {
+    try {
+      const items = await this.getAllItems();
+      return items.filter(item => 
+        item.ages && item.ages.toLowerCase().includes(ageGroup.toLowerCase())
+      );
+    } catch (error) {
+      console.error("Error getting events by age group:", error);
+      return [];
+    }
+  }
+  
+  // NEW: Get events by time range
+  static async getEventsByTimeOfDay(timeOfDay) {
+    try {
+      const items = await this.getAllItems();
+      // timeOfDay can be 'morning', 'afternoon', 'evening'
+      return items.filter(item => {
+        if (!item.time_range) return false;
+        
+        const timeString = item.time_range.toLowerCase();
+        if (timeOfDay === 'morning' && timeString.includes('am')) return true;
+        if (timeOfDay === 'afternoon' && timeString.includes('pm') && 
+            !timeString.includes('7') && !timeString.includes('8') && !timeString.includes('9')) return true;
+        if (timeOfDay === 'evening' && 
+            (timeString.includes('7 pm') || timeString.includes('8 pm') || timeString.includes('9 pm'))) return true;
+        
+        return false;
+      });
+    } catch (error) {
+      console.error("Error getting events by time of day:", error);
       return [];
     }
   }
