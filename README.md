@@ -32,10 +32,6 @@ Volleyball is one of the world's most popular sports, yet finding local games, c
 ![Screenshot 2025-03-16 114811](https://github.com/user-attachments/assets/583eabff-d643-4fb3-8f0c-001e9585c45d)
 ![image](https://github.com/user-attachments/assets/4b8e29f1-0841-4f9a-966e-9140c8521081)
 
-### 🌐 Web Scraping for Real-Time Event Updates  
-- Our Python web scraper gathers the latest volleyball events from multiple sources.  
-- Ensures players stay informed with up-to-date event details.  
-
 ## 🛠️ Tech Stack  
 - **Frontend:** React Native, Javascript, HTML, CSS  
 - **Web Scraping:** Python, Selenium, Beautiful Soup  
