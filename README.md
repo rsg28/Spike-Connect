@@ -27,16 +27,42 @@ Volleyball is one of the world's most popular sports, yet finding local games, c
 - Ensures players stay informed with up-to-date event details.  
 
 ## 🛠️ Tech Stack  
-- **Frontend:** React.js, TypeScript, CSS3  
-- **Backend:** Node.js, Express.js  
-- **Database:** PostgreSQL  
-- **Web Scraping:** Python, Beautiful Soup  
+- **Frontend:** React Native, Javascript, HTML, CSS  
+- **Web Scraping:** Python, Selenium, Beautiful Soup  
 
 ## 📌 Future Enhancements  
 - Expanding event coverage to include more venues worldwide.  
 - Automated court and spot booking for drop-in games.
 
-## 🚀 Get Involved  
-We’re actively working on improving SpikeConnect! If you're a volleyball enthusiast, developer, or just someone passionate about community-driven sports platforms, we'd love your feedback.  
+---
+
+## 🚀 Getting Started  
+
+### Prerequisites  
+Make sure you have the following installed:  
+- [Node.js](https://nodejs.org/) and npm  
+- Python (for web scraping functionality)  
+
+### Testing the app  
+
+#### 1. Clone the repository  
+```sh
+git clone https://github.com/your-username/spikeconnect.git
+cd spikeconnect
+```
+
+#### 2. Install dependencies
+```sh
+npm install
+```
+#### 3. Start the server
+```sh
+npm start
+```
+#### 4. Scan the QR code in the terminal with your phone or press "W"
+After starting the server, scan the QR code in the terminal with your phone to test the mobile version or press "W" to test the web version. You're all set! Enjoy SpikeConnect!
 
 ---
+
+#### 🤝 Get Involved
+We’re actively working on improving SpikeConnect! If you're a volleyball enthusiast, developer, or just someone passionate about community-driven sports platforms, we'd love your feedback. Contact us at kevintian20@gmail.com.
