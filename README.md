@@ -47,7 +47,8 @@ Volleyball is one of the world's most popular sports, yet finding local games, c
 ### Prerequisites  
 Make sure you have the following installed:  
 - [Node.js](https://nodejs.org/) and npm  
-- Python (for web scraping functionality)  
+- Python (for web scraping functionality)
+- ExpoGo (to test the mobile version)
 
 ### Testing the app  
 
