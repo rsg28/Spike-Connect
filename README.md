@@ -56,16 +56,19 @@ Make sure you have the following installed:
 ```sh
 git clone https://github.com/your-username/spikeconnect.git
 ```
-
-#### 2. Install dependencies
+#### Navigate to the main directory
+```sh
+cd mobileTemplate
+```
+#### 3. Install dependencies
 ```sh
 npm install
 ```
-#### 3. Start the server
+#### 4. Start the server
 ```sh
 npm start
 ```
-#### 4. Scan the QR code in the terminal with your phone or press "W"
+#### 5. Scan the QR code in the terminal with your phone or press "W"
 After starting the server, scan the QR code in the terminal with your phone to test the mobile version or press "W" to test the web version. You're all set! Enjoy SpikeConnect!
 
 ---
