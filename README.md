@@ -55,7 +55,6 @@ Make sure you have the following installed:
 #### 1. Clone the repository  
 ```sh
 git clone https://github.com/your-username/spikeconnect.git
-cd spikeconnect
 ```
 
 #### 2. Install dependencies
