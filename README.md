@@ -74,4 +74,4 @@ After starting the server, scan the QR code in the terminal with your phone to t
 ---
 
 #### 🤝 Get Involved
-We’re actively working on improving SpikeConnect! If you're a volleyball enthusiast, developer, or just someone passionate about community-driven sports platforms, we'd love your feedback. Contact us at kevintian20@gmail.com.
+We’re actively working on improving SpikeConnect! If you're a volleyball enthusiast, developer, or just someone passionate about community-driven sports platforms, we'd love your feedback. Contact us at kevintian20@gmail.com, rgomero05@gmail.com
