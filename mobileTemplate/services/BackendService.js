@@ -103,8 +103,14 @@ class BackendService {
   ];
 
   // Initialize the storage with sample data if empty
-  static async initialize() {
+  static async initialize(forceReset = false) {
     try {
+      // If forceReset is true, reset the data regardless of what's in storage
+      if (forceReset) {
+        await AsyncStorage.setItem("volleyballEvents", JSON.stringify(this.initialItems));
+        return;
+      }
+      
       const items = await AsyncStorage.getItem("volleyballEvents");
       if (items === null) {
         await AsyncStorage.setItem("volleyballEvents", JSON.stringify(this.initialItems));
@@ -258,7 +264,7 @@ class BackendService {
     }
   }
 
-  // Search events by title, description, level, or location
+  // Search events by title, description, level, location, or age range
   static async searchEvents(query) {
     try {
       const items = await this.getAllItems();
@@ -270,7 +276,9 @@ class BackendService {
           item.description.toLowerCase().includes(lowercaseQuery) ||
           item.level.toLowerCase().includes(lowercaseQuery) ||
           item.location.toLowerCase().includes(lowercaseQuery) ||
-          item.category.toLowerCase().includes(lowercaseQuery)
+          item.category.toLowerCase().includes(lowercaseQuery) ||
+          (item.ages && item.ages.toLowerCase().includes(lowercaseQuery)) ||
+          (item.time_range && item.time_range.toLowerCase().includes(lowercaseQuery))
       );
     } catch (error) {
       console.error("Error searching events:", error);
@@ -296,6 +304,42 @@ class BackendService {
       return items.filter(item => item.category === category);
     } catch (error) {
       console.error("Error getting events by category:", error);
+      return [];
+    }
+  }
+  
+  // NEW: Get events by age group
+  static async getEventsByAgeGroup(ageGroup) {
+    try {
+      const items = await this.getAllItems();
+      return items.filter(item => 
+        item.ages && item.ages.toLowerCase().includes(ageGroup.toLowerCase())
+      );
+    } catch (error) {
+      console.error("Error getting events by age group:", error);
+      return [];
+    }
+  }
+  
+  // NEW: Get events by time range
+  static async getEventsByTimeOfDay(timeOfDay) {
+    try {
+      const items = await this.getAllItems();
+      // timeOfDay can be 'morning', 'afternoon', 'evening'
+      return items.filter(item => {
+        if (!item.time_range) return false;
+        
+        const timeString = item.time_range.toLowerCase();
+        if (timeOfDay === 'morning' && timeString.includes('am')) return true;
+        if (timeOfDay === 'afternoon' && timeString.includes('pm') && 
+            !timeString.includes('7') && !timeString.includes('8') && !timeString.includes('9')) return true;
+        if (timeOfDay === 'evening' && 
+            (timeString.includes('7 pm') || timeString.includes('8 pm') || timeString.includes('9 pm'))) return true;
+        
+        return false;
+      });
+    } catch (error) {
+      console.error("Error getting events by time of day:", error);
       return [];
     }
   }
