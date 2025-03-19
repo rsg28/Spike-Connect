@@ -26,10 +26,10 @@ const ItemDetailScreen = ({ route, navigation }) => {
 
   // Mock images for activities - updated to use require()
   const activityImgs = [
-    require("../assets/edmonds.png"),
-    require("../assets/christine.png"),
-    require("../assets/bonsor.png"),
-    require("../assets/pittmeadows.png")
+    require("../assets/media/edmonds.png"),
+    require("../assets/media/christine.png"),
+    require("../assets/media/bonsor.png"),
+    require("../assets/media/pittmeadows.png")
   ];
 
   // Fetch event details when component mounts

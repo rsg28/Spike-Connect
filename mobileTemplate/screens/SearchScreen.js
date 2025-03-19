@@ -24,7 +24,7 @@ const SearchScreen = ({ navigation }) => {
   const popularSearches = ['tournament', 'beginner', 'beach', 'indoor', 'advanced'];
   
   // Filter categories
-  const categories = ['All', 'Tournament', 'League', 'Training', 'Casual'];
+  const categories = ['All', 'Tournament', 'League', 'Training', 'Casual', 'Drop-in'];
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const handleSearch = async (text) => {
@@ -139,15 +139,12 @@ const SearchScreen = ({ navigation }) => {
                 
                 <TouchableOpacity 
                   style={styles.quickFilterButton}
-                  onPress={() => {
-                    setSelectedCategory('All');
-                    handleSearch('beginner');
-                  }}
+                  onPress={() => handleCategorySelect('Drop-in')}
                 >
                   <View style={styles.quickFilterIcon}>
                     <Ionicons name="school-outline" size={24} color="rgb(168, 38, 29)" />
                   </View>
-                  <Text style={styles.quickFilterText}>For Beginners</Text>
+                  <Text style={styles.quickFilterText}>Drop-in</Text>
                 </TouchableOpacity>
               </View>
               

@@ -4,65 +4,64 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import time
-import json
+import utils
 
-def save_to_json(sessions):
-    with open('volleyball_sessions.json', 'w') as f:
-        json.dump(sessions, f)
-
-# URL to scrape for volleyball drop-in links
+# URL to scrape for volleyball drop-in events
 volleyball_url = 'https://anc.ca.apm.activecommunities.com/burnaby/activity/search?onlineSiteId=0&activity_select_param=2&activity_keyword=volleyball&viewMode=list'
 
 # Setup Chrome options to run in headless mode
 chrome_options = Options()
 chrome_options.add_argument("--headless")  # Run headlessly (without opening a browser window)
 chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
-chrome_options.add_argument("--no-sandbox")  # Disable sandboxing (useful for Linux environments)
 
 # Specify path to chromedriver
-chrome_driver_path = '../mobileTemplate/chromedriver-win64/chromedriver.exe'  # Make sure this is correct for your system
+chrome_driver_path = '../../mobileTemplate/chromedriver-win64/chromedriver.exe'  # Make sure this is correct for your system
 service = Service(chrome_driver_path)
 
 # Initialize WebDriver
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
-def scrape_volleyball_links():
+def scrape_volleyball_events():
     try:
         # Open the URL
         driver.get(volleyball_url)
 
         # Scroll down to the bottom of the page multiple times to trigger lazy loading
         # You can adjust the number of scrolls based on the content you're trying to load
-        for _ in range(5):  # Adjust this value for more/less scrolling
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)  # Wait for new content to load
+        # for _ in range(5):  # Adjust this value for more/less scrolling
+        #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        #     time.sleep(1)  # Wait for new content to load
 
         # Now scrape the page source using BeautifulSoup
         soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        # List to store found sessions
-        links = []
+        # List to store found events
+        events = []
 
         # Find all anchor tags with aria-label containing "Reserve In Advance: Volleyball"
         for a_tag in soup.find_all('a', {'aria-label': lambda x: x and x.startswith('Reserve In Advance: Volleyball')}):
-            link = a_tag.get('href')
+            # get the event title
+            title = a_tag.get('aria-label').replace('Reserve In Advance: ', '').strip()
+
+            # get level from title
+            level = utils.get_level_from_title(title)
+
+            # Get the link to the event page
+            eventLink = a_tag.get('href')
             
             # Locate the div containing the location span
             location_div = a_tag.find_parent('div', class_='activity-card-info')
             location_span = location_div.find('div', class_='activity-card-info__location').find('span')
-            location_text = location_span.get_text() if location_span else 'No location'
+            location = location_span.get_text() if location_span else 'No location'
 
-             # Find the div containing session props
+            # Get the venue type from the location string
+            venueType = utils.get_venue_type_from_location(location)
+
+            # Find the div containing event props
             props_div = location_div.find('div', class_='activity-card-info__props')
 
-            session_number_span = props_div.find('span', class_='activity-card-info__number').find('span')
-            session_number = session_number_span.get_text() if session_number_span else 'No session number'
-
-            category_span = props_div.find('span', class_='activity-card-info__category').find('span')
-            category = category_span.get_text() if category_span else 'No category'
-            category_text = category_span.get_text().strip()  # Get the text and remove any extra spaces
-            # Remove "Activity category" and leave only the category
-            category = category_text.split("Activity category")[-1].strip()
+            event_number_span = props_div.find('span', class_='activity-card-info__number').find('span')
+            eventID = event_number_span.get_text() if event_number_span else 'No event number'
 
             ages_span = props_div.find('span', class_='activity-card-info__ages')
             ages = ages_span.get_text() if ages_span else 'No age group'
@@ -73,8 +72,9 @@ def scrape_volleyball_links():
             openings = openings_span.get_text() if openings_span else 'No openings'
             openings_text = openings_span.get_text().strip()  # Get the text and remove extra spaces
             openings = openings_text.split()[-1]  # Get the last part, which should be the number of openings 
-            if openings == '0':
-                openings = "Full"
+
+            # get status from openings
+            status = utils.get_status_from_openings(openings)
 
             # Find the div containing the datetime
             datetime_div = a_tag.find_parent('div', class_='activity-card-info')
@@ -82,42 +82,47 @@ def scrape_volleyball_links():
             if datetime_div:
                 # Extract the date
                 date_span = datetime_div.find('span', class_='activity-card-info__dateRange')
-                date = date_span.get_text().strip() if date_span else 'No date'
+                eventDate = date_span.get_text().strip() if date_span else 'No date'
 
                 # Extract the time range
                 time_range_span = datetime_div.find('span', class_='activity-card-info__timeRange')
-                time_range = time_range_span.get_text().strip() if time_range_span else 'No time range'
+                eventTime = time_range_span.get_text().strip() if time_range_span else 'No time range'
 
-            if link:
-              links.append({
-                  'link': link,
-                  'location': location_text,
-                  'session_number': session_number,
-                  'category': category,
+            if eventLink:
+              events.append({
+                  'title': title,
+                  'eventID': eventID,
+                  'location': location,
+                  'eventLink': eventLink,
+                  'venueType': venueType,
+                  'category': 'drop-in',
+                  'level': level,
                   'ages': ages,
                   'openings': openings,
-                  'date': date,
-                  'time_range': time_range
+                  "status": status,
+                  'eventDate': eventDate,
+                  'eventTime': eventTime,
+                  'fee': "Pay in person"
               })
 
-        # Debugging: Print the found links with locations, session numbers, categories, ages, and openings
-        if not links:
-            print("No matching volleyball sessions found.")
+        # Debugging: Print the found events with locations, event numbers, categories, ages, and openings
+        if not events:
+            print("No matching volleyball events found.")
         else:
-            print("Found Links with Details:")
-            for session in links:
-                print(f"Session Link: {session['link']}, Location: {session['location']}, "
-                f"Session Number: {session['session_number']}, Category: {session['category']}, "
-                f"Ages: {session['ages']}, Openings: {session['openings']}, "
-                f"Date: {session['date']}, Time Range: {session['time_range']}")
+            print("Found events with Details:")
+            # for event in events:
+            #     print(f"event Link: {event['eventLink']}, Location: {event['location']}, "
+            #     f"event ID: {event['eventID']}, Venue Type: {event['venueType']}, "
+            #     f"Ages: {event['ages']}, Openings: {event['openings']}, "
+            #     f"Date: {event['eventDate']}, Time: {event['eventTime']}")
         
-        save_to_json(links)
+        utils.save_to_json(events)
 
     except Exception as e:
-        print(f"Error scraping links: {e}")
+        print(f"Error scraping events: {e}")
 
     finally:
         driver.quit()
 
 # Run the scraper
-scrape_volleyball_links()
+scrape_volleyball_events()

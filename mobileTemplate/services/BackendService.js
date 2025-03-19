@@ -13,7 +13,6 @@ class BackendService {
       level: "Intermediate",
       location: "Sunset Beach, Main Court",
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-      priority: "High",
       dueDate: "Mar 20, 2025",
       eventDate: "Mar 20, 2025, 10:00 AM",
       attachments: 2,
@@ -21,7 +20,8 @@ class BackendService {
       maxParticipants: 36,
       currentParticipants: 24,
       hostName: "Volleyball Club NYC",
-      fee: "$15 per person"
+      fee: "$15 per person",
+      eventLink: "https://www.volleyballclubnyc.com/tournaments"
     },
     {
       id: "2",
@@ -32,7 +32,6 @@ class BackendService {
       level: "Advanced",
       location: "Metro Sports Center, Court 3",
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-      priority: "Medium",
       dueDate: "Mar 25, 2025",
       eventDate: "Every Wednesday, 7:00 PM",
       attachments: 1,
@@ -40,7 +39,8 @@ class BackendService {
       maxParticipants: 48,
       currentParticipants: 36,
       hostName: "City Volleyball Association",
-      fee: "$120 per team"
+      fee: "$120 per team",
+      eventLink: "https://www.volleyballclubnyc.com/tournaments"
     },
     {
       id: "3",
@@ -51,7 +51,6 @@ class BackendService {
       level: "Beginner",
       location: "Community Center Gym",
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-      priority: "Low",
       dueDate: "Apr 5, 2025",
       eventDate: "Apr 5, 2025, 1:00 PM",
       attachments: 0,
@@ -59,7 +58,8 @@ class BackendService {
       maxParticipants: 20,
       currentParticipants: 8,
       hostName: "Volleyball Fundamentals",
-      fee: "$25 per person"
+      fee: "$25 per person",
+      eventLink: "https://www.volleyballclubnyc.com/tournaments"
     },
     {
       id: "4",
@@ -70,7 +70,6 @@ class BackendService {
       level: "All Levels",
       location: "Sandy Shores Volleyball Complex",
       createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-      priority: "Medium",
       dueDate: "Mar 30, 2025",
       eventDate: "Mar 30, 2025, 9:00 AM",
       attachments: 1,
@@ -78,7 +77,28 @@ class BackendService {
       maxParticipants: 64,
       currentParticipants: 40,
       hostName: "Sandy Shores VC",
-      fee: "$80 per team"
+      fee: "$80 per team",
+      eventLink: "https://www.volleyballclubnyc.com/tournaments"
+    },
+    // craete a sample drop in event for testing
+    {
+      id: "5",
+      title: "Drop-In Volleyball",
+      description:
+        "Casual drop-in volleyball games at the park. All levels welcome! No need to sign up, just show up and play. Bring your own ball if you have one.",
+      category: "Drop-In",
+      level: "All Levels",
+      location: "Central Park, Sheep Meadow",
+      createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+      dueDate: "Mar 15, 2025",
+      eventDate: "Every Saturday, 10:00 AM",
+      attachments: 0,
+      status: "Open",
+      maxParticipants: 0,
+      currentParticipants: 0,
+      hostName: "Central Park Volleyball",
+      fee: "Free",
+      eventLink: "https://www.volleyballclubnyc.com/tournaments"
     },
   ];
 
