@@ -1,4 +1,4 @@
-// screens/ItemDetailScreen.js - Updated to show random image
+// screens/ItemDetailScreen.js - Updated with safe date handling
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -32,6 +32,64 @@ const ItemDetailScreen = ({ route, navigation }) => {
     require("../assets/media/pittmeadows.png")
   ];
 
+  // Safe date handling helpers
+  const safeGetEventDate = (event) => {
+    // Handle multiple potential date fields with complete fallbacks
+    if (!event) return null;
+    
+    // Try eventDate first
+    if (event.eventDate) return event.eventDate;
+    
+    // Try dueDate as fallback
+    if (event.dueDate) return event.dueDate;
+    
+    // No suitable date fields found
+    return null;
+  };
+
+  // Safely extracts a date from a date string that might contain a comma
+  const safeExtractDate = (dateString) => {
+    if (!dateString) return new Date(); // Default to today if no date
+    
+    try {
+      // If the string contains a comma, extract the part before the comma
+      if (typeof dateString === 'string' && dateString.includes(',')) {
+        return new Date(dateString.split(',')[0].trim());
+      }
+      // Otherwise try to parse the whole string
+      return new Date(dateString);
+    } catch (error) {
+      console.error("Error parsing date:", dateString, error);
+      return new Date(); // Default to today if parsing fails
+    }
+  };
+
+  // Format date for display with safe handling
+  const formatEventDate = (dateString) => {
+    // If dateString is undefined or null, return a default value
+    if (!dateString) return "Date not specified";
+    
+    // Just return the original string, it's already formatted
+    return dateString;
+  };
+
+  // Check if event is past with safe handling
+  const isEventPast = (dateString) => {
+    // If dateString is undefined or null, consider it as not past
+    if (!dateString) return false;
+    
+    try {
+      const eventDate = safeExtractDate(dateString);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to beginning of today
+      
+      return eventDate < today;
+    } catch (error) {
+      console.error("Error checking if event is past:", dateString, error);
+      return false; // Default to not past if there's an error
+    }
+  };
+
   // Fetch event details when component mounts
   useEffect(() => {
     const loadEventDetails = async () => {
@@ -40,6 +98,14 @@ const ItemDetailScreen = ({ route, navigation }) => {
         const fetchedEvent = await BackendService.getItem(itemId);
         
         if (fetchedEvent) {
+          // Debug logging to help diagnose issues
+          console.log("Loaded event:", {
+            id: fetchedEvent.id,
+            title: fetchedEvent.title,
+            eventDate: fetchedEvent.eventDate,
+            dueDate: fetchedEvent.dueDate,
+          });
+          
           setEvent(fetchedEvent);
           
           // Select a random image from the array
@@ -47,7 +113,11 @@ const ItemDetailScreen = ({ route, navigation }) => {
           setRandomImage(activityImgs[randomIndex]);
           
           // Also fetch related events
-          const related = await BackendService.getRelatedItems(fetchedEvent.category, fetchedEvent.level, itemId);
+          const related = await BackendService.getRelatedItems(
+            fetchedEvent.category, 
+            fetchedEvent.level, 
+            fetchedEvent.id
+          );
           
           // Assign random images to related events too
           const relatedWithImages = related.map(item => ({
@@ -71,17 +141,12 @@ const ItemDetailScreen = ({ route, navigation }) => {
     loadEventDetails();
   }, [itemId, navigation]);
 
-  // Format date for display
-  const formatEventDate = (dateString) => {
-    return dateString;
-  };
-
   const handleShare = async () => {
     if (!event) return;
     
     try {
       await Share.share({
-        message: `Check out this volleyball event: ${event.title} - ${event.location} (${event.level} level) on ${event.eventDate}`,
+        message: `Check out this volleyball event: ${event.title} - ${event.location} (${event.level} level) on ${safeGetEventDate(event)}`,
         title: event.title,
       });
     } catch (error) {
@@ -178,10 +243,10 @@ const ItemDetailScreen = ({ route, navigation }) => {
           
           <View style={styles.categoryContainer}>
             <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{event.category}</Text>
+              <Text style={styles.categoryText}>{event.category || "Uncategorized"}</Text>
             </View>
             <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>{event.level}</Text>
+              <Text style={styles.levelText}>{event.level || "All Levels"}</Text>
             </View>
           </View>
           
@@ -215,13 +280,13 @@ const ItemDetailScreen = ({ route, navigation }) => {
                       ? '#FFB300'
                       : '#4CAF50'
                 }
-              ]}>{event.status}</Text>
+              ]}>{event.status || "Open"}</Text>
             </View>
             
             <View style={styles.participantsContainer}>
               <Ionicons name="people-outline" size={16} color="#666" />
               <Text style={styles.participantsText}>
-                {event.currentParticipants} / {event.maxParticipants} participants
+                {event.currentParticipants || 0} / {event.maxParticipants || 0} participants
               </Text>
             </View>
           </View>
@@ -229,7 +294,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
           <View style={styles.divider} />
           
           <Text style={styles.sectionTitle}>About This Event</Text>
-          <Text style={styles.descriptionText}>{event.description}</Text>
+          <Text style={styles.descriptionText}>{event.description || "No description available."}</Text>
           
           <View style={styles.divider} />
           
@@ -240,7 +305,9 @@ const ItemDetailScreen = ({ route, navigation }) => {
               <Ionicons name="calendar-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
             <Text style={styles.detailLabel}>Date & Time:</Text>
-            <Text style={styles.detailValue}>{formatEventDate(event.eventDate)}</Text>
+            <Text style={styles.detailValue}>
+              {formatEventDate(safeGetEventDate(event))}
+            </Text>
           </View>
           
           <View style={styles.detailRow}>
@@ -248,7 +315,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
               <Ionicons name="location-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
             <Text style={styles.detailLabel}>Location:</Text>
-            <Text style={styles.detailValue}>{event.location}</Text>
+            <Text style={styles.detailValue}>{event.location || "Location not specified"}</Text>
           </View>
           
           <View style={styles.detailRow}>
@@ -256,7 +323,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
               <Ionicons name="trophy-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
             <Text style={styles.detailLabel}>Level:</Text>
-            <Text style={styles.detailValue}>{event.level}</Text>
+            <Text style={styles.detailValue}>{event.level || "All Levels"}</Text>
           </View>
           
           <View style={styles.detailRow}>
@@ -264,7 +331,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
               <Ionicons name="cash-outline" size={20} color="rgb(168, 38, 29)" />
             </View>
             <Text style={styles.detailLabel}>Fee:</Text>
-            <Text style={styles.detailValue}>{event.fee}</Text>
+            <Text style={styles.detailValue}>{event.fee || "Free"}</Text>
           </View>
         </View>
         
@@ -281,12 +348,12 @@ const ItemDetailScreen = ({ route, navigation }) => {
           >
             <View style={styles.creatorAvatar}>
               <Text style={styles.creatorAvatarText}>
-                {event.hostName.split(' ').map(n => n[0]).join('')}
+                {(event.hostName || "Event Host").split(' ').map(n => n[0]).join('')}
               </Text>
             </View>
             
             <View style={styles.creatorInfo}>
-              <Text style={styles.creatorName}>{event.hostName}</Text>
+              <Text style={styles.creatorName}>{event.hostName || "Event Host"}</Text>
               <Text style={styles.creatorBio}>Event Organizer</Text>
               
               <View style={styles.creatorStats}>
@@ -311,7 +378,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
             style={styles.actionButton}
             onPress={() => {
               /* Navigate to contact host/organizer */
-              Alert.alert("Contact Host", `Would you like to contact ${event.hostName}?`);
+              Alert.alert("Contact Host", `Would you like to contact ${event.hostName || "the host"}?`);
             }}
           >
             <Ionicons name="mail-outline" size={20} color="#fff" />
@@ -371,8 +438,12 @@ const ItemDetailScreen = ({ route, navigation }) => {
                 <View style={styles.relatedItemContent}>
                   <Text style={styles.relatedItemTitle}>{relatedItem.title}</Text>
                   <View style={styles.relatedItemDetails}>
-                    <Text style={styles.relatedItemLevel}>{relatedItem.level}</Text>
-                    <Text style={styles.relatedItemLocation}>{relatedItem.location}</Text>
+                    <Text style={styles.relatedItemLevel}>
+                      {relatedItem.level || "All Levels"}
+                    </Text>
+                    <Text style={styles.relatedItemLocation}>
+                      {relatedItem.location || "Location TBD"}
+                    </Text>
                   </View>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#999" />

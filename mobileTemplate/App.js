@@ -1,9 +1,10 @@
 // App.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
@@ -12,13 +13,12 @@ import CreateItemScreen from "./screens/CreateItemScreen";
 import ItemDetailScreen from "./screens/ItemDetailScreen";
 import MyEventsScreen from "./screens/MyEventsScreen";
 import MyTeamsScreen from "./screens/MyTeamsScreen";
-import AchievementsScreen from "./screens/AchievementsScreen"; // Add the new Achievements screen
-
-// Import community-related screens
+import AchievementsScreen from "./screens/AchievementsScreen";
 import CommunityFeedScreen from "./screens/CommunityFeedScreen";
 import PostDetailScreen from "./screens/PostDetailScreen";
 import PostCommentScreen from "./screens/PostCommentScreen";
 import CreatePostScreen from "./screens/CreatePostScreen";
+import BackendService from "./services/BackendService";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,7 +31,6 @@ const THEME = {
   TEXT: "#333333",
 };
 
-// Then update your HomeStack function to include the ItemDetailScreen and community-related screens
 function HomeStack() {
   const HomeStack = createStackNavigator();
   return (
@@ -49,7 +48,6 @@ function HomeStack() {
   );
 }
 
-// Updated ProfileStack to include the Achievements screen
 function ProfileStack() {
   const ProfileStack = createStackNavigator();
   return (
@@ -99,7 +97,59 @@ function MainTabNavigator() {
 }
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isDbInitialized, setIsDbInitialized] = useState(false);
+  const [initializationError, setInitializationError] = useState(null);
+  
+
+  
+  // Initialize database when app loads
+  useEffect(() => {
+    initializeDatabase();
+  }, []);
+  
+  const initializeDatabase = async () => {
+    setIsDbInitialized(false);
+    setInitializationError(null);
+    
+    try {
+      console.log("Initializing backend service...");
+      await BackendService.initialize();
+      console.log("Backend service initialized successfully!");
+      setIsDbInitialized(true);
+    } catch (error) {
+      console.error("Error initializing database:", error);
+      setInitializationError(error.message);
+      // Still set as initialized so user can see error and retry
+      setIsDbInitialized(true);
+    }
+  };
+
+  // Show loading screen while database initializes
+  if (!isDbInitialized) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={THEME.PRIMARY} />
+        <Text style={styles.loadingText}>Loading volleyball data...</Text>
+      </View>
+    );
+  }
+  
+  // Show error screen if initialization failed
+  if (initializationError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle" size={50} color={THEME.PRIMARY} />
+        <Text style={styles.errorTitle}>Database Error</Text>
+        <Text style={styles.errorMessage}>{initializationError}</Text>
+        <Text style={styles.errorHint}>
+          Try resetting the database using the button below.
+        </Text>
+        
+        
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -125,6 +175,56 @@ export default function App() {
           />
         )}
       </Stack.Navigator>
+      
+      
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: THEME.BACKGROUND,
+  },
+  loadingText: {
+    marginTop: 20,
+    color: THEME.TEXT,
+    fontSize: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: THEME.BACKGROUND,
+  },
+  errorTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: THEME.PRIMARY,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: THEME.TEXT,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  errorHint: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  devToolsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+});

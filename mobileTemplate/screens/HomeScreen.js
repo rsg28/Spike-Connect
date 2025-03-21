@@ -109,18 +109,39 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   // Calculate the relative time for display
-  const getRelativeTime = (dateString) => {
-    const date = new Date(dateString);
+  // Calculate the relative time for display
+const getRelativeTime = (dateString) => {
+  // If dateString is undefined or null, return a default value
+  if (!dateString) return "Date unknown";
+  
+  try {
+    // Check if the date string contains a comma (like "March 18, 2025")
+    const date = dateString.includes(',') 
+      ? new Date(dateString.split(',')[0]) // Extract just the date part
+      : new Date(dateString);
+    
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 1) return "Today";
+    if (isNaN(diffDays)) return "Date unknown";
+    
+    if (diffDays < 0) return "Upcoming";
+    if (diffDays === 0) return "Today";
     if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return `${diffDays} days ago`;
-    return `${Math.floor(diffDays / 7)} week${
-      Math.floor(diffDays / 7) > 1 ? "s" : ""
-    } ago`;
-  };
+    
+    const diffWeeks = Math.floor(diffDays / 7);
+    if (diffWeeks === 1) return "1 week ago";
+    if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
+    
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths === 1) return "1 month ago";
+    return `${diffMonths} months ago`;
+  } catch (error) {
+    console.error("Error formatting date:", dateString, error);
+    return "Date error";
+  }
+};
 
   // Handle post interactions with enhanced animation
   const handleLikePost = (postId) => {

@@ -1,0 +1,51 @@
+-- Database Schema for Volleyball App
+
+-- Venues Table
+CREATE TABLE IF NOT EXISTS venues (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    venue_type TEXT CHECK (venue_type IN ('Indoor', 'Outdoor', 'Beach'))
+);
+
+-- Levels Table
+CREATE TABLE IF NOT EXISTS levels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+);
+
+-- Categories Table
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+);
+
+-- Sessions Table (Main table for volleyball events)
+CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id TEXT UNIQUE,
+    title TEXT NOT NULL,
+    location_id INTEGER,
+    event_link TEXT,
+    category_id INTEGER,
+    level_id INTEGER,
+    ages TEXT,
+    openings INTEGER,
+    status TEXT CHECK (status IN ('Open', 'Full', 'Cancelled')),
+    event_date TEXT,
+    event_time TEXT,
+    fee TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (location_id) REFERENCES venues(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (level_id) REFERENCES levels(id)
+);
+
+-- User Registrations (for tracking which users joined which sessions)
+CREATE TABLE IF NOT EXISTS user_registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    session_id INTEGER NOT NULL,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES sessions(id),
+    UNIQUE(user_id, session_id)
+);
