@@ -1,4 +1,4 @@
-// screens/ItemDetailScreen.js - Updated with safe date handling
+// screens/ItemDetailScreen.js - Updated to adapt to available data
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -34,60 +34,16 @@ const ItemDetailScreen = ({ route, navigation }) => {
 
   // Safe date handling helpers
   const safeGetEventDate = (event) => {
-    // Handle multiple potential date fields with complete fallbacks
     if (!event) return null;
-    
-    // Try eventDate first
     if (event.eventDate) return event.eventDate;
-    
-    // Try dueDate as fallback
     if (event.dueDate) return event.dueDate;
-    
-    // No suitable date fields found
     return null;
   };
 
-  // Safely extracts a date from a date string that might contain a comma
-  const safeExtractDate = (dateString) => {
-    if (!dateString) return new Date(); // Default to today if no date
-    
-    try {
-      // If the string contains a comma, extract the part before the comma
-      if (typeof dateString === 'string' && dateString.includes(',')) {
-        return new Date(dateString.split(',')[0].trim());
-      }
-      // Otherwise try to parse the whole string
-      return new Date(dateString);
-    } catch (error) {
-      console.error("Error parsing date:", dateString, error);
-      return new Date(); // Default to today if parsing fails
-    }
-  };
-
-  // Format date for display with safe handling
+  // Safe formatting for event date display
   const formatEventDate = (dateString) => {
-    // If dateString is undefined or null, return a default value
-    if (!dateString) return "Date not specified";
-    
-    // Just return the original string, it's already formatted
+    if (!dateString) return null;
     return dateString;
-  };
-
-  // Check if event is past with safe handling
-  const isEventPast = (dateString) => {
-    // If dateString is undefined or null, consider it as not past
-    if (!dateString) return false;
-    
-    try {
-      const eventDate = safeExtractDate(dateString);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Set to beginning of today
-      
-      return eventDate < today;
-    } catch (error) {
-      console.error("Error checking if event is past:", dateString, error);
-      return false; // Default to not past if there's an error
-    }
   };
 
   // Fetch event details when component mounts
@@ -98,34 +54,29 @@ const ItemDetailScreen = ({ route, navigation }) => {
         const fetchedEvent = await BackendService.getItem(itemId);
         
         if (fetchedEvent) {
-          // Debug logging to help diagnose issues
-          console.log("Loaded event:", {
-            id: fetchedEvent.id,
-            title: fetchedEvent.title,
-            eventDate: fetchedEvent.eventDate,
-            dueDate: fetchedEvent.dueDate,
-          });
-          
+          console.log("Loaded event:", fetchedEvent);
           setEvent(fetchedEvent);
           
           // Select a random image from the array
           const randomIndex = Math.floor(Math.random() * activityImgs.length);
           setRandomImage(activityImgs[randomIndex]);
           
-          // Also fetch related events
-          const related = await BackendService.getRelatedItems(
-            fetchedEvent.category, 
-            fetchedEvent.level, 
-            fetchedEvent.id
-          );
-          
-          // Assign random images to related events too
-          const relatedWithImages = related.map(item => ({
-            ...item,
-            imageUrl: activityImgs[Math.floor(Math.random() * activityImgs.length)]
-          }));
-          
-          setRelatedEvents(relatedWithImages);
+          // Only fetch related events if category and level are available
+          if (fetchedEvent.category && fetchedEvent.level) {
+            const related = await BackendService.getRelatedItems(
+              fetchedEvent.category, 
+              fetchedEvent.level, 
+              fetchedEvent.id
+            );
+            
+            // Assign random images to related events too
+            const relatedWithImages = related.map(item => ({
+              ...item,
+              imageUrl: activityImgs[Math.floor(Math.random() * activityImgs.length)]
+            }));
+            
+            setRelatedEvents(relatedWithImages);
+          }
         } else {
           // Handle event not found
           Alert.alert('Error', 'Event not found');
@@ -145,47 +96,13 @@ const ItemDetailScreen = ({ route, navigation }) => {
     if (!event) return;
     
     try {
+      const dateInfo = safeGetEventDate(event) ? ` on ${safeGetEventDate(event)}` : '';
       await Share.share({
-        message: `Check out this volleyball event: ${event.title} - ${event.location} (${event.level} level) on ${safeGetEventDate(event)}`,
+        message: `Check out this volleyball event: ${event.title} - ${event.location || 'Location TBD'} (${event.level || 'All Levels'})${dateInfo}`,
         title: event.title,
       });
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  const handleJoinEvent = async () => {
-    if (!event) return;
-    
-    try {
-      if (isJoined) {
-        // Leave event
-        await BackendService.leaveEvent(event.id);
-        setIsJoined(false);
-        setEvent({
-          ...event,
-          currentParticipants: event.currentParticipants - 1
-        });
-        Alert.alert('Success', 'You have left this event');
-      } else {
-        // Check if event is full
-        if (event.currentParticipants >= event.maxParticipants) {
-          Alert.alert('Error', 'This event is already full');
-          return;
-        }
-        
-        // Join event
-        await BackendService.joinEvent(event.id);
-        setIsJoined(true);
-        setEvent({
-          ...event, 
-          currentParticipants: event.currentParticipants + 1
-        });
-        Alert.alert('Success', 'You have joined this event');
-      }
-    } catch (error) {
-      console.error('Error updating event participation:', error);
-      Alert.alert('Error', 'Failed to update participation');
     }
   };
 
@@ -241,185 +158,191 @@ const ItemDetailScreen = ({ route, navigation }) => {
         <View style={styles.detailsCard}>
           <Text style={styles.itemTitle}>{event.title}</Text>
           
+          {/* Category and Level badges - Only show if available */}
           <View style={styles.categoryContainer}>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{event.category || "Uncategorized"}</Text>
-            </View>
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>{event.level || "All Levels"}</Text>
-            </View>
+            {event.category && (
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryText}>{event.category}</Text>
+              </View>
+            )}
+            {event.level && (
+              <View style={styles.levelBadge}>
+                <Text style={styles.levelText}>{event.level}</Text>
+              </View>
+            )}
           </View>
           
-          <View style={styles.statusContainer}>
-            <View style={[
-              styles.statusBadge, 
-              { 
-                backgroundColor: event.status === 'Full' 
-                  ? 'rgba(244, 67, 54, 0.1)' 
-                  : event.status === 'In Progress' 
-                    ? 'rgba(255, 179, 0, 0.1)'
-                    : 'rgba(76, 175, 80, 0.1)'
-              }
-            ]}>
-              <View style={[
-                styles.statusDot, 
-                { 
-                  backgroundColor: event.status === 'Full' 
-                    ? '#F44336' 
-                    : event.status === 'In Progress' 
-                      ? '#FFB300'
-                      : '#4CAF50'
-                }
-              ]} />
-              <Text style={[
-                styles.statusText, 
-                { 
-                  color: event.status === 'Full' 
-                    ? '#F44336' 
-                    : event.status === 'In Progress' 
-                      ? '#FFB300'
-                      : '#4CAF50'
-                }
-              ]}>{event.status || "Open"}</Text>
+          {/* Status and Openings - Only show if available */}
+          {(event.status || event.openings) && (
+            <View style={styles.statusContainer}>
+              {event.status && (
+                <View style={[
+                  styles.statusBadge, 
+                  { 
+                    backgroundColor: event.status === 'Full' 
+                      ? 'rgba(244, 67, 54, 0.1)' 
+                      : event.status === 'In Progress' 
+                        ? 'rgba(255, 179, 0, 0.1)'
+                        : 'rgba(76, 175, 80, 0.1)'
+                  }
+                ]}>
+                  <View style={[
+                    styles.statusDot, 
+                    { 
+                      backgroundColor: event.status === 'Full' 
+                        ? '#F44336' 
+                        : event.status === 'In Progress' 
+                          ? '#FFB300'
+                          : '#4CAF50'
+                    }
+                  ]} />
+                  <Text style={[
+                    styles.statusText, 
+                    { 
+                      color: event.status === 'Full' 
+                        ? '#F44336' 
+                        : event.status === 'In Progress' 
+                          ? '#FFB300'
+                          : '#4CAF50'
+                    }
+                  ]}>{event.status}</Text>
+                </View>
+              )}
+              
+              {event.openings !== undefined && (
+                <View style={styles.participantsContainer}>
+                  <Ionicons name="people-outline" size={16} color="#666" />
+                  <Text style={styles.participantsText}>
+                    {event.openings} {parseInt(event.openings) === 1 ? 'spot' : 'spots'} available
+                  </Text>
+                </View>
+              )}
             </View>
-            
-            <View style={styles.participantsContainer}>
-              <Ionicons name="people-outline" size={16} color="#666" />
-              <Text style={styles.participantsText}>
-                {event.currentParticipants || 0} / {event.maxParticipants || 0} participants
-              </Text>
-            </View>
-          </View>
+          )}
           
           <View style={styles.divider} />
           
-          <Text style={styles.sectionTitle}>About This Event</Text>
-          <Text style={styles.descriptionText}>{event.description || "No description available."}</Text>
-          
-          <View style={styles.divider} />
+          {/* Only show description section if there is a description */}
+          {event.description && (
+            <>
+              <Text style={styles.sectionTitle}>About This Event</Text>
+              <Text style={styles.descriptionText}>{event.description}</Text>
+              <View style={styles.divider} />
+            </>
+          )}
           
           <Text style={styles.sectionTitle}>Event Details</Text>
           
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconContainer}>
-              <Ionicons name="calendar-outline" size={20} color="rgb(168, 38, 29)" />
-            </View>
-            <Text style={styles.detailLabel}>Date & Time:</Text>
-            <Text style={styles.detailValue}>
-              {formatEventDate(safeGetEventDate(event))}
-            </Text>
-          </View>
-          
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconContainer}>
-              <Ionicons name="location-outline" size={20} color="rgb(168, 38, 29)" />
-            </View>
-            <Text style={styles.detailLabel}>Location:</Text>
-            <Text style={styles.detailValue}>{event.location || "Location not specified"}</Text>
-          </View>
-          
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconContainer}>
-              <Ionicons name="trophy-outline" size={20} color="rgb(168, 38, 29)" />
-            </View>
-            <Text style={styles.detailLabel}>Level:</Text>
-            <Text style={styles.detailValue}>{event.level || "All Levels"}</Text>
-          </View>
-          
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconContainer}>
-              <Ionicons name="cash-outline" size={20} color="rgb(168, 38, 29)" />
-            </View>
-            <Text style={styles.detailLabel}>Fee:</Text>
-            <Text style={styles.detailValue}>{event.fee || "Free"}</Text>
-          </View>
-        </View>
-        
-        {/* Event Creator Section */}
-        <View style={styles.creatorCard}>
-          <Text style={styles.sectionTitle}>Event Creator</Text>
-          
-          <TouchableOpacity 
-            style={styles.creatorProfile}
-            onPress={() => {
-              // Navigate to creator's profile (this would be implemented in a full app)
-              Alert.alert("View Profile", `View ${event.hostName}'s full profile`);
-            }}
-          >
-            <View style={styles.creatorAvatar}>
-              <Text style={styles.creatorAvatarText}>
-                {(event.hostName || "Event Host").split(' ').map(n => n[0]).join('')}
+          {/* Only show date row if date is available */}
+          {safeGetEventDate(event) && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="calendar-outline" size={20} color="rgb(168, 38, 29)" />
+              </View>
+              <Text style={styles.detailLabel}>Date & Time:</Text>
+              <Text style={styles.detailValue}>
+                {formatEventDate(safeGetEventDate(event))}
               </Text>
             </View>
-            
-            <View style={styles.creatorInfo}>
-              <Text style={styles.creatorName}>{event.hostName || "Event Host"}</Text>
-              <Text style={styles.creatorBio}>Event Organizer</Text>
-              
-              <View style={styles.creatorStats}>
-                <View style={styles.creatorStat}>
-                  <Text style={styles.creatorStatValue}>12</Text>
-                  <Text style={styles.creatorStatLabel}>Events</Text>
-                </View>
-                <View style={styles.creatorStat}>
-                  <Text style={styles.creatorStatValue}>4.8</Text>
-                  <Text style={styles.creatorStatLabel}>Rating</Text>
-                </View>
+          )}
+          
+          {/* Only show location row if location is available */}
+          {event.location && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="location-outline" size={20} color="rgb(168, 38, 29)" />
               </View>
+              <Text style={styles.detailLabel}>Location:</Text>
+              <Text style={styles.detailValue}>{event.location}</Text>
             </View>
-            
-            <Ionicons name="chevron-forward" size={20} color="#999" />
-          </TouchableOpacity>
+          )}
+          
+          {/* Only show level row if level is available */}
+          {event.level && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="trophy-outline" size={20} color="rgb(168, 38, 29)" />
+              </View>
+              <Text style={styles.detailLabel}>Level:</Text>
+              <Text style={styles.detailValue}>{event.level}</Text>
+            </View>
+          )}
+          
+          {/* Only show fee row if fee is available */}
+          {event.fee && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="cash-outline" size={20} color="rgb(168, 38, 29)" />
+              </View>
+              <Text style={styles.detailLabel}>Fee:</Text>
+              <Text style={styles.detailValue}>{event.fee}</Text>
+            </View>
+          )}
+          
+          {/* Only show ages row if ages is available */}
+          {event.ages && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="people-outline" size={20} color="rgb(168, 38, 29)" />
+              </View>
+              <Text style={styles.detailLabel}>Ages:</Text>
+              <Text style={styles.detailValue}>{event.ages}</Text>
+            </View>
+          )}
+
+          {/* Add event link row if available */}
+          {event.eventLink && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="link-outline" size={20} color="rgb(168, 38, 29)" />
+              </View>
+              <Text style={styles.detailLabel}>Event Link:</Text>
+              <Text style={[styles.detailValue, styles.linkText]} 
+                    onPress={() => Alert.alert("Event Link", "This would open the external event link.")}>
+                View Details
+              </Text>
+            </View>
+          )}
         </View>
         
-        {/* Actions section */}
+        {/* Show Action button for registration */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => {
-              /* Navigate to contact host/organizer */
-              Alert.alert("Contact Host", `Would you like to contact ${event.hostName || "the host"}?`);
-            }}
-          >
-            <Ionicons name="mail-outline" size={20} color="#fff" />
-            <Text style={styles.actionButtonText}>Contact Host</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
             style={[
-              styles.actionButton, 
-              isJoined ? styles.leaveButton : 
-                (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
-                styles.disabledButton : styles.joinButton
+              styles.actionButton,
+              event.status === 'Full' ? styles.disabledButton : styles.joinButton
             ]}
-            onPress={handleJoinEvent}
-            disabled={event.currentParticipants >= event.maxParticipants && !isJoined}
+            onPress={() => {
+              Alert.alert(
+                "Registration",
+                "Would you like to register for this event?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { 
+                    text: "Register", 
+                    onPress: () => Alert.alert(
+                      "Registration Info",
+                      "This would navigate to the registration page or process."
+                    )
+                  }
+                ]
+              );
+            }}
+            disabled={event.status === 'Full'}
           >
-            <Ionicons 
-              name={isJoined ? "close-circle-outline" : "checkmark-circle-outline"} 
-              size={20} 
-              color={isJoined ? "#fff" : 
-                (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
-                "#999" : "#fff"} 
-            />
-            <Text style={[
-              styles.actionButtonText,
-              (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
-              styles.disabledButtonText : {}
-            ]}>
-              {isJoined ? "Leave Event" : 
-                (event.currentParticipants >= event.maxParticipants && !isJoined) ? 
-                "Event Full" : "Join Event"}
+            <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>
+              {event.status === 'Full' ? "Event Full" : "Register for Event"}
             </Text>
           </TouchableOpacity>
         </View>
         
-        {/* Related events section - Updated to show images */}
-        <View style={styles.relatedSection}>
-          <Text style={styles.relatedTitle}>Related Events</Text>
-          
-          {relatedEvents.length > 0 ? (
-            relatedEvents.map((relatedItem) => (
+        {/* Only show related events section if there are related events */}
+        {relatedEvents.length > 0 && (
+          <View style={styles.relatedSection}>
+            <Text style={styles.relatedTitle}>Related Events</Text>
+            
+            {relatedEvents.map((relatedItem) => (
               <TouchableOpacity 
                 key={relatedItem.id} 
                 style={styles.relatedItem}
@@ -438,21 +361,19 @@ const ItemDetailScreen = ({ route, navigation }) => {
                 <View style={styles.relatedItemContent}>
                   <Text style={styles.relatedItemTitle}>{relatedItem.title}</Text>
                   <View style={styles.relatedItemDetails}>
-                    <Text style={styles.relatedItemLevel}>
-                      {relatedItem.level || "All Levels"}
-                    </Text>
-                    <Text style={styles.relatedItemLocation}>
-                      {relatedItem.location || "Location TBD"}
-                    </Text>
+                    {relatedItem.level && (
+                      <Text style={styles.relatedItemLevel}>{relatedItem.level}</Text>
+                    )}
+                    {relatedItem.location && (
+                      <Text style={styles.relatedItemLocation}>{relatedItem.location}</Text>
+                    )}
                   </View>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#999" />
               </TouchableOpacity>
-            ))
-          ) : (
-            <Text style={styles.noRelatedText}>No related events found</Text>
-          )}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -639,70 +560,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
-  // Creator Card Styles
-  creatorCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  creatorProfile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  creatorAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgb(168, 38, 29)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  creatorAvatarText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  creatorInfo: {
-    flex: 1,
-  },
-  creatorName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  creatorBio: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  creatorStats: {
-    flexDirection: 'row',
-  },
-  creatorStat: {
-    marginRight: 16,
-  },
-  creatorStatValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  linkText: {
     color: 'rgb(168, 38, 29)',
-  },
-  creatorStatLabel: {
-    fontSize: 12,
-    color: '#666',
+    textDecorationLine: 'underline',
   },
   actionsContainer: {
-    flexDirection: 'row',
     marginBottom: 16,
   },
   actionButton: {
@@ -710,16 +572,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(168, 38, 29)',
     borderRadius: 8,
     paddingVertical: 12,
-    marginHorizontal: 4,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   joinButton: {
     backgroundColor: '#4CAF50',
-  },
-  leaveButton: {
-    backgroundColor: '#F44336',
   },
   disabledButton: {
     backgroundColor: '#e0e0e0',
@@ -728,9 +586,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     marginLeft: 8,
-  },
-  disabledButtonText: {
-    color: '#999',
   },
   relatedSection: {
     backgroundColor: '#fff',
@@ -794,12 +649,6 @@ const styles = StyleSheet.create({
   relatedItemLocation: {
     fontSize: 12,
     color: '#666',
-  },
-  noRelatedText: {
-    fontSize: 14,
-    color: '#999',
-    padding: 12,
-    textAlign: 'center',
   }
 });
 
