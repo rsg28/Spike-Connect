@@ -25,9 +25,9 @@ def scrape_volleyball_events():
 
         # Scroll down to the bottom of the page multiple times to trigger lazy loading
         # You can adjust the number of scrolls based on the content you're trying to load
-        # for _ in range(5):  # Adjust this value for more/less scrolling
-        #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        #     time.sleep(1)  # Wait for new content to load
+        for _ in range(1):  # Adjust this value for more/less scrolling
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)  # Wait for new content to load
 
         # Now scrape the page source using BeautifulSoup
         soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -113,7 +113,7 @@ def scrape_volleyball_events():
             #     f"Ages: {event['ages']}, Openings: {event['openings']}, "
             #     f"Date: {event['eventDate']}, Time: {event['eventTime']}")
         
-        utils.save_to_json(events)
+        utils.save_to_json(events, "burnaby")
 
     except Exception as e:
         print(f"Error scraping events: {e}")

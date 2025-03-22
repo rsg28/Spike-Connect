@@ -1,12 +1,12 @@
 import json
 import os
 
-def save_to_json(sessions):
+def save_to_json(events, city):
     directory = "../assets/data"
-    file_path = os.path.join(directory, "burnaby-drop-in-sessions.json")
+    file_path = os.path.join(directory, f'{city}-drop-in-sessions.json')
     
     with open(file_path, "w") as f:
-        json.dump(sessions, f, indent=4)
+        json.dump(events, f, indent=4)
     
     print(f"Data saved successfully in {file_path}")
 
