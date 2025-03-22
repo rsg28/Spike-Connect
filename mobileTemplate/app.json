@@ -4,11 +4,11 @@
     "slug": "mobileTemplate",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/media/icon.png",
+    "icon": "./assets/media/images/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/media/splash-icon.png",
+      "image": "./assets/media/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,12 +17,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/media/adaptive-icon.png",
+        "foregroundImage": "./assets/media/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/media/favicon.png"
+      "favicon": "./assets/media/images/favicon.png"
     },
     "plugins": [
       "expo-sqlite"

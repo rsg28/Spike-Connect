@@ -1,7 +1,7 @@
 # burnaby-drop-in-scraper.py
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import time
@@ -15,12 +15,8 @@ chrome_options = Options()
 chrome_options.add_argument("--headless")  # Run headlessly (without opening a browser window)
 chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
 
-# Specify path to chromedriver
-chrome_driver_path = '../../mobileTemplate/chromedriver-win64/chromedriver.exe'  # Make sure this is correct for your system
-service = Service(chrome_driver_path)
-
-# Initialize WebDriver
-driver = webdriver.Chrome(service=service, options=chrome_options)
+# Automatically download and set the correct ChromeDriver
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 def scrape_volleyball_events():
     try:
