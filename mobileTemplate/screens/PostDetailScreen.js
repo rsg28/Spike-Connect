@@ -18,9 +18,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 const PostDetailScreen = ({ route, navigation }) => {
-  const { post } = route.params;
-  const [liked, setLiked] = useState(post.isLiked);
-  const [likeCount, setLikeCount] = useState(post.likes);
+  const { post } = route.params || {};
+  const [liked, setLiked] = useState(post?.isLiked || false);
+  const [likeCount, setLikeCount] = useState(post?.likes || 0);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +35,7 @@ const PostDetailScreen = ({ route, navigation }) => {
     loadComments();
     
     // Animation for heart icon on mount
-    if (post.isLiked) {
+    if (post?.isLiked) {
       Animated.sequence([
         Animated.timing(likeAnimation, {
           toValue: 1.3,
@@ -65,6 +65,8 @@ const PostDetailScreen = ({ route, navigation }) => {
   };
 
   const generateMockComments = () => {
+    if (!post) return [];
+    
     const mockComments = [];
     const names = [
       "Alex Rodriguez", "Tina Williams", "James Wilson",
@@ -90,13 +92,13 @@ const PostDetailScreen = ({ route, navigation }) => {
       "I'm bringing a friend too if that's alright."
     ];
     
-    const numComments = Math.min(post.comments, 10);
+    const numComments = Math.min(post.comments || 10, 10);
     
     for (let i = 0; i < numComments; i++) {
       const randomNameIndex = Math.floor(Math.random() * names.length);
       const randomCommentIndex = Math.floor(Math.random() * commentTexts.length);
       const randomTime = new Date(
-        new Date(post.timestamp).getTime() + 
+        new Date(post.timestamp || Date.now()).getTime() + 
         Math.floor(Math.random() * 1000 * 60 * 60 * 12)
       );
       
@@ -114,9 +116,9 @@ const PostDetailScreen = ({ route, navigation }) => {
         replies: Math.random() > 0.7 ? [{
           id: `reply${i+1}`,
           user: {
-            id: post.user.id,
-            name: post.user.name,
-            avatar: post.user.avatar,
+            id: post.user?.id || "poster",
+            name: post.user?.name || "Original Poster",
+            avatar: post.user?.avatar,
           },
           text: "Thanks for your interest! Yes, we're still looking for players.",
           timestamp: new Date(randomTime.getTime() + 1000 * 60 * 30).toISOString(),
@@ -132,20 +134,27 @@ const PostDetailScreen = ({ route, navigation }) => {
   };
 
   const getRelativeTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMinutes = Math.floor((now - date) / (1000 * 60));
+    if (!dateString) return "Recently";
     
-    if (diffMinutes < 1) return "Just now";
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
-    
-    return `${Math.floor(diffDays / 7)}w ago`;
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMinutes = Math.floor((now - date) / (1000 * 60));
+      
+      if (diffMinutes < 1) return "Just now";
+      if (diffMinutes < 60) return `${diffMinutes}m ago`;
+      
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays < 7) return `${diffDays}d ago`;
+      
+      return `${Math.floor(diffDays / 7)}w ago`;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Recently";
+    }
   };
 
   const handleLikePost = () => {
@@ -210,7 +219,7 @@ const PostDetailScreen = ({ route, navigation }) => {
           comment.id === replyingTo.id
             ? {
                 ...comment,
-                replies: [...comment.replies, {
+                replies: [...(comment.replies || []), {
                   id: `reply${Date.now()}`,
                   user: newComment.user,
                   text: commentText,
@@ -237,7 +246,7 @@ const PostDetailScreen = ({ route, navigation }) => {
   const handleReplyToComment = (comment) => {
     setIsReplying(true);
     setReplyingTo(comment);
-    setCommentText(`@${comment.user.name} `);
+    setCommentText(`@${comment.user?.name || "User"} `);
     inputRef.current?.focus();
   };
 
@@ -251,17 +260,17 @@ const PostDetailScreen = ({ route, navigation }) => {
     <View style={styles.commentContainer}>
       <View style={styles.commentHeader}>
         <View style={styles.commentUserAvatar}>
-          {item.user.avatar ? (
+          {item.user?.avatar ? (
             <Image source={{ uri: item.user.avatar }} style={styles.commentAvatarImage} />
           ) : (
             <View style={styles.commentDefaultAvatar}>
-              <Text style={styles.commentAvatarInitial}>{item.user.name.charAt(0)}</Text>
+              <Text style={styles.commentAvatarInitial}>{item.user?.name?.charAt(0) || "?"}</Text>
             </View>
           )}
         </View>
         <View style={styles.commentContent}>
           <View style={styles.commentBubble}>
-            <Text style={styles.commentUserName}>{item.user.name}</Text>
+            <Text style={styles.commentUserName}>{item.user?.name || "Unknown User"}</Text>
             <Text style={styles.commentText}>{item.text}</Text>
           </View>
           
@@ -294,19 +303,19 @@ const PostDetailScreen = ({ route, navigation }) => {
       {item.replies && item.replies.length > 0 && (
         <View style={styles.repliesContainer}>
           {item.replies.map((reply) => (
-            <View key={reply.id} style={styles.replyContainer}>
+            <View key={reply.id || `reply-${Math.random().toString(36)}`} style={styles.replyContainer}>
               <View style={styles.commentUserAvatar}>
-                {reply.user.avatar ? (
+                {reply.user?.avatar ? (
                   <Image source={{ uri: reply.user.avatar }} style={styles.commentAvatarImage} />
                 ) : (
                   <View style={[styles.commentDefaultAvatar, styles.replyAvatar]}>
-                    <Text style={styles.commentAvatarInitial}>{reply.user.name.charAt(0)}</Text>
+                    <Text style={styles.commentAvatarInitial}>{reply.user?.name?.charAt(0) || "?"}</Text>
                   </View>
                 )}
               </View>
               <View style={styles.commentContent}>
                 <View style={styles.commentBubble}>
-                  <Text style={styles.commentUserName}>{reply.user.name}</Text>
+                  <Text style={styles.commentUserName}>{reply.user?.name || "Unknown User"}</Text>
                   <Text style={styles.commentText}>{reply.text}</Text>
                 </View>
                 
@@ -325,6 +334,34 @@ const PostDetailScreen = ({ route, navigation }) => {
       )}
     </View>
   );
+
+  // If post is undefined or null, show error
+  if (!post) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Post</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={50} color="#999" />
+          <Text style={styles.errorText}>Post not found or has been deleted</Text>
+          <TouchableOpacity
+            style={styles.returnButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.returnButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -348,22 +385,22 @@ const PostDetailScreen = ({ route, navigation }) => {
 
         <FlatList
           data={comments}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id || `comment-${Math.random().toString(36)}`}
           renderItem={renderCommentItem}
           ListHeaderComponent={
             <View style={styles.postContainer}>
               <View style={styles.postHeader}>
                 <View style={styles.postUserAvatar}>
-                  {post.user.avatar ? (
+                  {post.user?.avatar ? (
                     <Image source={{ uri: post.user.avatar }} style={styles.avatarImage} />
                   ) : (
                     <View style={styles.defaultAvatar}>
-                      <Text style={styles.avatarInitial}>{post.user.name.charAt(0)}</Text>
+                      <Text style={styles.avatarInitial}>{post.user?.name?.charAt(0) || "?"}</Text>
                     </View>
                   )}
                 </View>
                 <View style={styles.postUserInfo}>
-                  <Text style={styles.postUserName}>{post.user.name}</Text>
+                  <Text style={styles.postUserName}>{post.user?.name || "Unknown User"}</Text>
                   <Text style={styles.postTimestamp}>{getRelativeTime(post.timestamp)}</Text>
                 </View>
                 <TouchableOpacity style={styles.postOptions}>
@@ -371,7 +408,7 @@ const PostDetailScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.postContent}>{post.content}</Text>
+              <Text style={styles.postContent}>{post.content || "No content"}</Text>
 
               <View style={styles.postActions}>
                 <TouchableOpacity
@@ -419,7 +456,7 @@ const PostDetailScreen = ({ route, navigation }) => {
         {isReplying && (
           <View style={styles.replyingContainer}>
             <Text style={styles.replyingText}>
-              Replying to <Text style={styles.replyingName}>{replyingTo?.user.name}</Text>
+              Replying to <Text style={styles.replyingName}>{replyingTo?.user?.name || "User"}</Text>
             </Text>
             <TouchableOpacity onPress={cancelReply}>
               <Ionicons name="close-circle" size={20} color="#666" />

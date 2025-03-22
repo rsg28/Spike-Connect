@@ -1,5 +1,5 @@
 // screens/HomeScreen.js
-import {React, useEffect, useState, useRef} from "react";
+import { React, useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -30,7 +30,7 @@ const HomeScreen = ({ navigation }) => {
     const initialLoadingTimer = setTimeout(() => {
       setInitialLoading(false);
     }, 1500); // 1.5 seconds loading screen
-    
+
     // Initialize backend and load data when component mounts
     const loadData = async () => {
       setIsLoading(true);
@@ -41,7 +41,7 @@ const HomeScreen = ({ navigation }) => {
 
         setUpcomingEvents(featured);
         setRecentEvents(recent);
-        
+
         // Initialize community posts with mock data
         setCommunityPosts(mockPosts);
       } catch (error) {
@@ -57,7 +57,7 @@ const HomeScreen = ({ navigation }) => {
     const unsubscribe = navigation.addListener("focus", () => {
       loadData();
     });
-    
+
     // Clear the timer when component unmounts
     return () => {
       clearTimeout(initialLoadingTimer);
@@ -74,7 +74,8 @@ const HomeScreen = ({ navigation }) => {
         name: "Sarah Johnson",
         avatar: null,
       },
-      content: "Looking for 2 more players for our beach volleyball game this Saturday at Sunset Beach. Intermediate level. Comment if interested!",
+      content:
+        "Looking for 2 more players for our beach volleyball game this Saturday at Sunset Beach. Intermediate level. Comment if interested!",
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
       likes: 12,
       comments: 5,
@@ -87,7 +88,8 @@ const HomeScreen = ({ navigation }) => {
         name: "Mike Thompson",
         avatar: null,
       },
-      content: "Just finished an amazing tournament at Central Park! Our team made it to the semi-finals. Proud of everyone's hard work and improvement! 🏐 #VolleyballLife",
+      content:
+        "Just finished an amazing tournament at Central Park! Our team made it to the semi-finals. Proud of everyone's hard work and improvement! 🏐 #VolleyballLife",
       timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(), // 18 hours ago
       likes: 24,
       comments: 8,
@@ -100,7 +102,8 @@ const HomeScreen = ({ navigation }) => {
         name: "Coach Emily",
         avatar: null,
       },
-      content: "New drills for improving your serve accuracy! Check out today's practice video on my profile. Tag someone who needs to see this!",
+      content:
+        "New drills for improving your serve accuracy! Check out today's practice video on my profile. Tag someone who needs to see this!",
       timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
       likes: 45,
       comments: 13,
@@ -109,39 +112,38 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   // Calculate the relative time for display
-  // Calculate the relative time for display
-const getRelativeTime = (dateString) => {
-  // If dateString is undefined or null, return a default value
-  if (!dateString) return "Date unknown";
-  
-  try {
-    // Check if the date string contains a comma (like "March 18, 2025")
-    const date = dateString.includes(',') 
-      ? new Date(dateString.split(',')[0]) // Extract just the date part
-      : new Date(dateString);
-    
-    const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    
-    if (isNaN(diffDays)) return "Date unknown";
-    
-    if (diffDays < 0) return "Upcoming";
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    
-    const diffWeeks = Math.floor(diffDays / 7);
-    if (diffWeeks === 1) return "1 week ago";
-    if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
-    
-    const diffMonths = Math.floor(diffDays / 30);
-    if (diffMonths === 1) return "1 month ago";
-    return `${diffMonths} months ago`;
-  } catch (error) {
-    console.error("Error formatting date:", dateString, error);
-    return "Date error";
-  }
-};
+  const getRelativeTime = (dateString) => {
+    // If dateString is undefined or null, return a default value
+    if (!dateString) return "Date unknown";
+
+    try {
+      // Check if the date string contains a comma (like "March 18, 2025")
+      const date = dateString.includes(",")
+        ? new Date(dateString.split(",")[0]) // Extract just the date part
+        : new Date(dateString);
+
+      const now = new Date();
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+
+      if (isNaN(diffDays)) return "Date unknown";
+
+      if (diffDays < 0) return "Upcoming";
+      if (diffDays === 0) return "Today";
+      if (diffDays === 1) return "Yesterday";
+      if (diffDays < 7) return `${diffDays} days ago`;
+
+      const diffWeeks = Math.floor(diffDays / 7);
+      if (diffWeeks === 1) return "1 week ago";
+      if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
+
+      const diffMonths = Math.floor(diffDays / 30);
+      if (diffMonths === 1) return "1 month ago";
+      return `${diffMonths} months ago`;
+    } catch (error) {
+      console.error("Error formatting date:", dateString, error);
+      return "Date error";
+    }
+  };
 
   // Handle post interactions with enhanced animation
   const handleLikePost = (postId) => {
@@ -149,7 +151,7 @@ const getRelativeTime = (dateString) => {
     if (!likeAnimations[postId]) {
       likeAnimations[postId] = new Animated.Value(1);
     }
-    
+
     // Update the post state
     setCommunityPosts(
       communityPosts.map((post) =>
@@ -164,9 +166,9 @@ const getRelativeTime = (dateString) => {
     );
 
     // Find the post and check if it's now liked
-    const post = communityPosts.find(p => p.id === postId);
+    const post = communityPosts.find((p) => p.id === postId);
     const isNowLiked = post ? !post.isLiked : false;
-    
+
     // Run heart beat animation
     Animated.sequence([
       Animated.timing(likeAnimations[postId], {
@@ -191,7 +193,7 @@ const getRelativeTime = (dateString) => {
   };
 
   const handleSharePost = (postId) => {
-    // Implement share functionality 
+    // Implement share functionality
     console.log("Share post", postId);
   };
 
@@ -207,26 +209,33 @@ const getRelativeTime = (dateString) => {
         <View style={styles.postHeader}>
           <View style={styles.postUserAvatar}>
             {item.user.avatar ? (
-              <Image source={{ uri: item.user.avatar }} style={styles.avatarImage} />
+              <Image
+                source={{ uri: item.user.avatar }}
+                style={styles.avatarImage}
+              />
             ) : (
               <View style={styles.defaultAvatar}>
                 <Text style={styles.avatarInitial}>
-                  {item.user.name.charAt(0)}
+                  {item.user?.name?.charAt(0) || "?"}
                 </Text>
               </View>
             )}
           </View>
           <View style={styles.postUserInfo}>
-            <Text style={styles.postUserName}>{item.user.name}</Text>
-            <Text style={styles.postTimestamp}>{getRelativeTime(item.timestamp)}</Text>
+            <Text style={styles.postUserName}>
+              {item.user?.name || "Unknown User"}
+            </Text>
+            <Text style={styles.postTimestamp}>
+              {getRelativeTime(item.timestamp)}
+            </Text>
           </View>
           <TouchableOpacity style={styles.postOptions}>
             <Ionicons name="ellipsis-horizontal" size={20} color="#666" />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          activeOpacity={0.8} 
+        <TouchableOpacity
+          activeOpacity={0.8}
           onPress={() => navigation.navigate("PostDetail", { post: item })}
         >
           <Text style={styles.postContent}>{item.content}</Text>
@@ -238,24 +247,27 @@ const getRelativeTime = (dateString) => {
             onPress={() => handleLikePost(item.id)}
             activeOpacity={0.7}
           >
-            <Animated.View style={{ 
-              transform: [{ scale: likeAnimations[item.id] }],
-              // Add extra effects for liked state
-              shadowColor: item.isLiked ? "rgb(168, 38, 29)" : "transparent",
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: item.isLiked ? 0.5 : 0,
-              shadowRadius: item.isLiked ? 10 : 0,
-            }}>
+            <Animated.View
+              style={{
+                transform: [{ scale: likeAnimations[item.id] }],
+                // Add extra effects for liked state
+                shadowColor: item.isLiked ? "rgb(168, 38, 29)" : "transparent",
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: item.isLiked ? 0.5 : 0,
+                shadowRadius: item.isLiked ? 10 : 0,
+              }}
+            >
               <Ionicons
                 name={item.isLiked ? "heart" : "heart-outline"}
                 size={22}
                 color={item.isLiked ? "rgb(168, 38, 29)" : "#666"}
               />
             </Animated.View>
-            <Text style={[
-              styles.postActionText,
-              item.isLiked && styles.likedText
-            ]}>{item.likes}</Text>
+            <Text
+              style={[styles.postActionText, item.isLiked && styles.likedText]}
+            >
+              {item.likes}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -276,31 +288,35 @@ const getRelativeTime = (dateString) => {
       </View>
     );
   };
-  
+
   // Community posts component to be rendered inside the main FlatList
   const CommunityPostsSection = () => (
     <View style={styles.sectionContainer}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Community Feed</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.newPostButton}
           onPress={() => navigation.navigate("CreatePost")}
         >
           <Text style={styles.newPostButtonText}>New Post</Text>
-          <Ionicons name="add-circle-outline" size={18} color="rgb(168, 38, 29)" />
+          <Ionicons
+            name="add-circle-outline"
+            size={18}
+            color="rgb(168, 38, 29)"
+          />
         </TouchableOpacity>
       </View>
-      
+
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
         data={communityPosts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id || `post-${Math.random().toString(36)}`}
         renderItem={renderPostItem}
         contentContainerStyle={styles.communityPostsList}
       />
-      
-      <TouchableOpacity 
+
+      <TouchableOpacity
         style={styles.viewAllButton}
         onPress={() => navigation.navigate("CommunityFeed")}
       >
@@ -309,7 +325,7 @@ const getRelativeTime = (dateString) => {
       </TouchableOpacity>
     </View>
   );
-  
+
   // Featured section component for the main FlatList
   const FeaturedSection = () => (
     <View style={styles.sectionContainer}>
@@ -317,7 +333,9 @@ const getRelativeTime = (dateString) => {
       <FlatList
         horizontal
         data={upcomingEvents}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) =>
+          item.id || item.eventID || `event-${Math.random().toString(36)}`
+        }
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -336,9 +354,11 @@ const getRelativeTime = (dateString) => {
                 <Ionicons name="star" size={30} color="rgb(168, 38, 29)" />
               </View>
             </View>
-            <Text style={styles.featuredTitle}>{item.title}</Text>
+            <Text style={styles.featuredTitle}>{item.title || "No Title"}</Text>
             <Text style={styles.featuredDescription}>
-              {item.description.substring(0, 50)}...
+              {item.description
+                ? `${item.description.substring(0, 50)}...`
+                : "No description available"}
             </Text>
             <TouchableOpacity
               style={styles.featuredButton}
@@ -354,28 +374,26 @@ const getRelativeTime = (dateString) => {
       />
     </View>
   );
-  
+
   // Recent activity section for the main FlatList
   const RecentActivitySection = () => (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Recent Activity</Text>
       {recentEvents.slice(0, 4).map((item) => (
         <TouchableOpacity
-          key={item.id}
-          style={styles.recentItem}
-          onPress={() =>
-            navigation.navigate("ItemDetail", { itemId: item.id })
+          key={
+            item.id || item.eventID || `recent-${Math.random().toString(36)}`
           }
+          style={styles.recentItem}
+          onPress={() => navigation.navigate("ItemDetail", { itemId: item.id })}
         >
           <View style={styles.recentItemIcon}>
-            <Ionicons
-              name="time-outline"
-              size={24}
-              color="rgb(168, 38, 29)"
-            />
+            <Ionicons name="time-outline" size={24} color="rgb(168, 38, 29)" />
           </View>
           <View style={styles.recentItemContent}>
-            <Text style={styles.recentItemTitle}>{item.title}</Text>
+            <Text style={styles.recentItemTitle}>
+              {item.title || "No Title"}
+            </Text>
             <Text style={styles.recentItemDate}>
               {getRelativeTime(item.createdAt)}
             </Text>
@@ -385,7 +403,7 @@ const getRelativeTime = (dateString) => {
       ))}
     </View>
   );
-  
+
   // Quick actions section for the main FlatList
   const QuickActionsSection = () => (
     <View style={styles.sectionContainer}>
@@ -396,11 +414,7 @@ const getRelativeTime = (dateString) => {
           onPress={() => navigation.navigate("CreateItem")}
         >
           <View style={styles.quickActionIcon}>
-            <Ionicons
-              name="add-circle"
-              size={24}
-              color="rgb(168, 38, 29)"
-            />
+            <Ionicons name="add-circle" size={24} color="rgb(168, 38, 29)" />
           </View>
           <Text style={styles.quickActionText}>Add New</Text>
         </TouchableOpacity>
@@ -426,23 +440,26 @@ const getRelativeTime = (dateString) => {
       </View>
     </View>
   );
-  
+
   // Define the sections for our main content
   const sections = [
-    { id: 'header', component: () => (
-      <View style={styles.headerSection}>
-        <Text style={styles.welcomeText}>Welcome back!</Text>
-        <TouchableOpacity style={styles.notificationButton}>
-          <Ionicons name="notifications-outline" size={24} color="#333" />
-        </TouchableOpacity>
-      </View>
-    )},
-    { id: 'community', component: CommunityPostsSection },
-    { id: 'featured', component: FeaturedSection },
-    { id: 'recent', component: RecentActivitySection },
-    { id: 'actions', component: QuickActionsSection },
+    {
+      id: "header",
+      component: () => (
+        <View style={styles.headerSection}>
+          <Text style={styles.welcomeText}>Welcome back!</Text>
+          <TouchableOpacity style={styles.notificationButton}>
+            <Ionicons name="notifications-outline" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
+      ),
+    },
+    { id: "community", component: CommunityPostsSection },
+    { id: "featured", component: FeaturedSection },
+    { id: "recent", component: RecentActivitySection },
+    { id: "actions", component: QuickActionsSection },
   ];
-  
+
   // Render each section
   const renderSection = ({ item }) => item.component();
 
@@ -457,7 +474,7 @@ const getRelativeTime = (dateString) => {
         <FlatList
           data={sections}
           renderItem={renderSection}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.scrollContent}
         />
       )}

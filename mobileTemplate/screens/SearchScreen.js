@@ -67,15 +67,22 @@ const SearchScreen = ({ navigation }) => {
   
   // Format relative date for display
   const getRelativeTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
+    if (!dateString) return 'Date unknown';
+    
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return 'Past event';
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays < 7) return `In ${diffDays} days`;
-    return `In ${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`;
+      if (diffDays < 0) return 'Past event';
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Tomorrow';
+      if (diffDays < 7) return `In ${diffDays} days`;
+      return `In ${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`;
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return 'Date unknown';
+    }
   };
 
   return (
@@ -104,7 +111,29 @@ const SearchScreen = ({ navigation }) => {
         </View>
         
         {/* Category Filter */}
-        
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.categoryFilterContainer}
+        >
+          {categories.map((category, index) => (
+            <TouchableOpacity 
+              key={`category-${index}`} 
+              style={[
+                styles.categoryChip,
+                selectedCategory === category && styles.selectedCategoryChip,
+              ]}
+              onPress={() => handleCategorySelect(category)}
+            >
+              <Text style={[
+                styles.categoryChipText,
+                selectedCategory === category && styles.selectedCategoryChipText,
+              ]}>
+                {category}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Scrollable Content Section */}
@@ -114,7 +143,7 @@ const SearchScreen = ({ navigation }) => {
             <Text style={styles.sectionTitle}>Popular Searches</Text>
             {popularSearches.map((search, index) => (
               <TouchableOpacity 
-                key={index} 
+                key={`popular-${index}`} 
                 style={styles.popularSearchItem}
                 onPress={() => handleSearch(search)}
               >
@@ -189,7 +218,7 @@ const SearchScreen = ({ navigation }) => {
           ) : (
             <FlatList
               data={results}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id || item.eventID || `result-${Math.random().toString(36)}`}
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   style={styles.resultItem}
@@ -201,24 +230,32 @@ const SearchScreen = ({ navigation }) => {
                     </View>
                   </View>
                   <View style={styles.resultContent}>
-                    <Text style={styles.resultTitle}>{item.title}</Text>
+                    <Text style={styles.resultTitle}>{item.title || "Unnamed Event"}</Text>
                     <View style={styles.resultDetailRow}>
-                      <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryBadgeText}>{item.category}</Text>
-                      </View>
-                      <View style={styles.levelBadge}>
-                        <Text style={styles.levelBadgeText}>{item.level}</Text>
-                      </View>
+                      {item.category && (
+                        <View style={styles.categoryBadge}>
+                          <Text style={styles.categoryBadgeText}>{item.category}</Text>
+                        </View>
+                      )}
+                      {item.level && (
+                        <View style={styles.levelBadge}>
+                          <Text style={styles.levelBadgeText}>{item.level}</Text>
+                        </View>
+                      )}
                     </View>
                     <View style={styles.resultMetaRow}>
-                      <View style={styles.resultMetaItem}>
-                        <Ionicons name="location-outline" size={14} color="#666" />
-                        <Text style={styles.resultMetaText}>{item.location}</Text>
-                      </View>
-                      <View style={styles.resultMetaItem}>
-                        <Ionicons name="calendar-outline" size={14} color="#666" />
-                        <Text style={styles.resultMetaText}>{getRelativeTime(item.dueDate)}</Text>
-                      </View>
+                      {item.location && (
+                        <View style={styles.resultMetaItem}>
+                          <Ionicons name="location-outline" size={14} color="#666" />
+                          <Text style={styles.resultMetaText}>{item.location}</Text>
+                        </View>
+                      )}
+                      {item.dueDate && (
+                        <View style={styles.resultMetaItem}>
+                          <Ionicons name="calendar-outline" size={14} color="#666" />
+                          <Text style={styles.resultMetaText}>{getRelativeTime(item.dueDate)}</Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -243,25 +280,25 @@ const SearchScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
   },
   headerSection: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: "#f0f0f0",
   },
   searchContainer: {
     padding: 16,
   },
   searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 50,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   searchIcon: {
     marginRight: 8,
@@ -269,7 +306,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    height: '100%',
+    height: "100%",
   },
   categoryFilterContainer: {
     paddingVertical: 12,
@@ -278,23 +315,23 @@ const styles = StyleSheet.create({
   categoryChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 20,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   selectedCategoryChip: {
-    backgroundColor: 'rgba(168, 38, 29, 0.1)',
-    borderColor: 'rgb(168, 38, 29)',
+    backgroundColor: "rgba(168, 38, 29, 0.1)",
+    borderColor: "rgb(168, 38, 29)",
   },
   categoryChipText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   selectedCategoryChipText: {
-    color: 'rgb(168, 38, 29)',
-    fontWeight: '500',
+    color: "rgb(168, 38, 29)",
+    fontWeight: "500",
   },
   contentContainer: {
     flex: 1,
@@ -304,21 +341,21 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 16,
-    color: '#333',
+    color: "#333",
   },
   popularSearchItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#fff',
+    borderBottomColor: "#f0f0f0",
+    backgroundColor: "#fff",
     borderRadius: 8,
     paddingHorizontal: 16,
     marginBottom: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -330,25 +367,25 @@ const styles = StyleSheet.create({
   popularSearchText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     marginLeft: 12,
   },
   quickFiltersSection: {
     marginTop: 24,
   },
   quickFiltersRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 12,
   },
   quickFilterButton: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -361,38 +398,38 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(168, 38, 29, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(168, 38, 29, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
   quickFilterText: {
     fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
+    color: "#333",
+    fontWeight: "500",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   resultsList: {
     padding: 16,
   },
   resultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -408,25 +445,25 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(168, 38, 29, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(168, 38, 29, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   resultContent: {
     flex: 1,
   },
   resultTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 6,
   },
   resultDetailRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 6,
   },
   categoryBadge: {
-    backgroundColor: 'rgba(168, 38, 29, 0.1)',
+    backgroundColor: "rgba(168, 38, 29, 0.1)",
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 12,
@@ -434,47 +471,47 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: 12,
-    color: 'rgb(168, 38, 29)',
-    fontWeight: '500',
+    color: "rgb(168, 38, 29)",
+    fontWeight: "500",
   },
   levelBadge: {
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    backgroundColor: "rgba(33, 150, 243, 0.1)",
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 12,
   },
   levelBadgeText: {
     fontSize: 12,
-    color: '#2196F3',
-    fontWeight: '500',
+    color: "#2196F3",
+    fontWeight: "500",
   },
   resultMetaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   resultMetaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   resultMetaText: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginLeft: 4,
   },
   noResultsContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 40,
   },
   noResultsText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginTop: 16,
   },
   noResultsSubtext: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 8,
   },
 });

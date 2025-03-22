@@ -2,7 +2,7 @@
 
 // Update this to your computer's local IP address and the port your server is running on
 // Do not use 'localhost' as the mobile device won't resolve it correctly
-const API_URL = 'http://127.0.0.1:3000/api'; // Replace with your actual local IP
+const API_URL = 'http://192.168.1.66:3000/api'; // Replace with your actual local IP
 
 class BackendService {
   static async initialize(forceReset = false) {

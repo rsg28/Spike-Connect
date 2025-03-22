@@ -99,20 +99,27 @@ const CommunityFeedScreen = ({ navigation }) => {
 
   // Calculate the relative time for display
   const getRelativeTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMinutes = Math.floor((now - date) / (1000 * 60));
+    if (!dateString) return "Date unknown";
     
-    if (diffMinutes < 1) return "Just now";
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
-    
-    return `${Math.floor(diffDays / 7)}w ago`;
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMinutes = Math.floor((now - date) / (1000 * 60));
+      
+      if (diffMinutes < 1) return "Just now";
+      if (diffMinutes < 60) return `${diffMinutes}m ago`;
+      
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays < 7) return `${diffDays}d ago`;
+      
+      return `${Math.floor(diffDays / 7)}w ago`;
+    } catch (error) {
+      console.error("Error formatting date:", dateString, error);
+      return "Date error";
+    }
   };
 
   // Render a post item
@@ -124,16 +131,16 @@ const CommunityFeedScreen = ({ navigation }) => {
     >
       <View style={styles.postHeader}>
         <View style={styles.postUserAvatar}>
-          {item.user.avatar ? (
+          {item.user?.avatar ? (
             <Image source={{ uri: item.user.avatar }} style={styles.avatarImage} />
           ) : (
             <View style={styles.defaultAvatar}>
-              <Text style={styles.avatarInitial}>{item.user.name.charAt(0)}</Text>
+              <Text style={styles.avatarInitial}>{item.user?.name?.charAt(0) || "?"}</Text>
             </View>
           )}
         </View>
         <View style={styles.postUserInfo}>
-          <Text style={styles.postUserName}>{item.user.name}</Text>
+          <Text style={styles.postUserName}>{item.user?.name || "Unknown User"}</Text>
           <Text style={styles.postTimestamp}>{getRelativeTime(item.timestamp)}</Text>
         </View>
         <TouchableOpacity style={styles.postOptions}>
@@ -146,7 +153,7 @@ const CommunityFeedScreen = ({ navigation }) => {
         numberOfLines={3}
         ellipsizeMode="tail"
       >
-        {item.content}
+        {item.content || "No content"}
       </Text>
 
       <View style={styles.postActions}>
@@ -232,6 +239,7 @@ const CommunityFeedScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
@@ -266,7 +274,7 @@ const CommunityFeedScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={filteredPosts}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id || `post-${Math.random().toString(36)}`}
           renderItem={renderPostItem}
           contentContainerStyle={styles.postsList}
           showsVerticalScrollIndicator={false}
