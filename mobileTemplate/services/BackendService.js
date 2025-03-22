@@ -113,6 +113,9 @@ class BackendService {
   // Added method for adding a new event
   static async addItem(event) {
     try {
+      console.log("Sending POST request to:", `${API_URL}/events`);
+      console.log("With event data:", JSON.stringify(event));
+      
       const response = await fetch(`${API_URL}/events`, {
         method: 'POST',
         headers: {
@@ -120,10 +123,17 @@ class BackendService {
         },
         body: JSON.stringify(event),
       });
+      
+      console.log("Server response status:", response.status);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error response:", errorText);
         throw new Error(`API error: ${response.status}`);
       }
+      
       const data = await response.json();
+      console.log("Server response data:", data);
       return data;
     } catch (error) {
       console.error("Error adding item:", error);

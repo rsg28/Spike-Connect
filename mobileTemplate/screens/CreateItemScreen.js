@@ -96,8 +96,26 @@ const CreateEventScreen = ({ navigation }) => {
         attachments: 0
       };
   
+      // Create an eventID for the new event
+      const newEventID = `#${Date.now().toString().slice(-5)}`;
+      
+      // Add eventID and other required fields to match the API schema
+      const apiEvent = {
+        ...newEvent,
+        eventID: newEventID,
+        eventTime: eventDate.split(',')[1]?.trim() || "Not specified",
+        venueType: "Indoor", // Default value
+        status: "Open",
+        openings: maxParticipants || "12",
+        ages: "All Ages",
+        createdAt: new Date().toISOString()
+      };
+      
+      console.log("Sending event to API:", apiEvent);
+      
       // Save to backend
-      await BackendService.addItem(newEvent);
+      const savedEvent = await BackendService.addItem(apiEvent);
+      console.log("Response from API:", savedEvent);
       
       setIsLoading(false);
       Alert.alert(
@@ -644,5 +662,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreateEventScreen;
-
-// Try
