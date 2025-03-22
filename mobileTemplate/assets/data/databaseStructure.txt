@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS venues (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    venue_type TEXT CHECK (venue_type IN ('Indoor', 'Outdoor', 'Beach'))
+    venue_type TEXT CHECK (venue_type IN ('Indoor', 'Grass', 'Beach'))
 );
 
 -- Levels Table

@@ -26,10 +26,10 @@ const ItemDetailScreen = ({ route, navigation }) => {
 
   // Mock images for activities - updated to use require()
   const activityImgs = [
-    require("../assets/media/edmonds.png"),
-    require("../assets/media/christine.png"),
-    require("../assets/media/bonsor.png"),
-    require("../assets/media/pittmeadows.png")
+    require("../assets/media/images/edmonds.png"),
+    require("../assets/media/images/christine.png"),
+    require("../assets/media/images/bonsor.png"),
+    require("../assets/media/images/pittmeadows.png")
   ];
 
   // Safe date handling helpers

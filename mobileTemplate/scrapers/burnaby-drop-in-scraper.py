@@ -1,3 +1,4 @@
+# burnaby-drop-in-scraper.py
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -95,7 +96,7 @@ def scrape_volleyball_events():
                   'location': location,
                   'eventLink': eventLink,
                   'venueType': venueType,
-                  'category': 'drop-in',
+                  'category': 'Drop-in',
                   'level': level,
                   'ages': ages,
                   'openings': openings,
