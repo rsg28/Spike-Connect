@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     level_id INTEGER,
     ages TEXT,
     openings INTEGER,
-    status TEXT CHECK (status IN ('Open', 'Full', 'Cancelled')),
+    status TEXT CHECK (status IN ('Open', 'Full', 'Cancelled', 'Register Soon')),
     event_date TEXT,
     event_time TEXT,
     fee TEXT,
