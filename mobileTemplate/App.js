@@ -18,6 +18,7 @@ import CommunityFeedScreen from "./screens/CommunityFeedScreen";
 import PostDetailScreen from "./screens/PostDetailScreen";
 import PostCommentScreen from "./screens/PostCommentScreen";
 import CreatePostScreen from "./screens/CreatePostScreen";
+import DropInSessionsScreen from "./screens/DropInSessionsScreen";
 import BackendService from "./services/BackendService";
 
 const Stack = createStackNavigator();
@@ -38,7 +39,7 @@ function HomeStack() {
       <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
       <HomeStack.Screen name="CreateItem" component={CreateItemScreen} />
       <HomeStack.Screen name="ItemDetail" component={ItemDetailScreen} />
-      
+      <HomeStack.Screen name="DropInSessions" component={DropInSessionsScreen} />
       {/* Add community-related screens */}
       <HomeStack.Screen name="CommunityFeed" component={CommunityFeedScreen} />
       <HomeStack.Screen name="PostDetail" component={PostDetailScreen} />
@@ -166,13 +167,27 @@ export default function App() {
             )}
           </Stack.Screen>
         ) : (
-          <Stack.Screen
-            name="Main"
-            component={MainTabNavigator}
-            options={{
-              headerShown: false,
-            }}
-          />
+          <>
+            <Stack.Screen
+              name="Main"
+              component={MainTabNavigator}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="DropInSessions"
+              component={DropInSessionsScreen}
+              options={{
+                headerShown: true,
+                title: 'Drop-in Sessions',
+                headerStyle: {
+                  backgroundColor: THEME.PRIMARY,
+                },
+                headerTintColor: THEME.SECONDARY,
+              }}
+            />
+          </>
         )}
       </Stack.Navigator>
       

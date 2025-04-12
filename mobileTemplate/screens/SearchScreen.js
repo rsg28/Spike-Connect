@@ -139,7 +139,9 @@ const SearchScreen = ({ navigation }) => {
                 
                 <TouchableOpacity 
                   style={styles.quickFilterButton}
-                  onPress={() => handleCategorySelect('Drop-in')}
+                  onPress={() => navigation.navigate('Home', {
+                    screen: 'DropInSessions'
+                  })}
                 >
                   <View style={styles.quickFilterIcon}>
                     <Ionicons name="school-outline" size={24} color="rgb(168, 38, 29)" />

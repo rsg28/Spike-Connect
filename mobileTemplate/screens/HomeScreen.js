@@ -18,7 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import BackendService from "../services/BackendService";
 
 const HomeScreen = ({ navigation }) => {
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [upcomingDropins, setUpcomingDropins] = useState([]);
   const [recentEvents, setRecentEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -39,7 +39,7 @@ const HomeScreen = ({ navigation }) => {
         const featured = await BackendService.getFeaturedItems();
         const recent = await BackendService.getRecentItems();
 
-        setUpcomingEvents(featured);
+        setUpcomingDropins(featured);
         setRecentEvents(recent);
         
         // Initialize community posts with mock data
@@ -316,7 +316,7 @@ const getRelativeTime = (dateString) => {
       {/* <Text style={styles.sectionTitle}>Featured</Text> */}
       <FlatList
         horizontal
-        data={upcomingEvents}
+        data={upcomingDropins}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
@@ -356,9 +356,9 @@ const getRelativeTime = (dateString) => {
   );
   
   // Recent activity section for the main FlatList
-  const RecentActivitySection = () => (
+  const UpcomingDropinsSection = () => (
     <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Recent Activity</Text>
+      <Text style={styles.sectionTitle}>Upcoming Drop-ins</Text>
       {recentEvents.slice(0, 4).map((item) => (
         <TouchableOpacity
           key={item.id}
@@ -376,9 +376,7 @@ const getRelativeTime = (dateString) => {
           </View>
           <View style={styles.recentItemContent}>
             <Text style={styles.recentItemTitle}>{item.title}</Text>
-            <Text style={styles.recentItemDate}>
-              {getRelativeTime(item.createdAt)}
-            </Text>
+            <Text style={styles.recentItemDate}>{item.eventDate}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
@@ -439,7 +437,7 @@ const getRelativeTime = (dateString) => {
     )},
     { id: 'community', component: CommunityPostsSection },
     { id: 'featured', component: FeaturedSection },
-    { id: 'recent', component: RecentActivitySection },
+    { id: 'upcoming', component: UpcomingDropinsSection },
     { id: 'actions', component: QuickActionsSection },
   ];
   

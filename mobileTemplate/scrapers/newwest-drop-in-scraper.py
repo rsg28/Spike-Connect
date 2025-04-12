@@ -58,7 +58,7 @@ def scrape_volleyball_events():
         date_to_calendar_icon = date_to_input.find_element(By.XPATH, './following-sibling::span//span[contains(@class, "k-i-calendar")]')
         date_to_calendar_icon.click()
 
-        # Calculate a date one month from today
+        # Calculate a date two months from today
         two_months_from_now = datetime.now() + timedelta(days=60)
         # Format with 0-indexed month (subtract 1 from the month)
         target_date = f"{two_months_from_now.year}/{two_months_from_now.month-1}/{two_months_from_now.day}"
