@@ -12,6 +12,7 @@ import {
   Share,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import BackendService from '../services/BackendService';
@@ -22,22 +23,16 @@ const ItemDetailScreen = ({ route, navigation }) => {
   const [relatedEvents, setRelatedEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoined, setIsJoined] = useState(false);
-  const [randomImage, setRandomImage] = useState(null);
+  const [imageSource, setImageSource] = useState(null);
 
-  // Mock images for activities - updated to use require()
-  const activityImgs = [
-    require("../assets/media/images/edmonds.png"),
-    require("../assets/media/images/christine.png"),
-    require("../assets/media/images/bonsor.png"),
-    require("../assets/media/images/pittmeadows.png")
-  ];
-
-  // Safe date handling helpers
-  const safeGetEventDate = (event) => {
-    if (!event) return null;
-    if (event.eventDate) return event.eventDate;
-    if (event.dueDate) return event.dueDate;
-    return null;
+  // Image mapping for location-based images
+  const locationImages = {
+    bonsor: require("../assets/media/images/bonsor.png"),
+    christine: require("../assets/media/images/christine.png"),
+    edmonds: require("../assets/media/images/edmonds.png"),
+    pittmeadows: require("../assets/media/images/pittmeadows.png"),
+    queensborough: require("../assets/media/images/queensborough.png"),
+    default: require("../assets/media/images/favicon.png")
   };
 
   // Safe formatting for event date display
@@ -56,10 +51,6 @@ const ItemDetailScreen = ({ route, navigation }) => {
         if (fetchedEvent) {
           console.log("Loaded event:", fetchedEvent);
           setEvent(fetchedEvent);
-          
-          // Select a random image from the array
-          const randomIndex = Math.floor(Math.random() * activityImgs.length);
-          setRandomImage(activityImgs[randomIndex]);
           
           // Only fetch related events if category and level are available
           if (fetchedEvent.category && fetchedEvent.level) {
@@ -96,7 +87,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
     if (!event) return;
     
     try {
-      const dateInfo = safeGetEventDate(event) ? ` on ${safeGetEventDate(event)}` : '';
+      const dateInfo = event.eventDate ? ` on ${event.eventDate}` : '';
       await Share.share({
         message: `Check out this volleyball event: ${event.title} - ${event.location || 'Location TBD'} (${event.level || 'All Levels'})${dateInfo}`,
         title: event.title,
@@ -138,20 +129,33 @@ const ItemDetailScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Image section - Updated to show random image */}
+        {/* Image section */}
         <View style={styles.imageContainer}>
-          {randomImage ? (
-            <Image 
-              source={randomImage}
-              style={styles.eventImage}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="volleyball-outline" size={60} color="#999" />
-              <Text style={styles.placeholderText}>Event image will be added later</Text>
-            </View>
-          )}
+          {(() => {
+            if (imageSource) {
+              return (
+                <Image 
+                  source={imageSource}
+                  style={styles.eventImage}
+                  resizeMode="cover"
+                />
+              );
+            }
+            
+            const locationFirstWord = event.location ? event.location.split(' ')[0].toLowerCase() : '';
+            const imageKey = Object.keys(locationImages).find(key => 
+              locationFirstWord.includes(key)
+            ) || 'default';
+            
+            return (
+              <Image 
+                source={locationImages[imageKey]}
+                style={styles.eventImage}
+                resizeMode="cover"
+                onError={() => setImageSource(locationImages.default)}
+              />
+            );
+          })()}
         </View>
 
         {/* Event details card */}
@@ -234,15 +238,26 @@ const ItemDetailScreen = ({ route, navigation }) => {
           <Text style={styles.sectionTitle}>Event Details</Text>
           
           {/* Only show date row if date is available */}
-          {safeGetEventDate(event) && (
+          {event.eventDate && (
             <View style={styles.detailRow}>
               <View style={styles.detailIconContainer}>
                 <Ionicons name="calendar-outline" size={20} color="rgb(168, 38, 29)" />
               </View>
-              <Text style={styles.detailLabel}>Date & Time:</Text>
+              <Text style={styles.detailLabel}>Date:</Text>
               <Text style={styles.detailValue}>
-                {formatEventDate(safeGetEventDate(event))}
+                {formatEventDate(event.eventDate)}
               </Text>
+            </View>
+          )}
+
+          {/* Only show time row if time is available */}
+          {event.eventTime && (
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconContainer}>
+                <Ionicons name="time-outline" size={20} color="rgb(168, 38, 29)" />
+              </View>
+              <Text style={styles.detailLabel}>Time:</Text>
+              <Text style={styles.detailValue}>{event.eventTime}</Text>
             </View>
           )}
           
@@ -298,7 +313,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
               </View>
               <Text style={styles.detailLabel}>Event Link:</Text>
               <Text style={[styles.detailValue, styles.linkText]} 
-                    onPress={() => Alert.alert("Event Link", "This would open the external event link.")}>
+                    onPress={() => Linking.openURL(event.eventLink)}>
                 View Details
               </Text>
             </View>
@@ -312,25 +327,14 @@ const ItemDetailScreen = ({ route, navigation }) => {
               styles.actionButton,
               event.status === 'Full' ? styles.disabledButton : styles.joinButton
             ]}
-            onPress={() => {
-              Alert.alert(
-                "Registration",
-                "Would you like to register for this event?",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { 
-                    text: "Register", 
-                    onPress: () => Alert.alert(
-                      "Registration Info",
-                      "This would navigate to the registration page or process."
-                    )
-                  }
-                ]
-              );
-            }}
+            onPress={() => Linking.openURL(event.eventLink)}
             disabled={event.status === 'Full'}
           >
-            <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+            <Ionicons 
+              name={event.status === 'Full' ? "close-circle-outline" : "checkmark-circle-outline"} 
+              size={20} 
+              color="#fff" 
+            />
             <Text style={styles.actionButtonText}>
               {event.status === 'Full' ? "Event Full" : "Register for Event"}
             </Text>
