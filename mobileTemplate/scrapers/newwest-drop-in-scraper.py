@@ -1,4 +1,4 @@
-# burnaby-drop-in-scraper.py
+# newwest-drop-in-scraper.py
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 import time
 import utils
 import re
@@ -46,8 +47,43 @@ def scrape_volleyball_events():
 
         volleyball_checkbox = driver.find_element(By.XPATH, "//label[text() = 'Volleyball - Drop-in']")
         volleyball_checkbox.click()
+        time.sleep(1)
 
-        time.sleep(3)
+        # Now that the page is updated, parse the new HTML
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+            
+        # Find the end date input field
+        date_to_input = driver.find_element(By.CSS_SELECTOR, 'input[aria-labelledby="dateTo"]')
+        # Find the calendar icon specifically for the end date field
+        date_to_calendar_icon = date_to_input.find_element(By.XPATH, './following-sibling::span//span[contains(@class, "k-i-calendar")]')
+        date_to_calendar_icon.click()
+
+        # Calculate a date one month from today
+        two_months_from_now = datetime.now() + timedelta(days=60)
+        # Format with 0-indexed month (subtract 1 from the month)
+        target_date = f"{two_months_from_now.year}/{two_months_from_now.month-1}/{two_months_from_now.day}"
+
+        # Calculate how many months ahead we need to go
+        current_month = datetime.now().month
+        target_month = two_months_from_now.month
+        months_ahead = target_month - current_month
+
+        # Find the "Next" button in the calendar
+        next_month_button = driver.find_element(By.CSS_SELECTOR, 'a[data-action="next"][role="button"]')
+        
+        # Click the next button the appropriate number of times
+        for _ in range(months_ahead):
+            driver.execute_script("arguments[0].click();", next_month_button)
+            time.sleep(1)
+        
+        # Find and click on the date that's one month from today
+        try:
+            # Find the date element with the target date value
+            date_element = driver.find_element(By.CSS_SELECTOR, f'a.k-link[data-value="{target_date}"]')
+            date_element.click()
+            time.sleep(1)
+        except Exception as e:
+            print(f"Error selecting date: {e}")
 
         # Now that the page is updated, parse the new HTML
         soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -56,6 +92,10 @@ def scrape_volleyball_events():
         for session in soup.find_all("div", class_="bm-class-container"):
             header_div = session.find("div", class_="bm-class-header-wrapper")
             title = header_div.find("h3").get_text().strip()
+
+            # Extract event ID
+            event_id_span = header_div.find("span", class_="bm-event-description", attrs={"aria-label": lambda x: x and "event" in x and not "Volleyball" in x})
+            eventID = event_id_span.get_text().strip().replace('#', '')
 
             # get level from title
             level = utils.get_level_from_title(title)
@@ -77,79 +117,52 @@ def scrape_volleyball_events():
             # Extract the 'onclick' value
             onclick_value = register_button['onclick']
 
-            # Use regex to extract the URL inside the single quotes
+            # Extract the event link
             match = re.search(r"\'([^\']+)\'", onclick_value)
             if match:
                 relative_url = match.group(1)
                 full_url = base_url + relative_url
                 eventLink = full_url
             
-            # # Locate the div containing the location span
-            # location_div = session.find_parent('div', class_='activity-card-info')
-            # location_span = location_div.find('div', class_='activity-card-info__location').find('span')
-            # location = location_span.get_text() if location_span else 'No location'
+            # Locate the div containing the location
+            location_div = session.find("div", class_="location-block")
+            location_text = location_div.find("span").get_text().strip()
+            location = location_text.split('-')[0].strip() if '-' in location_text else location_text
 
-            # # Get the venue type from the location string
-            # venueType = utils.get_venue_type_from_location(location)
+            # get status from openings
+            status = utils.get_status_from_openings(openings)
 
-            # # Find the div containing event props
-            # props_div = location_div.find('div', class_='activity-card-info__props')
+            # Extract the number of openings
+            openings_span = openings_and_link_div.find("div", class_="bm-spots-left-label").find("span")
+            if openings_span:
+                openings = openings_span.get_text().split()[0]
+            else:
+                openings = "Register Soon"
 
-            # event_number_span = props_div.find('span', class_='activity-card-info__number').find('span')
-            # eventID = event_number_span.get_text() if event_number_span else 'No event number'
+            ages, fee, eventDate, eventTime = get_details_and_return(eventLink)
 
-            # ages_span = props_div.find('span', class_='activity-card-info__ages')
-            # ages = ages_span.get_text() if ages_span else 'No age group'
-            # ages = ages[:-1]
-            # ages = ages.replace(" ", "")
+            # get status from openings
+            status = utils.get_status_from_openings(openings)
 
-            # openings_span = props_div.find('span', class_='activity-card-info__openings').find('span')
-            # openings = openings_span.get_text() if openings_span else 'No openings'
-            # openings_text = openings_span.get_text().strip()  # Get the text and remove extra spaces
-            # openings = openings_text.split()[-1]  # Get the last part, which should be the number of openings 
+            # Get venue type from location
+            venueType = utils.get_venue_type_from_location(location)
 
-            # # get status from openings
-            # status = utils.get_status_from_openings(openings)
-
-            # # Find the div containing the datetime
-            # datetime_div = session.find_parent('div', class_='activity-card-info')
-
-            # if datetime_div:
-            #     # Extract the date
-            #     date_span = datetime_div.find('span', class_='activity-card-info__dateRange')
-            #     eventDate = date_span.get_text().strip() if date_span else 'No date'
-
-            #     # Extract the time range
-            #     time_range_span = datetime_div.find('span', class_='activity-card-info__timeRange')
-            #     eventTime = time_range_span.get_text().strip() if time_range_span else 'No time range'
-
-            # if eventLink:
-            #   events.append({
-            #       'title': title,
-            #       'eventID': eventID,
-            #       'location': location,
-            #       'eventLink': eventLink,
-            #       'venueType': venueType,
-            #       'category': 'Drop-in',
-            #       'level': level,
-            #       'ages': ages,
-            #       'openings': openings,
-            #       "status": status,
-            #       'eventDate': eventDate,
-            #       'eventTime': eventTime,
-            #       'fee': "Pay in person"
-            #   })
-
-        # Debugging: Print the found events with locations, event numbers, categories, ages, and openings
-        if not events:
-            print("No matching volleyball events found.")
-        else:
-            print("Found events with Details:")
-            # for event in events:
-            #     print(f"event Link: {event['eventLink']}, Location: {event['location']}, "
-            #     f"event ID: {event['eventID']}, Venue Type: {event['venueType']}, "
-            #     f"Ages: {event['ages']}, Openings: {event['openings']}, "
-            #     f"Date: {event['eventDate']}, Time: {event['eventTime']}")
+            if eventLink:
+                events.append({
+                    'title': title,
+                    'eventID': eventID,
+                    'location': location,
+                    'eventLink': eventLink,
+                    'venueType': venueType,
+                    'category': 'Drop-in',
+                    'level': level,
+                    'ages': ages,
+                    'openings': openings,
+                    "status": status,
+                    'eventDate': eventDate,
+                    'eventTime': eventTime,
+                    'fee': fee
+                })
         
         utils.save_to_json(events, "newwest")
 
@@ -158,6 +171,50 @@ def scrape_volleyball_events():
 
     finally:
         driver.quit()
+
+def get_details_and_return(eventLink):
+    """Click the details button and return to the original page"""
+    try:
+        # Open the details page in a new tab
+        driver.execute_script(f"window.open('{eventLink}', '_blank');")
+        
+        # Switch to the new tab
+        driver.switch_to.window(driver.window_handles[-1])
+
+        # Extract the age text
+        age_element = driver.find_element("xpath", "//div[contains(@class, 'bm-course-restrictions')]//div[contains(@class, 'row')]//div[contains(@class, 'second-column')]")
+        age_text = age_element.text
+
+        # Extract the adult fee
+        fee_element = driver.find_element("xpath", "//div[contains(@class, 'bm-course-prices')]//div[contains(@class, 'row')]//div[contains(@class, 'first-column')][contains(text(), 'Adult')]/following-sibling::div//div[contains(@class, 'bm-price-tag')]")
+        fee_text = fee_element.text
+
+        # Find the time and date
+        date_time_span = driver.find_element(By.XPATH, "//span[contains(@aria-label, 'Event date')]")
+        raw_date = date_time_span.text
+        date_parts = raw_date.split('-')
+        eventDate = f"{date_parts[1]} {date_parts[0]}, {date_parts[2]}"
+
+        eventDayofWeek = utils.get_day_of_week(eventDate)
+
+        time_span = driver.find_element(By.XPATH, "//span[contains(@aria-label, 'Event time')]")
+        eventTime = time_span.text
+        eventTime = f"{eventDayofWeek} {eventTime}"
+
+        # Close the details tab
+        driver.close()
+        
+        # Switch back to the main tab
+        driver.switch_to.window(driver.window_handles[0])
+
+        return age_text, fee_text, eventDate, eventTime
+        
+    except Exception as e:
+        print(f"Error in get_details_and_return: {e}")
+        # Make sure we switch back to the main tab even if there's an error
+        if len(driver.window_handles) > 1:
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
 
 # Run the scraper
 scrape_volleyball_events()

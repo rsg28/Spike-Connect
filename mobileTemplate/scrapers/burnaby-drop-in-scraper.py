@@ -23,11 +23,21 @@ def scrape_volleyball_events():
         # Open the URL
         driver.get(volleyball_url)
 
-        # Scroll down to the bottom of the page multiple times to trigger lazy loading
-        # You can adjust the number of scrolls based on the content you're trying to load
-        for _ in range(1):  # Adjust this value for more/less scrolling
+        # Keep scrolling until no more content loads
+        last_height = driver.execute_script("return document.body.scrollHeight")
+        while True:
+            # Scroll to bottom
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(1)  # Wait for new content to load
+            time.sleep(1.5)  # Wait longer for content to load
+            
+            # Calculate new scroll height
+            new_height = driver.execute_script("return document.body.scrollHeight")
+            
+            # Break if no more content loaded (height didn't change)
+            if new_height == last_height:
+                break
+                
+            last_height = new_height
 
         # Now scrape the page source using BeautifulSoup
         soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -58,15 +68,16 @@ def scrape_volleyball_events():
             props_div = location_div.find('div', class_='activity-card-info__props')
 
             event_number_span = props_div.find('span', class_='activity-card-info__number').find('span')
-            eventID = event_number_span.get_text() if event_number_span else 'No event number'
+            eventID = event_number_span.get_text()
+            eventID = eventID.replace("#", "")
 
             ages_span = props_div.find('span', class_='activity-card-info__ages')
             ages = ages_span.get_text() if ages_span else 'No age group'
             ages = ages[:-1]
-            ages = ages.replace(" ", "")
+            ages = ages.replace("yrs", "").replace(" ", "")  # Remove "yrs" and any remaining spaces
 
             openings_span = props_div.find('span', class_='activity-card-info__openings').find('span')
-            openings = openings_span.get_text() if openings_span else 'No openings'
+            openings = openings_span.get_text() if openings_span else 'Full'
             openings_text = openings_span.get_text().strip()  # Get the text and remove extra spaces
             openings = openings_text.split()[-1]  # Get the last part, which should be the number of openings 
 

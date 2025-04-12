@@ -1,5 +1,32 @@
 import json
 import os
+from datetime import datetime
+
+def get_day_of_week(date_str):
+    try:
+        # Try different date formats
+        formats = [
+            "%B %d, %Y",  # April 11, 2025
+            "%b %d, %Y",  # Apr 12, 2025
+            "%d-%b-%Y",   # 12-Apr-2025
+            "%Y-%m-%d",   # 2025-04-12
+            "%m/%d/%Y",   # 04/12/2025
+            "%d/%m/%Y"    # 12/04/2025
+        ]
+        
+        for fmt in formats:
+            try:
+                date_obj = datetime.strptime(date_str, fmt)
+                return date_obj.strftime("%A")  # Returns full day name (Monday, Tuesday, etc.)
+            except ValueError:
+                continue
+                
+        # If none of the formats work, raise an exception
+        raise ValueError(f"Could not parse date: {date_str}")
+        
+    except Exception as e:
+        print(f"Error getting day of week: {e}")
+        return "Unknown" 
 
 def save_to_json(events, city):
     directory = "../assets/data"
@@ -25,6 +52,8 @@ def get_status_from_openings(openings):
     openings = openings.lower()
     if openings == "0" or "full" in openings:
         return "Full"
+    elif "register soon" in openings:
+        return "Register Soon"
     else:
         return "Open"
     
