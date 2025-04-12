@@ -109,7 +109,6 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   // Calculate the relative time for display
-  // Calculate the relative time for display
 const getRelativeTime = (dateString) => {
   // If dateString is undefined or null, return a default value
   if (!dateString) return "Date unknown";
@@ -337,9 +336,11 @@ const getRelativeTime = (dateString) => {
               </View>
             </View>
             <Text style={styles.featuredTitle}>{item.title}</Text>
-            <Text style={styles.featuredDescription}>
-              {item.description.substring(0, 50)}...
-            </Text>
+            {item.description && (
+              <Text style={styles.featuredDescription}>
+                {item.description.substring(0, 50)}...
+              </Text>
+            )}
             <TouchableOpacity
               style={styles.featuredButton}
               onPress={() =>
@@ -359,7 +360,7 @@ const getRelativeTime = (dateString) => {
   const UpcomingDropinsSection = () => (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Upcoming Drop-ins</Text>
-      {recentEvents.slice(0, 4).map((item) => (
+      {upcomingDropins.slice(0, 5).map((item) => (
         <TouchableOpacity
           key={item.id}
           style={styles.recentItem}

@@ -2,7 +2,11 @@ import json
 import os
 from datetime import datetime
 
-def get_day_of_week(date_str):
+def standardize_date(date_str):
+    """
+    Convert various date formats to a standardized ISO format (YYYY-MM-DD).
+    This makes date parsing and comparison much easier in the frontend.
+    """
     try:
         # Try different date formats
         formats = [
@@ -17,12 +21,25 @@ def get_day_of_week(date_str):
         for fmt in formats:
             try:
                 date_obj = datetime.strptime(date_str, fmt)
-                return date_obj.strftime("%A")  # Returns full day name (Monday, Tuesday, etc.)
+                return date_obj.strftime("%Y-%m-%d")  # Returns ISO format (YYYY-MM-DD)
             except ValueError:
                 continue
                 
         # If none of the formats work, raise an exception
         raise ValueError(f"Could not parse date: {date_str}")
+        
+    except Exception as e:
+        print(f"Error standardizing date: {e}")
+        return date_str  # Return original string if parsing fails
+
+def get_day_of_week(date_str):
+    try:
+        # First standardize the date
+        iso_date = standardize_date(date_str)
+        
+        # Parse the ISO date
+        date_obj = datetime.strptime(iso_date, "%Y-%m-%d")
+        return date_obj.strftime("%A")  # Returns full day name (Monday, Tuesday, etc.)
         
     except Exception as e:
         print(f"Error getting day of week: {e}")

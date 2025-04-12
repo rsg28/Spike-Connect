@@ -63,7 +63,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
             // Assign random images to related events too
             const relatedWithImages = related.map(item => ({
               ...item,
-              imageUrl: activityImgs[Math.floor(Math.random() * activityImgs.length)]
+              imageUrl: locationImages.default
             }));
             
             setRelatedEvents(relatedWithImages);

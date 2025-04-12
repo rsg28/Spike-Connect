@@ -17,7 +17,7 @@ volleyball_url = 'https://cityofnewwestminster.perfectmind.com/23693/Clients/Boo
 
 # Setup Chrome options to run in headless mode
 chrome_options = Options()
-# chrome_options.add_argument("--headless")  # Run headlessly (without opening a browser window)
+chrome_options.add_argument("--headless")  # Run headlessly (without opening a browser window)
 chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
 
 # Automatically download and set the correct ChromeDriver
@@ -146,6 +146,9 @@ def scrape_volleyball_events():
 
             # Get venue type from location
             venueType = utils.get_venue_type_from_location(location)
+            
+            # Get the day of week
+            dayOfWeek = utils.get_day_of_week(eventDate)
 
             if eventLink:
                 events.append({
@@ -161,6 +164,7 @@ def scrape_volleyball_events():
                     "status": status,
                     'eventDate': eventDate,
                     'eventTime': eventTime,
+                    'dayOfWeek': dayOfWeek,
                     'fee': fee
                 })
         
@@ -193,13 +197,15 @@ def get_details_and_return(eventLink):
         date_time_span = driver.find_element(By.XPATH, "//span[contains(@aria-label, 'Event date')]")
         raw_date = date_time_span.text
         date_parts = raw_date.split('-')
-        eventDate = f"{date_parts[1]} {date_parts[0]}, {date_parts[2]}"
-
-        eventDayofWeek = utils.get_day_of_week(eventDate)
+        
+        # Format the date in a standard format (Month Day, Year)
+        formatted_date = f"{date_parts[1]} {date_parts[0]}, {date_parts[2]}"
+        
+        # Standardize the date format to ISO (YYYY-MM-DD)
+        eventDate = utils.standardize_date(formatted_date)
 
         time_span = driver.find_element(By.XPATH, "//span[contains(@aria-label, 'Event time')]")
         eventTime = time_span.text
-        eventTime = f"{eventDayofWeek} {eventTime}"
 
         # Close the details tab
         driver.close()
@@ -215,6 +221,7 @@ def get_details_and_return(eventLink):
         if len(driver.window_handles) > 1:
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
+        return "Unknown", "Unknown", "Unknown", "Unknown"
 
 # Run the scraper
 scrape_volleyball_events()

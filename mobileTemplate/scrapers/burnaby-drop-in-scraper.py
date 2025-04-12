@@ -90,11 +90,19 @@ def scrape_volleyball_events():
             if datetime_div:
                 # Extract the date
                 date_span = datetime_div.find('span', class_='activity-card-info__dateRange')
-                eventDate = date_span.get_text().strip() if date_span else 'No date'
+                raw_date = date_span.get_text().strip() if date_span else 'No date'
+                
+                # Standardize the date format to ISO (YYYY-MM-DD)
+                eventDate = utils.standardize_date(raw_date)
+                
+                # Get the day of week
+                dayOfWeek = utils.get_day_of_week(eventDate)
 
                 # Extract the time range
                 time_range_span = datetime_div.find('span', class_='activity-card-info__timeRange')
-                eventTime = time_range_span.get_text().strip() if time_range_span else 'No time range'
+                raw_time = time_range_span.get_text().strip() if time_range_span else 'No time range'
+                # Remove the day prefix (e.g., "Sat ") and keep only the time range
+                eventTime = ' '.join(raw_time.split()[1:]) if raw_time != 'No time range' else raw_time
 
             if eventLink:
               events.append({
@@ -110,6 +118,7 @@ def scrape_volleyball_events():
                   "status": status,
                   'eventDate': eventDate,
                   'eventTime': eventTime,
+                  'dayOfWeek': dayOfWeek,
                   'fee': "Pay in person"
               })
 
@@ -122,7 +131,8 @@ def scrape_volleyball_events():
             #     print(f"event Link: {event['eventLink']}, Location: {event['location']}, "
             #     f"event ID: {event['eventID']}, Venue Type: {event['venueType']}, "
             #     f"Ages: {event['ages']}, Openings: {event['openings']}, "
-            #     f"Date: {event['eventDate']}, Time: {event['eventTime']}")
+            #     f"Date: {event['eventDate']}, Time: {event['eventTime']}, "
+            #     f"Day of Week: {event['dayOfWeek']}")
         
         utils.save_to_json(events, "burnaby")
 

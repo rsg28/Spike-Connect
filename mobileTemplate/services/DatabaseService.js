@@ -720,6 +720,122 @@ class DatabaseService {
       );
     });
   }
+
+  // Create a new event
+  static async createEvent(event) {
+    try {
+      const db = await this.getDBConnection();
+      const { eventDate, eventTime, location, description, dayOfWeek } = event;
+      
+      const result = await db.execute(
+        `INSERT INTO events (eventDate, eventTime, location, description, dayOfWeek) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [eventDate, eventTime, location, description, dayOfWeek]
+      );
+      
+      return result.insertId;
+    } catch (error) {
+      console.error("Error creating event:", error);
+      throw error;
+    }
+  }
+
+  // Update an existing event
+  static async updateEvent(id, event) {
+    try {
+      const db = await this.getDBConnection();
+      const { eventDate, eventTime, location, description, dayOfWeek } = event;
+      
+      await db.execute(
+        `UPDATE events 
+         SET eventDate = ?, eventTime = ?, location = ?, description = ?, dayOfWeek = ?
+         WHERE id = ?`,
+        [eventDate, eventTime, location, description, dayOfWeek, id]
+      );
+      
+      return true;
+    } catch (error) {
+      console.error("Error updating event:", error);
+      throw error;
+    }
+  }
+
+  // Get all events
+  static async getAllEvents() {
+    try {
+      const db = await this.getDBConnection();
+      const [rows] = await db.execute(
+        `SELECT id, eventDate, eventTime, location, description, dayOfWeek 
+         FROM events 
+         ORDER BY eventDate ASC, eventTime ASC`
+      );
+      
+      return rows;
+    } catch (error) {
+      console.error("Error getting all events:", error);
+      throw error;
+    }
+  }
+
+  // Get event by ID
+  static async getEventById(id) {
+    try {
+      const db = await this.getDBConnection();
+      const [rows] = await db.execute(
+        `SELECT id, eventDate, eventTime, location, description, dayOfWeek 
+         FROM events 
+         WHERE id = ?`,
+        [id]
+      );
+      
+      return rows[0];
+    } catch (error) {
+      console.error("Error getting event by ID:", error);
+      throw error;
+    }
+  }
+
+  // Delete event by ID
+  static async deleteEvent(id) {
+    try {
+      const db = await this.getDBConnection();
+      await db.execute(
+        `DELETE FROM events 
+         WHERE id = ?`,
+        [id]
+      );
+      
+      return true;
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      throw error;
+    }
+  }
+
+  // Initialize database
+  static async initDB() {
+    try {
+      const db = await this.getDBConnection();
+      
+      // Create events table if it doesn't exist
+      await db.execute(`
+        CREATE TABLE IF NOT EXISTS events (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          eventDate TEXT NOT NULL,
+          eventTime TEXT NOT NULL,
+          location TEXT NOT NULL,
+          description TEXT,
+          dayOfWeek TEXT,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      
+      console.log("Database initialized successfully");
+    } catch (error) {
+      console.error("Error initializing database:", error);
+      throw error;
+    }
+  }
 }
 
 export default new DatabaseService();

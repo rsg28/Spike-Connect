@@ -10,8 +10,9 @@
         "ages": "16+",
         "openings": "Full",
         "status": "Full",
-        "eventDate": "Apr 12, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-04-12",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -25,8 +26,9 @@
         "ages": "16+",
         "openings": "Full",
         "status": "Full",
-        "eventDate": "Apr 13, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-04-13",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -40,8 +42,9 @@
         "ages": "16+",
         "openings": "18",
         "status": "Open",
-        "eventDate": "Apr 14, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-04-14",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -55,8 +58,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 16, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-04-16",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -70,8 +74,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 16, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-04-16",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -85,8 +90,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 16, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-04-16",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -100,8 +106,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 17, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-04-17",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -115,8 +122,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 19, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-04-19",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -130,8 +138,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 20, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-04-20",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -145,8 +154,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 21, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-04-21",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -160,8 +170,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 23, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-04-23",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -175,8 +186,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 23, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-04-23",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -190,8 +202,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 23, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-04-23",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -205,8 +218,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 24, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-04-24",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -220,8 +234,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 26, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-04-26",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -235,8 +250,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 27, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-04-27",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -250,8 +266,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 28, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-04-28",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -265,8 +282,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 30, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-04-30",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -280,8 +298,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 30, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-04-30",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -295,8 +314,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "Apr 30, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-04-30",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -310,8 +330,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 01, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-05-01",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -325,8 +346,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 03, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-05-03",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -340,8 +362,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 04, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-05-04",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -355,8 +378,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 05, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-05-05",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -370,8 +394,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 07, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-05-07",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -385,8 +410,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 07, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-05-07",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -400,8 +426,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 07, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-05-07",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -415,8 +442,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 08, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-05-08",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -430,8 +458,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 10, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-05-10",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -445,8 +474,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 11, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-05-11",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -460,8 +490,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 12, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-05-12",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -475,8 +506,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 14, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-05-14",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -490,8 +522,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 14, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-05-14",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -505,8 +538,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 14, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-05-14",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -520,8 +554,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 15, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-05-15",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -535,8 +570,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 17, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-05-17",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -550,8 +586,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 18, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-05-18",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -565,8 +602,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 19, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-05-19",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -580,8 +618,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 21, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-05-21",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -595,8 +634,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 21, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-05-21",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -610,8 +650,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 21, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-05-21",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -625,8 +666,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 22, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-05-22",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -640,8 +682,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 24, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-05-24",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     },
     {
@@ -655,8 +698,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 25, 2025",
-        "eventTime": "Sunday 6:00 pm - 8:00 pm",
+        "eventDate": "2025-05-25",
+        "eventTime": "6:00 pm - 8:00 pm",
+        "dayOfWeek": "Sunday",
         "fee": "$7.14"
     },
     {
@@ -670,8 +714,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 26, 2025",
-        "eventTime": "Monday 12:30 pm - 3:00 pm",
+        "eventDate": "2025-05-26",
+        "eventTime": "12:30 pm - 3:00 pm",
+        "dayOfWeek": "Monday",
         "fee": "$7.14"
     },
     {
@@ -685,8 +730,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 28, 2025",
-        "eventTime": "Wednesday 6:00 am - 8:00 am",
+        "eventDate": "2025-05-28",
+        "eventTime": "6:00 am - 8:00 am",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -700,8 +746,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 28, 2025",
-        "eventTime": "Wednesday 12:30 pm - 2:30 pm",
+        "eventDate": "2025-05-28",
+        "eventTime": "12:30 pm - 2:30 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -715,8 +762,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 28, 2025",
-        "eventTime": "Wednesday 5:45 pm - 7:45 pm",
+        "eventDate": "2025-05-28",
+        "eventTime": "5:45 pm - 7:45 pm",
+        "dayOfWeek": "Wednesday",
         "fee": "$7.14"
     },
     {
@@ -730,8 +778,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 29, 2025",
-        "eventTime": "Thursday 6:30 pm - 8:30 pm",
+        "eventDate": "2025-05-29",
+        "eventTime": "6:30 pm - 8:30 pm",
+        "dayOfWeek": "Thursday",
         "fee": "$7.14"
     },
     {
@@ -745,8 +794,9 @@
         "ages": "16+",
         "openings": "Register Soon",
         "status": "Register Soon",
-        "eventDate": "May 31, 2025",
-        "eventTime": "Saturday 3:45 pm - 5:45 pm",
+        "eventDate": "2025-05-31",
+        "eventTime": "3:45 pm - 5:45 pm",
+        "dayOfWeek": "Saturday",
         "fee": "$7.14"
     }
 ]

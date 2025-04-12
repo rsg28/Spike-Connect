@@ -415,13 +415,18 @@ class BackendService {
       return parsedItems.map(item => ({
         ...item,
         id: item.eventID || item.id,
-        maxParticipants: parseInt(item.openings || 0) || 0,
-        currentParticipants: 0, // Not tracked in AsyncStorage
+        title: item.title || "Untitled Event",
+        location: item.location || "Location TBD",
+        venueType: item.venueType || "Indoor",
+        eventLink: item.eventLink || "",
+        category: item.category || "Drop-in",
+        level: item.level || "All Levels",
+        ages: item.ages || "16+",
+        openings: item.openings || "0",
         status: item.status || "Open",
-        // For safety, ensure date fields are never undefined
-        dueDate: item.eventDate || item.dueDate || "Date not specified", 
-        eventDate: item.eventDate || item.dueDate || "Date not specified",
-        eventTime: item.eventTime || "Time not specified"
+        eventDate: item.eventDate || "Date not specified",
+        eventTime: item.eventTime || "Time not specified",
+        fee: item.fee || "Free",
       }));
     } catch (error) {
       console.error("Error getting all items from AsyncStorage:", error);
@@ -479,84 +484,203 @@ class BackendService {
   // Get featured events (upcoming events)
   static async getFeaturedItems() {
     try {
-      const today = new Date();
-      const allItems = await this.getAllItems();
-
-      // Filter for upcoming events
-      return allItems
-        .filter((item) => {
-          if (!item.eventDate) return false;
-
-          let eventDate;
-          try {
-            // Try to extract date part if it contains a comma (like "March 18, 2025")
-            eventDate = item.eventDate.includes(",")
-              ? new Date(item.eventDate.split(",")[0])
-              : new Date(item.eventDate);
-
-            return !isNaN(eventDate) && eventDate >= today;
-          } catch (error) {
-            console.error("Error parsing date:", item.eventDate, error);
+      // Get current date and time
+      const now = new Date();
+      
+      console.log("Current date and time for filtering:", now.toISOString());
+      
+      const items = await this.getAllItems();
+      console.log("Total items before filtering:", items.length);
+      
+      // Filter for upcoming events (today or later)
+      const filteredItems = items.filter(item => {
+        try {
+          const eventDate = this.parseEventDate(item.eventDate);
+          if (!eventDate) {
+            console.log("Could not parse date for item:", item.id, item.eventDate);
             return false;
           }
-        })
-        .sort((a, b) => {
-          try {
-            const dateA = a.eventDate.includes(",")
-              ? new Date(a.eventDate.split(",")[0])
-              : new Date(a.eventDate);
-
-            const dateB = b.eventDate.includes(",")
-              ? new Date(b.eventDate.split(",")[0])
-              : new Date(b.eventDate);
-
-            return dateA - dateB;
-          } catch (error) {
-            return 0; // Default to no change in order if there's an error
+          
+          // Parse event time
+          const eventTime = this.parseEventTime(item.eventTime);
+          if (!eventTime) {
+            console.log("Could not parse time for item:", item.id, item.eventTime);
+            return false;
           }
-        })
-        .slice(0, 5); // Return the 5 closest upcoming events
+          
+          // Create full datetime for event
+          const eventDateTime = new Date(eventDate);
+          eventDateTime.setHours(eventTime.hours, eventTime.minutes, 0, 0);
+          
+          // Include events that are in the future
+          return eventDateTime >= now;
+        } catch (error) {
+          console.error("Error filtering item:", item.id, error);
+          return false;
+        }
+      });
+      
+      console.log("Items after filtering:", filteredItems.length);
+      
+      // Sort by date and time (ascending)
+      const sortedItems = filteredItems.sort((a, b) => {
+        const dateTimeA = new Date(this.parseEventDate(a.eventDate));
+        const timeA = this.parseEventTime(a.eventTime);
+        dateTimeA.setHours(timeA.hours, timeA.minutes, 0, 0);
+        
+        const dateTimeB = new Date(this.parseEventDate(b.eventDate));
+        const timeB = this.parseEventTime(b.eventTime);
+        dateTimeB.setHours(timeB.hours, timeB.minutes, 0, 0);
+        
+        return dateTimeA - dateTimeB;
+      });
+      
+      // Return only the first 5 items
+      return sortedItems.slice(0, 5);
     } catch (error) {
       console.error("Error getting featured items:", error);
       return [];
     }
   }
 
+  // Helper method to parse event dates
+  static parseEventDate(dateStr) {
+    try {
+      if (!dateStr) return null;
+      
+      // Check if the date is already in ISO format (YYYY-MM-DD)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        // Parse ISO date format
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day); // month is 0-indexed in JS
+      }
+      
+      // Handle different date formats
+      if (dateStr.includes(",")) {
+        // Format: "April 11, 2025" or "Apr 12, 2025"
+        const parts = dateStr.split(",");
+        if (parts.length >= 2) {
+          const monthDay = parts[0].trim();
+          const year = parts[1].trim();
+          
+          // Parse month and day
+          const monthDayParts = monthDay.split(" ");
+          if (monthDayParts.length >= 2) {
+            const month = monthDayParts[0];
+            const day = monthDayParts[1];
+            
+            // Convert month name to month number (0-11)
+            const monthMap = {
+              "January": 0, "Jan": 0,
+              "February": 1, "Feb": 1,
+              "March": 2, "Mar": 2,
+              "April": 3, "Apr": 3,
+              "May": 4,
+              "June": 5, "Jun": 5,
+              "July": 6, "Jul": 6,
+              "August": 7, "Aug": 7,
+              "September": 8, "Sep": 8,
+              "October": 9, "Oct": 9,
+              "November": 10, "Nov": 10,
+              "December": 11, "Dec": 11
+            };
+            
+            const monthNum = monthMap[month];
+            if (monthNum !== undefined && day && year) {
+              return new Date(parseInt(year), monthNum, parseInt(day));
+            }
+          }
+        }
+      } else {
+        // Try standard date parsing for other formats
+        return new Date(dateStr);
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error parsing date in helper:", dateStr, error);
+      return null;
+    }
+  }
+
+  // Helper method to parse event times
+  parseEventTime(eventTimeStr) {
+    // Split the time range and use the first part as the start time
+    const times = eventTimeStr.split('-');
+    if (times.length === 0) {
+      return null;
+    }
+    const startTimeStr = times[0].trim();
+    
+    // Create a Date object using the current date and the start time string.
+    // This helps us parse hours and minutes while taking into account AM/PM.
+    const date = new Date(`1970-01-01 ${startTimeStr}`);
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+    
+    return {
+      hours: date.getHours(),
+      minutes: date.getMinutes()
+    };
+  }
+  
+
   // Get recent events
   static async getRecentItems() {
     try {
-      const allItems = await this.getAllItems();
-
-      // Sort by createdAt if available, otherwise by eventDate
-      return allItems.sort((a, b) => {
+      // Get current date and time
+      const now = new Date();
+      
+      console.log("Current date and time for recent items:", now.toISOString());
+      
+      const items = await this.getAllItems();
+      console.log("Total items before filtering:", items.length);
+      
+      // Filter for past events (before today)
+      const filteredItems = items.filter(item => {
         try {
-          let dateA, dateB;
-
-          if (a.createdAt) {
-            dateA = new Date(a.createdAt);
-          } else if (a.eventDate) {
-            dateA = a.eventDate.includes(",")
-              ? new Date(a.eventDate.split(",")[0])
-              : new Date(a.eventDate);
-          } else {
-            dateA = new Date(0); // Default to epoch if no date available
+          const eventDate = this.parseEventDate(item.eventDate);
+          if (!eventDate) {
+            console.log("Could not parse date for item:", item.id, item.eventDate);
+            return false;
           }
-
-          if (b.createdAt) {
-            dateB = new Date(b.createdAt);
-          } else if (b.eventDate) {
-            dateB = b.eventDate.includes(",")
-              ? new Date(b.eventDate.split(",")[0])
-              : new Date(b.eventDate);
-          } else {
-            dateB = new Date(0); // Default to epoch if no date available
+          
+          // Parse event time
+          const eventTime = this.parseEventTime(item.eventTime);
+          if (!eventTime) {
+            console.log("Could not parse time for item:", item.id, item.eventTime);
+            return false;
           }
-
-          return dateB - dateA; // Sort descending (newest first)
+          
+          // Create full datetime for event
+          const eventDateTime = new Date(eventDate);
+          eventDateTime.setHours(eventTime.hours, eventTime.minutes, 0, 0);
+          
+          // Include events that are in the past
+          return eventDateTime < now;
         } catch (error) {
-          return 0; // Default to no change in order if there's an error
+          console.error("Error filtering item:", item.id, error);
+          return false;
         }
       });
+      
+      console.log("Items after filtering:", filteredItems.length);
+      
+      // Sort by date and time (descending)
+      const sortedItems = filteredItems.sort((a, b) => {
+        const dateTimeA = new Date(this.parseEventDate(a.eventDate));
+        const timeA = this.parseEventTime(a.eventTime);
+        dateTimeA.setHours(timeA.hours, timeA.minutes, 0, 0);
+        
+        const dateTimeB = new Date(this.parseEventDate(b.eventDate));
+        const timeB = this.parseEventTime(b.eventTime);
+        dateTimeB.setHours(timeB.hours, timeB.minutes, 0, 0);
+        
+        return dateTimeB - dateTimeA; // Sort descending (newest first)
+      });
+      
+      return sortedItems;
     } catch (error) {
       console.error("Error getting recent items:", error);
       return [];

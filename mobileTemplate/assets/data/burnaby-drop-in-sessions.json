@@ -1,20 +1,5 @@
 [
     {
-        "title": "Volleyball Adult Intermediate",
-        "eventID": "71808",
-        "location": "Bonsor Recreation Complex (BON)",
-        "eventLink": "https://ca.apm.activecommunities.com/burnaby/Activity_Search/reserve-in-advance-volleyball-adult-intermediate/66321?locale=en-US",
-        "venueType": "Indoor",
-        "category": "Drop-in",
-        "level": "Intermediate",
-        "ages": "19+",
-        "openings": "0",
-        "status": "Full",
-        "eventDate": "April 11, 2025",
-        "eventTime": "Fri 7:30 PM - 9:30 PM",
-        "fee": "Pay in person"
-    },
-    {
         "title": "Volleyball Adult",
         "eventID": "64167",
         "location": "Christine Sinclair Community Centre (CSC)",
@@ -23,10 +8,11 @@
         "category": "Drop-in",
         "level": "All Levels",
         "ages": "19+",
-        "openings": "11",
-        "status": "Open",
-        "eventDate": "April 12, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "openings": "0",
+        "status": "Full",
+        "eventDate": "2025-04-12",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -38,10 +24,11 @@
         "category": "Drop-in",
         "level": "All Levels",
         "ages": "6+",
-        "openings": "11",
+        "openings": "10",
         "status": "Open",
-        "eventDate": "April 13, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-04-13",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -55,8 +42,9 @@
         "ages": "19+",
         "openings": "0",
         "status": "Full",
-        "eventDate": "April 13, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-04-13",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -70,8 +58,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "April 15, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-15",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -85,8 +74,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "April 15, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-15",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -100,8 +90,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 16, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-04-16",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -115,8 +106,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "April 17, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-04-17",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -130,8 +122,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "April 18, 2025",
-        "eventTime": "Fri 4:00 PM - 6:00 PM",
+        "eventDate": "2025-04-18",
+        "eventTime": "4:00 PM - 6:00 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -145,8 +138,9 @@
         "ages": "Ageatleast13butlessthan19",
         "openings": "84",
         "status": "Open",
-        "eventDate": "April 18, 2025",
-        "eventTime": "Fri 4:45 PM - 6:45 PM",
+        "eventDate": "2025-04-18",
+        "eventTime": "4:45 PM - 6:45 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -160,8 +154,9 @@
         "ages": "19+",
         "openings": "84",
         "status": "Open",
-        "eventDate": "April 18, 2025",
-        "eventTime": "Fri 7:00 PM - 9:00 PM",
+        "eventDate": "2025-04-18",
+        "eventTime": "7:00 PM - 9:00 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -175,8 +170,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 19, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-04-19",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -190,8 +186,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "April 20, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-04-20",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -205,8 +202,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 20, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-04-20",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -220,8 +218,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "April 21, 2025",
-        "eventTime": "Mon 3:00 PM - 5:00 PM",
+        "eventDate": "2025-04-21",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Monday",
         "fee": "Pay in person"
     },
     {
@@ -235,8 +234,9 @@
         "ages": "19+",
         "openings": "26",
         "status": "Open",
-        "eventDate": "April 21, 2025",
-        "eventTime": "Mon 5:30 PM - 7:30 PM",
+        "eventDate": "2025-04-21",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Monday",
         "fee": "Pay in person"
     },
     {
@@ -250,8 +250,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "April 22, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-22",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -265,8 +266,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "April 22, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-22",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -280,8 +282,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 23, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-04-23",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -295,8 +298,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "April 24, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-04-24",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -310,8 +314,9 @@
         "ages": "Ageatleast13butlessthan19",
         "openings": "84",
         "status": "Open",
-        "eventDate": "April 25, 2025",
-        "eventTime": "Fri 5:00 PM - 7:00 PM",
+        "eventDate": "2025-04-25",
+        "eventTime": "5:00 PM - 7:00 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -325,8 +330,9 @@
         "ages": "19+",
         "openings": "84",
         "status": "Open",
-        "eventDate": "April 25, 2025",
-        "eventTime": "Fri 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-25",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -340,8 +346,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 26, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-04-26",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -355,8 +362,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "April 27, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-04-27",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -370,8 +378,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 27, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-04-27",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -385,8 +394,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "April 29, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-29",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -400,8 +410,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "April 29, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-04-29",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -415,8 +426,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "April 30, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-04-30",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -430,8 +442,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "May 1, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-05-01",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -445,8 +458,9 @@
         "ages": "Ageatleast13butlessthan19",
         "openings": "84",
         "status": "Open",
-        "eventDate": "May 2, 2025",
-        "eventTime": "Fri 5:00 PM - 7:00 PM",
+        "eventDate": "2025-05-02",
+        "eventTime": "5:00 PM - 7:00 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -460,8 +474,9 @@
         "ages": "19+",
         "openings": "84",
         "status": "Open",
-        "eventDate": "May 2, 2025",
-        "eventTime": "Fri 7:30 PM - 9:30 PM",
+        "eventDate": "2025-05-02",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -475,8 +490,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 3, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-05-03",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -490,8 +506,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "May 4, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-05-04",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -505,8 +522,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 4, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-05-04",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -520,8 +538,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "May 6, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-05-06",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -535,8 +554,9 @@
         "ages": "19+",
         "openings": "42",
         "status": "Open",
-        "eventDate": "May 6, 2025",
-        "eventTime": "Tue 7:30 PM - 9:30 PM",
+        "eventDate": "2025-05-06",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Tuesday",
         "fee": "Pay in person"
     },
     {
@@ -550,8 +570,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 7, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-05-07",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -565,8 +586,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "May 8, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-05-08",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -580,8 +602,9 @@
         "ages": "Ageatleast13butlessthan19",
         "openings": "84",
         "status": "Open",
-        "eventDate": "May 9, 2025",
-        "eventTime": "Fri 5:00 PM - 7:00 PM",
+        "eventDate": "2025-05-09",
+        "eventTime": "5:00 PM - 7:00 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -595,8 +618,9 @@
         "ages": "19+",
         "openings": "84",
         "status": "Open",
-        "eventDate": "May 9, 2025",
-        "eventTime": "Fri 7:30 PM - 9:30 PM",
+        "eventDate": "2025-05-09",
+        "eventTime": "7:30 PM - 9:30 PM",
+        "dayOfWeek": "Friday",
         "fee": "Pay in person"
     },
     {
@@ -610,8 +634,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 10, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-05-10",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -625,8 +650,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "May 11, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-05-11",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -640,8 +666,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 11, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-05-11",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -655,8 +682,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 14, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-05-14",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -670,8 +698,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "May 15, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-05-15",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -685,8 +714,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 17, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-05-17",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -700,8 +730,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "May 18, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-05-18",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -715,8 +746,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 18, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-05-18",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -730,8 +762,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "May 19, 2025",
-        "eventTime": "Mon 3:00 PM - 5:00 PM",
+        "eventDate": "2025-05-19",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Monday",
         "fee": "Pay in person"
     },
     {
@@ -745,8 +778,9 @@
         "ages": "19+",
         "openings": "26",
         "status": "Open",
-        "eventDate": "May 19, 2025",
-        "eventTime": "Mon 5:30 PM - 7:30 PM",
+        "eventDate": "2025-05-19",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Monday",
         "fee": "Pay in person"
     },
     {
@@ -760,8 +794,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 21, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-05-21",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -775,8 +810,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "May 22, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-05-22",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -790,8 +826,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 24, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-05-24",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -805,8 +842,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "May 25, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-05-25",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -820,8 +858,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 25, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-05-25",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -835,8 +874,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "May 28, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-05-28",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -850,8 +890,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "May 29, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-05-29",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -865,8 +906,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 4, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-06-04",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -880,8 +922,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "June 5, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-06-05",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -895,8 +938,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 7, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-06-07",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -910,8 +954,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "June 8, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-06-08",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -925,8 +970,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 8, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-06-08",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -940,8 +986,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 11, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-06-11",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -955,8 +1002,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "June 12, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-06-12",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -970,8 +1018,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 14, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-06-14",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -985,8 +1034,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "June 15, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-06-15",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -1000,8 +1050,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 15, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-06-15",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -1015,8 +1066,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 18, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-06-18",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -1030,8 +1082,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "June 19, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-06-19",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -1045,8 +1098,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 21, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-06-21",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -1060,8 +1114,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "June 22, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-06-22",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -1075,8 +1130,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 22, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-06-22",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -1090,8 +1146,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 25, 2025",
-        "eventTime": "Wed 12:30 PM - 2:30 PM",
+        "eventDate": "2025-06-25",
+        "eventTime": "12:30 PM - 2:30 PM",
+        "dayOfWeek": "Wednesday",
         "fee": "Pay in person"
     },
     {
@@ -1105,8 +1162,9 @@
         "ages": "6+",
         "openings": "48",
         "status": "Open",
-        "eventDate": "June 26, 2025",
-        "eventTime": "Thu 3:30 PM - 5:30 PM",
+        "eventDate": "2025-06-26",
+        "eventTime": "3:30 PM - 5:30 PM",
+        "dayOfWeek": "Thursday",
         "fee": "Pay in person"
     },
     {
@@ -1120,8 +1178,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 28, 2025",
-        "eventTime": "Sat 1:30 PM - 3:30 PM",
+        "eventDate": "2025-06-28",
+        "eventTime": "1:30 PM - 3:30 PM",
+        "dayOfWeek": "Saturday",
         "fee": "Pay in person"
     },
     {
@@ -1135,8 +1194,9 @@
         "ages": "6+",
         "openings": "24",
         "status": "Open",
-        "eventDate": "June 29, 2025",
-        "eventTime": "Sun 3:00 PM - 5:00 PM",
+        "eventDate": "2025-06-29",
+        "eventTime": "3:00 PM - 5:00 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     },
     {
@@ -1150,8 +1210,9 @@
         "ages": "19+",
         "openings": "52",
         "status": "Open",
-        "eventDate": "June 29, 2025",
-        "eventTime": "Sun 5:30 PM - 7:30 PM",
+        "eventDate": "2025-06-29",
+        "eventTime": "5:30 PM - 7:30 PM",
+        "dayOfWeek": "Sunday",
         "fee": "Pay in person"
     }
 ]
