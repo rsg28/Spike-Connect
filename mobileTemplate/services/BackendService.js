@@ -408,11 +408,8 @@ class BackendService {
   // Get all items from AsyncStorage
   static async getAllItemsFromAsyncStorage() {
     try {
-      const items = await AsyncStorage.getItem("volleyballEvents");
-      const parsedItems = items ? JSON.parse(items) : [];
-      
-      // Convert to standard format with safe date handling
-      return parsedItems.map(item => ({
+      // Use the volleyballSessions data directly from the JSON file
+      return volleyballSessions.map(item => ({
         ...item,
         id: item.eventID || item.id,
         title: item.title || "Untitled Event",
@@ -429,7 +426,7 @@ class BackendService {
         fee: item.fee || "Free",
       }));
     } catch (error) {
-      console.error("Error getting all items from AsyncStorage:", error);
+      console.error("Error getting all items from JSON file:", error);
       return [];
     }
   }
@@ -548,81 +545,66 @@ class BackendService {
     try {
       if (!dateStr) return null;
       
-      // Check if the date is already in ISO format (YYYY-MM-DD)
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-        // Parse ISO date format
-        const [year, month, day] = dateStr.split('-').map(Number);
+      // Parse ISO date format (YYYY-MM-DD)
+      const [year, month, day] = dateStr.split('-').map(Number);
+      if (year && month && day) {
         return new Date(year, month - 1, day); // month is 0-indexed in JS
-      }
-      
-      // Handle different date formats
-      if (dateStr.includes(",")) {
-        // Format: "April 11, 2025" or "Apr 12, 2025"
-        const parts = dateStr.split(",");
-        if (parts.length >= 2) {
-          const monthDay = parts[0].trim();
-          const year = parts[1].trim();
-          
-          // Parse month and day
-          const monthDayParts = monthDay.split(" ");
-          if (monthDayParts.length >= 2) {
-            const month = monthDayParts[0];
-            const day = monthDayParts[1];
-            
-            // Convert month name to month number (0-11)
-            const monthMap = {
-              "January": 0, "Jan": 0,
-              "February": 1, "Feb": 1,
-              "March": 2, "Mar": 2,
-              "April": 3, "Apr": 3,
-              "May": 4,
-              "June": 5, "Jun": 5,
-              "July": 6, "Jul": 6,
-              "August": 7, "Aug": 7,
-              "September": 8, "Sep": 8,
-              "October": 9, "Oct": 9,
-              "November": 10, "Nov": 10,
-              "December": 11, "Dec": 11
-            };
-            
-            const monthNum = monthMap[month];
-            if (monthNum !== undefined && day && year) {
-              return new Date(parseInt(year), monthNum, parseInt(day));
-            }
-          }
-        }
-      } else {
-        // Try standard date parsing for other formats
-        return new Date(dateStr);
       }
       
       return null;
     } catch (error) {
-      console.error("Error parsing date in helper:", dateStr, error);
+      console.error("Error parsing date:", dateStr, error);
       return null;
     }
   }
 
   // Helper method to parse event times
-  parseEventTime(eventTimeStr) {
-    // Split the time range and use the first part as the start time
-    const times = eventTimeStr.split('-');
-    if (times.length === 0) {
+  static parseEventTime(eventTimeStr) {
+    try {
+      if (!eventTimeStr) return null;
+      
+      // Split the time range and use the first part as the start time
+      const times = eventTimeStr.split('-');
+      if (times.length === 0) {
+        return null;
+      }
+      
+      const startTimeStr = times[0].trim();
+      
+      // Handle different time formats
+      let hours, minutes;
+      
+      // Check if time is in 12-hour format with AM/PM
+      const timeMatch = startTimeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (timeMatch) {
+        hours = parseInt(timeMatch[1]);
+        minutes = parseInt(timeMatch[2]);
+        const isPM = timeMatch[3].toUpperCase() === 'PM';
+        
+        // Convert to 24-hour format
+        if (isPM && hours !== 12) {
+          hours += 12;
+        } else if (!isPM && hours === 12) {
+          hours = 0;
+        }
+      } else {
+        // Try parsing as 24-hour format
+        const [h, m] = startTimeStr.split(':').map(Number);
+        if (isNaN(h) || isNaN(m)) {
+          return null;
+        }
+        hours = h;
+        minutes = m;
+      }
+      
+      return {
+        hours,
+        minutes
+      };
+    } catch (error) {
+      console.error("Error parsing time:", eventTimeStr, error);
       return null;
     }
-    const startTimeStr = times[0].trim();
-    
-    // Create a Date object using the current date and the start time string.
-    // This helps us parse hours and minutes while taking into account AM/PM.
-    const date = new Date(`1970-01-01 ${startTimeStr}`);
-    if (isNaN(date.getTime())) {
-      return null;
-    }
-    
-    return {
-      hours: date.getHours(),
-      minutes: date.getMinutes()
-    };
   }
   
 
@@ -852,6 +834,31 @@ class BackendService {
       const allItems = await this.getAllItems();
       const searchTerm = query.toLowerCase();
 
+      // Handle special keywords
+      if (searchTerm === 'today') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        return allItems.filter(item => {
+          try {
+            const eventDate = this.parseEventDate(item.eventDate);
+            if (!eventDate) return false;
+            
+            // Set hours to 0 for date comparison
+            const itemDate = new Date(eventDate);
+            itemDate.setHours(0, 0, 0, 0);
+            
+            return itemDate.getTime() === today.getTime();
+          } catch (error) {
+            console.error("Error filtering today's events:", error);
+            return false;
+          }
+        });
+      }
+
+      // Regular search for other terms
       return allItems.filter(
         (item) =>
           (item.title && item.title.toLowerCase().includes(searchTerm)) ||

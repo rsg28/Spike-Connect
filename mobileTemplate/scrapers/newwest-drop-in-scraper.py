@@ -17,8 +17,11 @@ volleyball_url = 'https://cityofnewwestminster.perfectmind.com/23693/Clients/Boo
 
 # Setup Chrome options to run in headless mode
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # Run headlessly (without opening a browser window)
-chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
+chrome_options.add_argument("--headless=new")  # modern headless
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option("useAutomationExtension", False)
 
 # Automatically download and set the correct ChromeDriver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -58,10 +61,8 @@ def scrape_volleyball_events():
         date_to_calendar_icon = date_to_input.find_element(By.XPATH, './following-sibling::span//span[contains(@class, "k-i-calendar")]')
         date_to_calendar_icon.click()
 
-        # Calculate a date two months from today
+        # Calculate a date two months from now
         two_months_from_now = datetime.now() + timedelta(days=60)
-        # Format with 0-indexed month (subtract 1 from the month)
-        target_date = f"{two_months_from_now.year}/{two_months_from_now.month-1}/{two_months_from_now.day}"
 
         # Calculate how many months ahead we need to go
         current_month = datetime.now().month
@@ -78,10 +79,12 @@ def scrape_volleyball_events():
         
         # Find and click on the date that's one month from today
         try:
-            # Find the date element with the target date value
-            date_element = driver.find_element(By.CSS_SELECTOR, f'a.k-link[data-value="{target_date}"]')
+            # Format the date string to match the website's format exactly (YYYY/M/D)
+            formatted_date = f"{two_months_from_now.year}/{two_months_from_now.month}/{two_months_from_now.day}"
+            
+            # no need to wait for the date element to be present
+            date_element = driver.find_element(By.CSS_SELECTOR, f'a.k-link[data-value="{formatted_date}"]')
             date_element.click()
-            time.sleep(1)
         except Exception as e:
             print(f"Error selecting date: {e}")
 

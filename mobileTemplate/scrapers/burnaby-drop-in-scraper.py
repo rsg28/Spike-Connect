@@ -12,8 +12,11 @@ volleyball_url = 'https://anc.ca.apm.activecommunities.com/burnaby/activity/sear
 
 # Setup Chrome options to run in headless mode
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # Run headlessly (without opening a browser window)
-chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
+chrome_options.add_argument("--headless=new")  # modern headless
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option("useAutomationExtension", False)
 
 # Automatically download and set the correct ChromeDriver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -127,12 +130,12 @@ def scrape_volleyball_events():
             print("No matching volleyball events found.")
         else:
             print("Found events with Details:")
-            # for event in events:
-            #     print(f"event Link: {event['eventLink']}, Location: {event['location']}, "
-            #     f"event ID: {event['eventID']}, Venue Type: {event['venueType']}, "
-            #     f"Ages: {event['ages']}, Openings: {event['openings']}, "
-            #     f"Date: {event['eventDate']}, Time: {event['eventTime']}, "
-            #     f"Day of Week: {event['dayOfWeek']}")
+            for event in events[:10]:
+                print(f"event Link: {event['eventLink']}, Location: {event['location']}, "
+                f"event ID: {event['eventID']}, Venue Type: {event['venueType']}, "
+                f"Ages: {event['ages']}, Openings: {event['openings']}, "
+                f"Date: {event['eventDate']}, Time: {event['eventTime']}, "
+                f"Day of Week: {event['dayOfWeek']}")
         
         utils.save_to_json(events, "burnaby")
 

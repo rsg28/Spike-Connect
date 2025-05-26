@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import BackendService from '../services/BackendService';
-import volleyballSessions from "../assets/data/volleyball_sessions.json";
 
 const DropInSessionsScreen = ({ navigation }) => {
   const [sessions, setSessions] = useState([]);
@@ -127,43 +126,9 @@ const DropInSessionsScreen = ({ navigation }) => {
     // Format the date properly
     const formatDate = (dateString) => {
       try {
-        // First try parsing as ISO string
-        let date = new Date(dateString);
-        
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-          // If invalid, try parsing different formats
-          const formats = [
-            'YYYY-MM-DD',
-            'MM/DD/YYYY',
-            'DD/MM/YYYY',
-            'YYYY/MM/DD'
-          ];
-          
-          for (const format of formats) {
-            const parts = dateString.split(/[-/]/);
-            if (parts.length === 3) {
-              if (format === 'YYYY-MM-DD') {
-                date = new Date(parts[0], parts[1] - 1, parts[2]);
-              } else if (format === 'MM/DD/YYYY') {
-                date = new Date(parts[2], parts[0] - 1, parts[1]);
-              } else if (format === 'DD/MM/YYYY') {
-                date = new Date(parts[2], parts[1] - 1, parts[0]);
-              } else if (format === 'YYYY/MM/DD') {
-                date = new Date(parts[0], parts[1] - 1, parts[2]);
-              }
-              
-              if (!isNaN(date.getTime())) {
-                break;
-              }
-            }
-          }
-        }
-        
-        // If still invalid, return the original string
-        if (isNaN(date.getTime())) {
-          return dateString;
-        }
+        // Parse YYYY-MM-DD format
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day); // month is 0-indexed in JS
         
         // Format the date
         return date.toLocaleDateString('en-US', {
@@ -179,7 +144,10 @@ const DropInSessionsScreen = ({ navigation }) => {
     };
 
     return (
-      <View style={styles.sessionCard}>
+      <TouchableOpacity 
+        onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+        style={styles.sessionCard}
+      >
         <View style={styles.sessionHeader}>
           <Text style={styles.sessionTitle}>{item.title}</Text>
           <View style={styles.sessionBadge}>
@@ -211,7 +179,7 @@ const DropInSessionsScreen = ({ navigation }) => {
             </View>
           )}
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
