@@ -112,6 +112,7 @@ def scrape_volleyball_events():
                   'title': title,
                   'eventID': eventID,
                   'location': location,
+                  'city': 'Burnaby',
                   'eventLink': eventLink,
                   'venueType': venueType,
                   'category': 'Drop-in',

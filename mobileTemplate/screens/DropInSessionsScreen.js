@@ -39,23 +39,31 @@ const DropInSessionsScreen = ({ navigation }) => {
       // Apply filters
       if (filters.location !== 'All') {
         filteredSessions = filteredSessions.filter(session => 
-          session.location.includes(filters.location)
+          session.city.includes(filters.location)
         );
       }
 
       if (filters.date !== 'All') {
         const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of day
+        
         filteredSessions = filteredSessions.filter(session => {
-          const sessionDate = new Date(session.eventDate);
+          // Parse YYYY-MM-DD format
+          const [year, month, day] = session.eventDate.split('-').map(Number);
+          const sessionDate = new Date(year, month - 1, day); // month is 0-indexed
+          sessionDate.setHours(0, 0, 0, 0); // Set to start of day
+          
           switch (filters.date) {
             case 'Today':
-              return sessionDate.toDateString() === today.toDateString();
+              return sessionDate.getTime() === today.getTime();
             case 'This Week':
               const weekEnd = new Date(today);
               weekEnd.setDate(today.getDate() + 7);
+              weekEnd.setHours(0, 0, 0, 0);
               return sessionDate >= today && sessionDate <= weekEnd;
             case 'This Month':
               const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+              monthEnd.setHours(0, 0, 0, 0);
               return sessionDate >= today && sessionDate <= monthEnd;
             default:
               return true;

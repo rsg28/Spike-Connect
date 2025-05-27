@@ -38,7 +38,18 @@ const ItemDetailScreen = ({ route, navigation }) => {
   // Safe formatting for event date display
   const formatEventDate = (dateString) => {
     if (!dateString) return null;
-    return dateString;
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  // Helper function to abbreviate day of week
+  const abbreviateDayOfWeek = (day) => {
+    if (!day) return '';
+    return day.substring(0, 3);
   };
 
   // Fetch event details when component mounts
@@ -257,7 +268,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
                 <Ionicons name="time-outline" size={20} color="rgb(168, 38, 29)" />
               </View>
               <Text style={styles.detailLabel}>Time:</Text>
-              <Text style={styles.detailValue}>{event.eventTime}</Text>
+              <Text style={styles.detailValue}>{abbreviateDayOfWeek(event.dayOfWeek)} {event.eventTime}</Text>
             </View>
           )}
           

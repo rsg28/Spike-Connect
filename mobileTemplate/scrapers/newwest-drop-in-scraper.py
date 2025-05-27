@@ -61,32 +61,43 @@ def scrape_volleyball_events():
         date_to_calendar_icon = date_to_input.find_element(By.XPATH, './following-sibling::span//span[contains(@class, "k-i-calendar")]')
         date_to_calendar_icon.click()
 
-        # Calculate a date two months from now
-        two_months_from_now = datetime.now() + timedelta(days=60)
-
-        # Calculate how many months ahead we need to go
-        current_month = datetime.now().month
-        target_month = two_months_from_now.month
-        months_ahead = target_month - current_month
-
         # Find the "Next" button in the calendar
         next_month_button = driver.find_element(By.CSS_SELECTOR, 'a[data-action="next"][role="button"]')
         
-        # Click the next button the appropriate number of times
-        for _ in range(months_ahead):
-            driver.execute_script("arguments[0].click();", next_month_button)
-            time.sleep(1)
-        
-        # Find and click on the date that's one month from today
+        # Click the next twice
+        driver.execute_script("arguments[0].click();", next_month_button)
+        driver.execute_script("arguments[0].click();", next_month_button)
+        time.sleep(1)  # Wait for calendar to update
+
+        # Get the current month from the calendar header
         try:
-            # Format the date string to match the website's format exactly (YYYY/M/D)
-            formatted_date = f"{two_months_from_now.year}/{two_months_from_now.month}/{two_months_from_now.day}"
+            month_header = driver.find_element(By.CSS_SELECTOR, 'a.k-nav-fast')
+            month_text = month_header.text  # e.g., "August 2025"
+            month_name, year = month_text.split()
             
-            # no need to wait for the date element to be present
+            # Convert month name to number (1-12)
+            month_num = datetime.strptime(month_name, "%B").month
+            
+            # Get the last day of the month
+            if month_num in [4, 6, 9, 11]:  # 30 days
+                last_day = 30
+            elif month_num == 2:  # February
+                last_day = 29 if int(year) % 4 == 0 else 28  # Simple leap year check
+            else:  # 31 days
+                last_day = 31
+                
+            # Format the date string to match the website's format (YYYY/M/D)
+            formatted_date = f"{year}/{month_num - 1}/{last_day}"
+            
+            # Find and click the last day
             date_element = driver.find_element(By.CSS_SELECTOR, f'a.k-link[data-value="{formatted_date}"]')
             date_element.click()
+            print(f"Successfully clicked last day of {month_name}: {formatted_date}")
+            time.sleep(1.5)
+            
         except Exception as e:
             print(f"Error selecting date: {e}")
+            raise
 
         # Now that the page is updated, parse the new HTML
         soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -158,6 +169,7 @@ def scrape_volleyball_events():
                     'title': title,
                     'eventID': eventID,
                     'location': location,
+                    'city': 'New Westminster',
                     'eventLink': eventLink,
                     'venueType': venueType,
                     'category': 'Drop-in',
