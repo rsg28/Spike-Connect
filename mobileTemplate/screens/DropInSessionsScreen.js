@@ -7,9 +7,17 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
+  LayoutAnimation, 
+  Platform, 
+  UIManager
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import BackendService from '../services/BackendService';
+
+if (Platform.OS === 'android') {
+    UIManager.setLayoutAnimationEnabledExperimental &&
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const DropInSessionsScreen = ({ navigation }) => {
   const [sessions, setSessions] = useState([]);
@@ -17,14 +25,17 @@ const DropInSessionsScreen = ({ navigation }) => {
   const [filters, setFilters] = useState({
     location: 'All',
     date: 'All',
-    fee: 'All',
+    status: 'All',
+    // fee: 'All',
   });
   const [error, setError] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Filter options
   const locationOptions = ['All', 'Burnaby', 'New Westminster'];
   const dateOptions = ['All', 'Today', 'This Week', 'This Month'];
-  const feeOptions = ['All', 'Free', 'Paid'];
+  const statusOptions = ['All', 'Open', 'Full'];
+  // const feeOptions = ['All', 'Free', 'Paid'];
 
   useEffect(() => {
     loadSessions();
@@ -40,6 +51,12 @@ const DropInSessionsScreen = ({ navigation }) => {
       if (filters.location !== 'All') {
         filteredSessions = filteredSessions.filter(session => 
           session.city.includes(filters.location)
+        );
+      }
+
+      if (filters.status !== 'All') {
+        filteredSessions = filteredSessions.filter(session => 
+          session.status.includes(filters.status)
         );
       }
 
@@ -71,15 +88,15 @@ const DropInSessionsScreen = ({ navigation }) => {
         });
       }
 
-      if (filters.fee !== 'All') {
-        filteredSessions = filteredSessions.filter(session => {
-          if (filters.fee === 'Free') {
-            return !session.fee || session.fee === '0';
-          } else {
-            return session.fee && session.fee !== '0';
-          }
-        });
-      }
+      // if (filters.fee !== 'All') {
+      //   filteredSessions = filteredSessions.filter(session => {
+      //     if (filters.fee === 'Free') {
+      //       return !session.fee || session.fee === '0';
+      //     } else {
+      //       return session.fee && session.fee !== '0';
+      //     }
+      //   });
+      // }
 
       setSessions(filteredSessions);
     } catch (error) {
@@ -101,6 +118,11 @@ const DropInSessionsScreen = ({ navigation }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleFilters = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowFilters(f => !f);
   };
 
   const renderFilterButton = (title, options, currentValue, onSelect) => (
@@ -140,7 +162,6 @@ const DropInSessionsScreen = ({ navigation }) => {
         
         // Format the date
         return date.toLocaleDateString('en-US', {
-          weekday: 'short',
           month: 'short',
           day: 'numeric',
           year: 'numeric'
@@ -174,9 +195,9 @@ const DropInSessionsScreen = ({ navigation }) => {
           </View>
           <View style={styles.detailRow}>
             <Ionicons name="time-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{item.eventTime}</Text>
+            <Text style={styles.detailText}>{item.dayOfWeek.slice(0, 3)} {item.eventTime}</Text>
           </View>
-          {item.fee && (
+          {/* {item.fee && (
             <View style={styles.detailRow}>
               <Ionicons name="cash-outline" size={16} color="#666" />
               <Text style={styles.detailText}>
@@ -185,7 +206,7 @@ const DropInSessionsScreen = ({ navigation }) => {
                  item.fee.includes('$') ? item.fee : `$${item.fee}`}
               </Text>
             </View>
-          )}
+          )} */}
         </View>
       </TouchableOpacity>
     );
@@ -202,22 +223,28 @@ const DropInSessionsScreen = ({ navigation }) => {
           <Ionicons name="arrow-back" size={24} color="rgb(168, 38, 29)" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Drop-in Sessions</Text>
-        <TouchableOpacity 
-          style={styles.refreshButton}
-          onPress={refreshData}
-        >
-          <Ionicons name="refresh" size={24} color="rgb(168, 38, 29)" />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={toggleFilters} style={styles.iconBtn}>
+            <Ionicons name="filter-outline" size={24} color="rgb(168, 38, 29)" />
+          </TouchableOpacity>
+          {/* <TouchableOpacity onPress={refreshData} style={styles.iconBtn}>
+            <Ionicons name="refresh" size={24} color="rgb(168, 38, 29)" />
+          </TouchableOpacity> */}
+        </View>
       </View>
 
-      <View style={styles.filtersContainer}>
-        {renderFilterButton('Location', locationOptions, filters.location, 
-          (location) => setFilters({ ...filters, location }))}
-        {renderFilterButton('Date', dateOptions, filters.date, 
-          (date) => setFilters({ ...filters, date }))}
-        {renderFilterButton('Fee', feeOptions, filters.fee, 
-          (fee) => setFilters({ ...filters, fee }))}
-      </View>
+      {showFilters && (
+        <View style={styles.filtersContainer}>
+          {renderFilterButton('Location', locationOptions, filters.location,
+            loc => setFilters({ ...filters, location: loc }))}
+          {renderFilterButton('Date', dateOptions, filters.date,
+            dt => setFilters({ ...filters, date: dt }))}
+          {/* {renderFilterButton('Fee', feeOptions, filters.fee,
+            fee => setFilters({ ...filters, fee: fee }))} */}
+          {renderFilterButton('Status', statusOptions, filters.status,
+            status => setFilters({ ...filters, status: status }))}
+        </View>
+      )}
 
       {isLoading ? (
         <View style={styles.loadingContainer}>

@@ -16,6 +16,7 @@ class BackendService {
       category: "Tournament",
       level: "Intermediate",
       location: "Sunset Beach, Main Court",
+      city: "Vancouver",
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
       dueDate: "Mar 20, 2025",
       eventDate: "Mar 20, 2025, 10:00 AM",
@@ -270,6 +271,7 @@ class BackendService {
         eventId: session.eventID,
         title: session.title,
         venueId: venueMap[session.location],
+        city: session.city,
         eventLink: session.eventLink,
         categoryId: categoryMap[session.category],
         levelId: levelMap[session.level],
@@ -414,6 +416,7 @@ class BackendService {
         id: item.eventID || item.id,
         title: item.title || "Untitled Event",
         location: item.location || "Location TBD",
+        city: item.city || "City TBD",
         venueType: item.venueType || "Indoor",
         eventLink: item.eventLink || "",
         category: item.category || "Drop-in",
@@ -437,7 +440,7 @@ class BackendService {
       this.db.transaction(tx => {
         tx.executeSql(
           `SELECT 
-            s.id, s.event_id as eventID, s.title, v.name as location, 
+            s.id, s.event_id as eventID, s.title, v.name as location, s.city,
             v.venue_type as venueType, s.event_link as eventLink,
             c.name as category, l.name as level, s.ages,
             s.openings, s.status, s.event_date as eventDate,
@@ -863,6 +866,7 @@ class BackendService {
         (item) =>
           (item.title && item.title.toLowerCase().includes(searchTerm)) ||
           (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+          (item.city && item.city.toLowerCase().includes(searchTerm)) ||
           (item.category && item.category.toLowerCase().includes(searchTerm)) ||
           (item.level && item.level.toLowerCase().includes(searchTerm)) ||
           (item.eventDate &&
