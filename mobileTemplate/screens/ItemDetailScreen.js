@@ -42,7 +42,6 @@ const ItemDetailScreen = ({ route, navigation }) => {
     return date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
-      year: 'numeric',
       timeZone: 'UTC'
     });
   };
@@ -64,11 +63,12 @@ const ItemDetailScreen = ({ route, navigation }) => {
           console.log("Loaded event:", fetchedEvent);
           setEvent(fetchedEvent);
           
-          // Only fetch related events if category and level are available
-          if (fetchedEvent.category && fetchedEvent.level) {
+          // Only fetch related events if level, venue type, and city are available
+          if (fetchedEvent.level && fetchedEvent.venueType && fetchedEvent.city) {
             const related = await BackendService.getRelatedItems(
-              fetchedEvent.category, 
               fetchedEvent.level, 
+              fetchedEvent.venueType, 
+              fetchedEvent.city,
               fetchedEvent.id
             );
             
@@ -172,67 +172,52 @@ const ItemDetailScreen = ({ route, navigation }) => {
 
         {/* Event details card */}
         <View style={styles.detailsCard}>
-          <Text style={styles.itemTitle}>{event.title}</Text>
-          
-          {/* Category and Level badges - Only show if available */}
-          <View style={styles.categoryContainer}>
-            {event.category && (
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryText}>{event.category}</Text>
-              </View>
-            )}
-            {event.level && (
-              <View style={styles.levelBadge}>
-                <Text style={styles.levelText}>{event.level}</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.itemTitle}>{event.title}</Text>
+            {event.status && (
+              <View style={[
+                styles.statusBadge, 
+                { 
+                  backgroundColor: event.status === 'Full' 
+                    ? 'rgba(168, 38, 29, 0.1)' 
+                    : event.status === 'In Progress' 
+                      ? 'rgba(255, 179, 0, 0.1)'
+                      : 'rgba(76, 175, 80, 0.1)'
+                }
+              ]}>
+                <Text style={[
+                  styles.statusText, 
+                  { 
+                    color: event.status === 'Full' 
+                      ? 'rgb(168, 38, 29)' 
+                      : event.status === 'In Progress' 
+                        ? '#FFB300'
+                        : '#4CAF50'
+                  }
+                ]}>{event.status}</Text>
               </View>
             )}
           </View>
+          {/* Only show location row if location is available */}
+          {event.location && (
+            <View style={styles.locationRow}>
+              <View style={styles.locationIconContainer}>
+                <Ionicons name="location-outline" size={20} />
+              </View>
+              <Text style={styles.locationText}>{event.location}</Text>
+            </View>
+          )}
           
-          {/* Status and Openings - Only show if available */}
-          {(event.status || event.openings) && (
-            <View style={styles.statusContainer}>
-              {event.status && (
-                <View style={[
-                  styles.statusBadge, 
-                  { 
-                    backgroundColor: event.status === 'Full' 
-                      ? 'rgba(244, 67, 54, 0.1)' 
-                      : event.status === 'In Progress' 
-                        ? 'rgba(255, 179, 0, 0.1)'
-                        : 'rgba(76, 175, 80, 0.1)'
-                  }
-                ]}>
-                  <View style={[
-                    styles.statusDot, 
-                    { 
-                      backgroundColor: event.status === 'Full' 
-                        ? '#F44336' 
-                        : event.status === 'In Progress' 
-                          ? '#FFB300'
-                          : '#4CAF50'
-                    }
-                  ]} />
-                  <Text style={[
-                    styles.statusText, 
-                    { 
-                      color: event.status === 'Full' 
-                        ? '#F44336' 
-                        : event.status === 'In Progress' 
-                          ? '#FFB300'
-                          : '#4CAF50'
-                    }
-                  ]}>{event.status}</Text>
-                </View>
-              )}
-              
-              {event.openings !== undefined && (
-                <View style={styles.participantsContainer}>
-                  <Ionicons name="people-outline" size={16} color="#666" />
-                  <Text style={styles.participantsText}>
-                    {event.openings} {parseInt(event.openings) === 1 ? 'spot' : 'spots'} available
-                  </Text>
-                </View>
-              )}
+          {/* Only show date and time if available */}
+          {(event.eventDate || event.eventTime) && (
+            <View style={styles.DateTimeContainer}>
+              <View style={styles.dateTimeIconContainer}>
+                <Ionicons name="calendar-outline" size={20} color="#666" />
+              </View>
+              <Text style={styles.DateTimeText}>
+                {event.eventDate && `${abbreviateDayOfWeek(event.dayOfWeek)}, ${formatEventDate(event.eventDate)}`}
+                {event.eventTime && ` • ${event.eventTime}`}
+              </Text>
             </View>
           )}
           
@@ -247,40 +232,16 @@ const ItemDetailScreen = ({ route, navigation }) => {
             </>
           )}
           
-          <Text style={styles.sectionTitle}>Event Details</Text>
-          
-          {/* Only show date row if date is available */}
-          {event.eventDate && (
+          {/* Show Openings info */}
+          {event.openings && event.openings !== undefined && (
             <View style={styles.detailRow}>
               <View style={styles.detailIconContainer}>
-                <Ionicons name="calendar-outline" size={20} color="rgb(168, 38, 29)" />
+                <Ionicons name="people-outline" size={20} color="rgb(168, 38, 29)" />
               </View>
-              <Text style={styles.detailLabel}>Date:</Text>
+              <Text style={styles.detailLabel}>Spots:</Text>
               <Text style={styles.detailValue}>
-                {formatEventDate(event.eventDate)}
+                {event.openings === "Full" ? 'Full' : event.openings === "Unspecified" ? 'Unspecified' : `${event.openings} ${parseInt(event.openings) === 1 ? 'spot available' : 'spots available'}`}
               </Text>
-            </View>
-          )}
-
-          {/* Only show time row if time is available */}
-          {event.eventTime && (
-            <View style={styles.detailRow}>
-              <View style={styles.detailIconContainer}>
-                <Ionicons name="time-outline" size={20} color="rgb(168, 38, 29)" />
-              </View>
-              <Text style={styles.detailLabel}>Time:</Text>
-              <Text style={styles.detailValue}>{abbreviateDayOfWeek(event.dayOfWeek)} {event.eventTime}</Text>
-            </View>
-          )}
-          
-          {/* Only show location row if location is available */}
-          {event.location && (
-            <View style={styles.detailRow}>
-              <View style={styles.detailIconContainer}>
-                <Ionicons name="location-outline" size={20} color="rgb(168, 38, 29)" />
-              </View>
-              <Text style={styles.detailLabel}>Location:</Text>
-              <Text style={styles.detailValue}>{event.location}</Text>
             </View>
           )}
           
@@ -364,24 +325,16 @@ const ItemDetailScreen = ({ route, navigation }) => {
                 style={styles.relatedItem}
                 onPress={() => navigation.navigate('ItemDetail', { itemId: relatedItem.id })}
               >
-                {relatedItem.imageUrl ? (
-                  <Image 
-                    source={relatedItem.imageUrl} 
-                    style={styles.relatedItemImage} 
-                  />
-                ) : (
-                  <View style={styles.relatedItemIcon}>
-                    <Ionicons name="volleyball-outline" size={24} color="rgb(168, 38, 29)" />
-                  </View>
-                )}
                 <View style={styles.relatedItemContent}>
                   <Text style={styles.relatedItemTitle}>{relatedItem.title}</Text>
                   <View style={styles.relatedItemDetails}>
-                    {relatedItem.level && (
-                      <Text style={styles.relatedItemLevel}>{relatedItem.level}</Text>
-                    )}
                     {relatedItem.location && (
-                      <Text style={styles.relatedItemLocation}>{relatedItem.location}</Text>
+                      <>
+                        <View style={styles.locationIconContainer}>
+                          <Ionicons name="location-outline" size={20} />
+                        </View>
+                        <Text style={styles.relatedItemLocation}>{relatedItem.location}</Text>
+                      </>
                     )}
                   </View>
                 </View>
@@ -408,7 +361,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 13,
     color: '#666',
   },
   scrollContent: {
@@ -432,8 +385,9 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   imageContainer: {
-    marginBottom: 16,
-    borderRadius: 12,
+    marginBottom: 0,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -462,9 +416,9 @@ const styles = StyleSheet.create({
   },
   detailsCard: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
     padding: 16,
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -474,39 +428,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   itemTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 12,
-  },
-  categoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  categoryBadge: {
-    backgroundColor: 'rgba(168, 38, 29, 0.1)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-    marginRight: 8,
-  },
-  categoryText: {
-    fontSize: 12,
-    color: 'rgb(168, 38, 29)',
-    fontWeight: '500',
-  },
-  levelBadge: {
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-  },
-  levelText: {
-    fontSize: 12,
-    color: '#2196F3',
-    fontWeight: '500',
   },
   statusContainer: {
     flexDirection: 'row',
@@ -520,23 +450,19 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 16,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 6,
-  },
+  }, 
   statusText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 13,
   },
-  participantsContainer: {
+  dateTimeIconContainer: {
+    marginRight: 4,
+  },
+  DateTimeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  participantsText: {
-    fontSize: 12,
+  DateTimeText: {
+    fontSize: 13,
     color: '#666',
     marginLeft: 4,
   },
@@ -546,7 +472,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -562,26 +488,39 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   detailIconContainer: {
-    marginRight: 8,
+    marginRight: 4,
     width: 24,
   },
   detailLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
     width: 100,
   },
   detailValue: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#333',
-    fontWeight: '500',
     flex: 1,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    marginVertical: 8,
+  },
+  locationIconContainer: {
+    marginRight: 8,
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    flex: 1,
+    color: '#333',
   },
   linkText: {
     color: 'rgb(168, 38, 29)',
     textDecorationLine: 'underline',
   },
   actionsContainer: {
-    marginBottom: 16,
+    marginTop: 10,
+    marginBottom: 20,
   },
   actionButton: {
     flex: 1,
@@ -618,7 +557,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   relatedTitle: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
     color: '#333',
     marginBottom: 12,
@@ -656,14 +595,15 @@ const styles = StyleSheet.create({
   },
   relatedItemDetails: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   relatedItemLevel: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#2196F3',
     marginRight: 8,
   },
   relatedItemLocation: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#666',
   }
 });

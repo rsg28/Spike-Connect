@@ -64,18 +64,23 @@ const SearchScreen = ({ navigation }) => {
       handleSearch(searchQuery);
     }
   };
-  
-  // Format relative date for display
-  const getRelativeTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return 'Past event';
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays < 7) return `In ${diffDays} days`;
-    return `In ${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`;
+  const formatDate = (dateString) => {
+    try {
+      // Parse YYYY-MM-DD format
+      const [year, month, day] = dateString.split('-').map(Number);
+      const date = new Date(year, month - 1, day); // month is 0-indexed in JS
+      
+      // Format the date
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString;
+    }
   };
 
   return (
@@ -139,9 +144,7 @@ const SearchScreen = ({ navigation }) => {
                 
                 <TouchableOpacity 
                   style={styles.quickFilterButton}
-                  onPress={() => navigation.navigate('Home', {
-                    screen: 'DropInSessions'
-                  })}
+                  onPress={() => navigation.navigate('DropInSessions')}
                 >
                   <View style={styles.quickFilterIcon}>
                     <Ionicons name="school-outline" size={24} color="rgb(168, 38, 29)" />
@@ -192,40 +195,48 @@ const SearchScreen = ({ navigation }) => {
             <FlatList
               data={results}
               keyExtractor={item => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity 
-                  style={styles.resultItem}
-                  onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
-                >
-                  <View style={styles.resultIconContainer}>
-                    <View style={styles.resultIcon}>
-                      <Ionicons name="volleyball-outline" size={24} color="rgb(168, 38, 29)" />
+              renderItem={({ item }) => {
+                const isOpen = item.status === 'Open';
+                return (
+                  <TouchableOpacity 
+                    style={styles.resultItem}
+                    onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+                  >
+                    <View style={styles.sessionContent}>
+                      <View style={styles.sessionHeader}>
+                        <Text style={styles.sessionTitle}>{item.title}</Text>
+                        <View style={[
+                          styles.sessionBadge,
+                          { backgroundColor: isOpen ? 'rgba(76, 175, 80, 0.1)' : 'rgba(168, 38, 29, 0.1)' }
+                        ]}>
+                          <Text style={[
+                            styles.sessionBadgeText,
+                            { color: isOpen ? 'rgb(76, 175, 80)' : 'rgb(168, 38, 29)' }
+                          ]}>{item.status}</Text>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.sessionDetails}>
+                        <View style={styles.detailRow}>
+                          <Ionicons name="location-outline" size={16} color="#666" />
+                          <Text style={styles.detailText}>{item.location}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                          <Ionicons name="calendar-outline" size={16} color="#666" />
+                          <Text style={styles.detailText}>{item.dayOfWeek.slice(0, 3)} - {formatDate(item.eventDate)}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                          <Ionicons name="time-outline" size={16} color="#666" />
+                          <Text style={styles.detailText}>{item.eventTime}</Text>
+                        </View>
+                      </View>
                     </View>
-                  </View>
-                  <View style={styles.resultContent}>
-                    <Text style={styles.resultTitle}>{item.title}</Text>
-                    <View style={styles.resultDetailRow}>
-                      <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryBadgeText}>{item.category}</Text>
-                      </View>
-                      <View style={styles.levelBadge}>
-                        <Text style={styles.levelBadgeText}>{item.level}</Text>
-                      </View>
+                    <View style={styles.chevronContainer}>
+                      <Ionicons name="chevron-forward" size={20} color="#999" />
                     </View>
-                    <View style={styles.resultMetaRow}>
-                      <View style={styles.resultMetaItem}>
-                        <Ionicons name="location-outline" size={14} color="#666" />
-                        <Text style={styles.resultMetaText}>{item.location}</Text>
-                      </View>
-                      <View style={styles.resultMetaItem}>
-                        <Ionicons name="calendar-outline" size={14} color="#666" />
-                        <Text style={styles.resultMetaText}>{getRelativeTime(item.dueDate)}</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="#999" />
-                </TouchableOpacity>
-              )}
+                  </TouchableOpacity>
+                );
+              }}
               ListEmptyComponent={
                 <View style={styles.noResultsContainer}>
                   <Ionicons name="search-outline" size={50} color="#ccc" />
@@ -246,6 +257,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
+  },
+  chevronContainer: {
+    position: 'absolute',
+    right: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 1,
   },
   headerSection: {
     backgroundColor: '#fff',
@@ -335,6 +353,39 @@ const styles = StyleSheet.create({
     color: '#333',
     marginLeft: 12,
   },
+  sessionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sessionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+  },
+  sessionBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  sessionBadgeText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  sessionDetails: {
+    gap: 8,
+  },
+  sessionBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  sessionBadgeText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
   quickFiltersSection: {
     marginTop: 24,
   },
@@ -414,7 +465,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  resultContent: {
+  sessionContent: {
     flex: 1,
   },
   resultTitle: {
@@ -439,29 +490,17 @@ const styles = StyleSheet.create({
     color: 'rgb(168, 38, 29)',
     fontWeight: '500',
   },
-  levelBadge: {
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+  sessionDetails: {
+    gap: 8,
   },
-  levelBadgeText: {
-    fontSize: 12,
-    color: '#2196F3',
-    fontWeight: '500',
-  },
-  resultMetaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  resultMetaItem: {
+  detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
-  resultMetaText: {
-    fontSize: 12,
+  detailText: {
+    fontSize: 14,
     color: '#666',
-    marginLeft: 4,
   },
   noResultsContainer: {
     alignItems: 'center',

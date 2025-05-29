@@ -30,12 +30,12 @@ const DropInSessionsScreen = ({ navigation }) => {
   });
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [expandedFilters, setExpandedFilters] = useState(new Set());
 
   // Filter options
   const locationOptions = ['All', 'Burnaby', 'New Westminster'];
   const dateOptions = ['All', 'Today', 'This Week', 'This Month'];
   const statusOptions = ['All', 'Open', 'Full'];
-  // const feeOptions = ['All', 'Free', 'Paid'];
 
   useEffect(() => {
     loadSessions();
@@ -125,30 +125,64 @@ const DropInSessionsScreen = ({ navigation }) => {
     setShowFilters(f => !f);
   };
 
-  const renderFilterButton = (title, options, currentValue, onSelect) => (
+  const resetFilters = () => {
+    setFilters({
+      location: 'All',
+      date: 'All',
+      status: 'All',
+      // fee: 'All',
+    });
+  };
+
+  const toggleFilter = (filterType) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedFilters(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(filterType)) {
+        newSet.delete(filterType);
+      } else {
+        newSet.add(filterType);
+      }
+      return newSet;
+    });
+  };
+
+  const renderFilterButton = (title, options, currentValue, onSelect, filterType) => (
     <View style={styles.filterSection}>
-      <Text style={styles.filterTitle}>{title}</Text>
-      <View style={styles.filterOptions}>
-        {options.map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.filterChip,
-              currentValue === option && styles.selectedFilterChip,
-            ]}
-            onPress={() => onSelect(option)}
-          >
-            <Text
+      <TouchableOpacity 
+        style={styles.filterHeader}
+        onPress={() => toggleFilter(filterType)}
+      >
+        <Text style={styles.filterTitle}>{title}</Text>
+        <Ionicons 
+          name={expandedFilters.has(filterType) ? "chevron-up" : "chevron-down"} 
+          size={20} 
+          color="#666" 
+        />
+      </TouchableOpacity>
+      {expandedFilters.has(filterType) && (
+        <View style={styles.filterOptions}>
+          {options.map((option) => (
+            <TouchableOpacity
+              key={option}
               style={[
-                styles.filterChipText,
-                currentValue === option && styles.selectedFilterChipText,
+                styles.filterChip,
+                currentValue === option && styles.selectedFilterChip,
               ]}
+              onPress={() => onSelect(option)}
             >
-              {option}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.filterChipText,
+                  currentValue === option && styles.selectedFilterChipText,
+                ]}
+              >
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 
@@ -172,41 +206,44 @@ const DropInSessionsScreen = ({ navigation }) => {
       }
     };
 
+    const isOpen = item.status === 'Open';
+
     return (
       <TouchableOpacity 
         onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
         style={styles.sessionCard}
       >
-        <View style={styles.sessionHeader}>
-          <Text style={styles.sessionTitle}>{item.title}</Text>
-          <View style={styles.sessionBadge}>
-            <Text style={styles.sessionBadgeText}>{item.status}</Text>
+        <View style={styles.sessionContent}>
+          <View style={styles.sessionHeader}>
+            <Text style={styles.sessionTitle}>{item.title}</Text>
+            <View style={[
+              styles.sessionBadge,
+              { backgroundColor: isOpen ? 'rgba(76, 175, 80, 0.1)' : 'rgba(168, 38, 29, 0.1)' }
+            ]}>
+              <Text style={[
+                styles.sessionBadgeText,
+                { color: isOpen ? 'rgb(76, 175, 80)' : 'rgb(168, 38, 29)' }
+              ]}>{item.status}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.sessionDetails}>
+            <View style={styles.detailRow}>
+              <Ionicons name="location-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>{item.location}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Ionicons name="calendar-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>{item.dayOfWeek.slice(0, 3)} - {formatDate(item.eventDate)}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Ionicons name="time-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>{item.eventTime}</Text>
+            </View>
           </View>
         </View>
-        
-        <View style={styles.sessionDetails}>
-          <View style={styles.detailRow}>
-            <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{item.location}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{formatDate(item.eventDate)}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Ionicons name="time-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{item.dayOfWeek.slice(0, 3)} {item.eventTime}</Text>
-          </View>
-          {/* {item.fee && (
-            <View style={styles.detailRow}>
-              <Ionicons name="cash-outline" size={16} color="#666" />
-              <Text style={styles.detailText}>
-                {item.fee === '0' ? 'Free' : 
-                 item.fee.toLowerCase().includes('pay') ? item.fee :
-                 item.fee.includes('$') ? item.fee : `$${item.fee}`}
-              </Text>
-            </View>
-          )} */}
+        <View style={styles.chevronContainer}>
+          <Ionicons name="chevron-forward" size={20} color="#999" />
         </View>
       </TouchableOpacity>
     );
@@ -227,22 +264,22 @@ const DropInSessionsScreen = ({ navigation }) => {
           <TouchableOpacity onPress={toggleFilters} style={styles.iconBtn}>
             <Ionicons name="filter-outline" size={24} color="rgb(168, 38, 29)" />
           </TouchableOpacity>
-          {/* <TouchableOpacity onPress={refreshData} style={styles.iconBtn}>
-            <Ionicons name="refresh" size={24} color="rgb(168, 38, 29)" />
-          </TouchableOpacity> */}
         </View>
       </View>
 
       {showFilters && (
         <View style={styles.filtersContainer}>
           {renderFilterButton('Location', locationOptions, filters.location,
-            loc => setFilters({ ...filters, location: loc }))}
+            loc => setFilters({ ...filters, location: loc }), 'location')}
           {renderFilterButton('Date', dateOptions, filters.date,
-            dt => setFilters({ ...filters, date: dt }))}
-          {/* {renderFilterButton('Fee', feeOptions, filters.fee,
-            fee => setFilters({ ...filters, fee: fee }))} */}
+            dt => setFilters({ ...filters, date: dt }), 'date')}
           {renderFilterButton('Status', statusOptions, filters.status,
-            status => setFilters({ ...filters, status: status }))}
+            status => setFilters({ ...filters, status: status }), 'status')}
+          <TouchableOpacity 
+            onPress={resetFilters}
+          >
+            <Text style={styles.clearFiltersText}>Clear All</Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -281,12 +318,17 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   filterSection: {
-    marginBottom: 16,
+    marginBottom: 8,
+  },
+  filterHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 8,
   },
   filterTitle: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
     color: '#333',
   },
   filterOptions: {
@@ -331,6 +373,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  sessionContent: {
+    flex: 1,
+  },
   sessionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -344,13 +389,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sessionBadge: {
-    backgroundColor: 'rgba(168, 38, 29, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   sessionBadgeText: {
-    color: 'rgb(168, 38, 29)',
     fontSize: 12,
     fontWeight: '500',
   },
@@ -408,6 +451,21 @@ const styles = StyleSheet.create({
   },
   refreshButton: {
     padding: 8,
+  },
+  clearFiltersText: {
+    color: 'rgb(168, 38, 29)',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+  iconBtn: {
+    padding: 8,
+  },
+  chevronContainer: {
+    position: 'absolute',
+    right: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 1,
   },
 });
 

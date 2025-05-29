@@ -69,8 +69,6 @@ def get_status_from_openings(openings):
     openings = openings.lower()
     if openings == "0" or "full" in openings:
         return "Full"
-    elif "register soon" in openings:
-        return "Register Soon"
     else:
         return "Open"
     

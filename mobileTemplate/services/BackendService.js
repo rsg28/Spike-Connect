@@ -35,27 +35,14 @@ class BackendService {
     try {
       console.log("Initializing backend service...");
 
-      // IMPORTANT: Force clear AsyncStorage data to use JSON file data instead
+      // Always start with AsyncStorage for mobile compatibility
       try {
-        await AsyncStorage.removeItem("volleyballEvents");
-        console.log("Cleared existing AsyncStorage data to use JSON file data");
-      } catch (asyncError) {
-        console.warn("Error clearing AsyncStorage:", asyncError);
-      }
-
-      // Try to use SQLite
-      try {
-        this.db = SQLite.openDatabase("volleyball.db");
-        console.log("SQLite opened successfully");
-        await this.initializeWithSQLite(forceReset);
+        await this.initializeWithAsyncStorage(true);
+        console.log("Successfully initialized with AsyncStorage");
         return;
-      } catch (sqliteError) {
-        console.warn(
-          "SQLite initialization failed, falling back to AsyncStorage:",
-          sqliteError
-        );
-        // SQLite failed, use AsyncStorage as fallback
-        await this.initializeWithAsyncStorage(true); // Force reset to true
+      } catch (asyncError) {
+        console.error("Error initializing AsyncStorage:", asyncError);
+        throw asyncError;
       }
     } catch (error) {
       console.error("Error initializing backend:", error);
@@ -63,44 +50,23 @@ class BackendService {
     }
   }
 
-  // Initialize with SQLite database
-  static async initializeWithSQLite(forceReset) {
-    console.log("Initializing with SQLite...");
-    try {
-      // Create tables
-      await this.createTables();
-
-      // Check if data exists
-      const count = await this.getSessionCount();
-      console.log(`Found ${count} existing sessions in database`);
-
-      if (count === 0 || forceReset) {
-        console.log("Importing volleyball sessions data...");
-        if (forceReset) {
-          await this.clearTables();
-        }
-        await this.importVolleyballSessions();
-      }
-
-      console.log("SQLite initialization complete!");
-      this.useAsyncStorage = false;
-    } catch (error) {
-      console.error("Error initializing SQLite:", error);
-      throw error;
-    }
-  }
-
-  // Initialize with AsyncStorage as fallback
-  // Also modify this method to always import from JSON file, not from AsyncStorage
+  // Initialize with AsyncStorage
   static async initializeWithAsyncStorage(forceReset) {
     console.log("Initializing with AsyncStorage...");
     try {
-      // Always reset the data from the JSON file
-      await AsyncStorage.setItem(
-        "volleyballEvents",
-        JSON.stringify(volleyballSessions)
-      );
-      console.log("Imported volleyball data to AsyncStorage from JSON file");
+      // Check if we already have data
+      const existingData = await AsyncStorage.getItem("volleyballEvents");
+      
+      if (!existingData || forceReset) {
+        // Import from JSON file
+        await AsyncStorage.setItem(
+          "volleyballEvents",
+          JSON.stringify(volleyballSessions)
+        );
+        console.log("Imported volleyball data to AsyncStorage from JSON file");
+      } else {
+        console.log("Using existing AsyncStorage data");
+      }
 
       this.useAsyncStorage = true;
     } catch (error) {
@@ -685,8 +651,8 @@ class BackendService {
     }
   }
 
-  // Get related events (same category, level)
-  static async getRelatedItems(category, level, currentItemId) {
+  // Get related events (same level, venue type, city)
+  static async getRelatedItems(level, venueType, city, currentItemId) {
     try {
       const allItems = await this.getAllItems();
 
@@ -694,7 +660,7 @@ class BackendService {
       return allItems
         .filter(
           (item) =>
-            (item.category === category || item.level === level) &&
+            (item.level === level && item.venueType === venueType && item.city === city) &&
             item.id.toString() !== currentItemId.toString()
         )
         .slice(0, 3); // Return at most 3 related events
@@ -871,7 +837,8 @@ class BackendService {
           (item.level && item.level.toLowerCase().includes(searchTerm)) ||
           (item.eventDate &&
             item.eventDate.toLowerCase().includes(searchTerm)) ||
-          (item.ages && item.ages.toLowerCase().includes(searchTerm))
+          (item.ages && item.ages.toLowerCase().includes(searchTerm)) ||
+          (item.dayOfWeek && item.dayOfWeek.toLowerCase().includes(searchTerm))
       );
     } catch (error) {
       console.error("Error searching events:", error);

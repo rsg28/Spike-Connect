@@ -48,8 +48,8 @@ def scrape_volleyball_events():
         # List to store found events
         events = []
 
-        # Find all anchor tags with aria-label containing "Reserve In Advance: Volleyball"
-        for a_tag in soup.find_all('a', {'aria-label': lambda x: x and x.startswith('Reserve In Advance: Volleyball')}):
+        # Find all anchor tags with aria-label containing "Reserve In Advance:"
+        for a_tag in soup.find_all('a', {'aria-label': lambda x: x and x.startswith('Reserve In Advance:')}):
             # get the event title
             title = a_tag.get('aria-label').replace('Reserve In Advance: ', '').strip()
 
@@ -76,8 +76,11 @@ def scrape_volleyball_events():
 
             ages_span = props_div.find('span', class_='activity-card-info__ages')
             ages = ages_span.get_text() if ages_span else 'No age group'
-            ages = ages[:-1]
-            ages = ages.replace("yrs", "").replace(" ", "")  # Remove "yrs" and any remaining spaces
+            if "Age at least 13 yrs but less than 19 yrs" in ages:
+                ages = "13yrs - 19yrs"
+            else:
+                ages = ages[:-1]
+                ages = ages.replace("yrs", "").replace(" ", "")  # Remove "yrs" and any remaining spaces
 
             openings_span = props_div.find('span', class_='activity-card-info__openings').find('span')
             openings = openings_span.get_text() if openings_span else 'Full'
@@ -105,7 +108,7 @@ def scrape_volleyball_events():
                 time_range_span = datetime_div.find('span', class_='activity-card-info__timeRange')
                 raw_time = time_range_span.get_text().strip() if time_range_span else 'No time range'
                 # Remove the day prefix (e.g., "Sat ") and keep only the time range
-                eventTime = ' '.join(raw_time.split()[1:]) if raw_time != 'No time range' else raw_time
+                eventTime = ' '.join(raw_time.split()[1:]).upper() if raw_time != 'No time range' else raw_time.upper()
 
             if eventLink:
               events.append({

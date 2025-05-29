@@ -151,7 +151,7 @@ def scrape_volleyball_events():
             if openings_span:
                 openings = openings_span.get_text().split()[0]
             else:
-                openings = "Register Soon"
+                openings = "Unspecified"
 
             ages, fee, eventDate, eventTime = get_details_and_return(eventLink)
 
@@ -220,7 +220,7 @@ def get_details_and_return(eventLink):
         eventDate = utils.standardize_date(formatted_date)
 
         time_span = driver.find_element(By.XPATH, "//span[contains(@aria-label, 'Event time')]")
-        eventTime = time_span.text
+        eventTime = time_span.text.upper()
 
         # Close the details tab
         driver.close()

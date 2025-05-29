@@ -61,6 +61,17 @@ function ProfileStack() {
   );
 }
 
+function SearchStack() {
+  const SearchStack = createStackNavigator();
+  return (
+    <SearchStack.Navigator screenOptions={{ headerShown: false }}>
+      <SearchStack.Screen name="SearchScreen" component={SearchScreen} />
+      <SearchStack.Screen name="ItemDetail" component={ItemDetailScreen} />
+      <SearchStack.Screen name="DropInSessions" component={DropInSessionsScreen} />
+    </SearchStack.Navigator>
+  );
+}
+
 function MainTabNavigator() {
   return (
     <Tab.Navigator
@@ -92,7 +103,7 @@ function MainTabNavigator() {
     >
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Profile" component={ProfileStack} />
-      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Search" component={SearchStack} />
     </Tab.Navigator>
   );
 }
@@ -175,23 +186,9 @@ export default function App() {
                 headerShown: false,
               }}
             />
-            <Stack.Screen
-              name="DropInSessions"
-              component={DropInSessionsScreen}
-              options={{
-                headerShown: true,
-                title: 'Drop-in Sessions',
-                headerStyle: {
-                  backgroundColor: THEME.PRIMARY,
-                },
-                headerTintColor: THEME.SECONDARY,
-              }}
-            />
           </>
         )}
       </Stack.Navigator>
-      
-      
     </NavigationContainer>
   );
 }
